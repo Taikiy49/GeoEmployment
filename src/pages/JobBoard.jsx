@@ -199,10 +199,14 @@ export default function JobBoard() {
         )}
 
         {/* Admin link */}
-        <div className="mt-14 pt-8 border-t border-gray-100 text-center">
-          <Link to="/admin" className="inline-flex items-center gap-1.5 text-xs text-gray-300 hover:text-bronze transition-colors">
-            <Shield className="w-3.5 h-3.5" /> HR Admin Portal
-          </Link>
+        <div className="mt-14 pt-8 border-t border-gray-100 text-center space-y-2">
+          <button
+            onClick={() => window.open('https://login.microsoftonline.com', '_blank')}
+            className="inline-flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 transition-colors font-medium"
+          >
+            <Shield className="w-3.5 h-3.5" /> Sign in with Microsoft
+          </button>
+          <div className="text-[11px] text-gray-400">For HR Admin Portal access</div>
         </div>
       </main>
 
