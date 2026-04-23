@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Filter, Copy, Archive, Eye, Pencil, ChevronRight } from 'lucide-react';
+import { Plus, Search, Copy, Archive, Eye, Pencil, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '../../components/admin/AdminLayout';
@@ -200,13 +200,5 @@ export default function JobsList() {
         </div>
       </div>
     </AdminLayout>
-  );
-}
-
-function Briefcase({ className }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-    </svg>
   );
 }

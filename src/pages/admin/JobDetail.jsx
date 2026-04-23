@@ -68,6 +68,11 @@ export default function JobDetail() {
                 <Pencil className="w-3 h-3 mr-1" /> Edit
               </Button>
             </Link>
+            {req.status === 'draft' && (
+              <Button size="sm" onClick={() => handleStatusChange('pending_approval')} className="rounded-full h-8 px-4 text-xs bg-amber-500 hover:bg-amber-600 text-white">
+                Submit for Approval
+              </Button>
+            )}
             {req.status === 'pending_approval' && (
               <Button size="sm" onClick={() => handleStatusChange('approved')} className="rounded-full h-8 px-4 text-xs bg-blue-600 hover:bg-blue-700 text-white">
                 Approve
@@ -106,10 +111,10 @@ export default function JobDetail() {
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
             {Object.entries(stageGroups).map(([stage, count]) => (
-              <div key={stage} className="text-center">
+              <Link key={stage} to={`/admin/applications?requisitionId=${id}&stage=${stage}`} className="text-center hover:bg-bronze-soft rounded-lg p-1 transition-colors">
                 <div className="text-xl font-bold text-navy">{count}</div>
                 <div className="text-[9px] text-[#6b7280] mt-0.5 capitalize">{stage.replace('_', ' ')}</div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

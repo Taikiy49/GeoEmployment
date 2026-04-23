@@ -1,33 +1,17 @@
 import React, { useState } from 'react';
-import { CheckCircle2, AlertCircle, Send } from 'lucide-react';
+import { AlertCircle, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import FormSection from '../app/FormSection';
 import NavigationButtons from '../app/NavigationButtons';
 
 export default function ReviewStep({ formData, onBack, onSubmit }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     await onSubmit();
     setIsSubmitting(false);
-    setSubmitted(true);
   };
-
-  if (submitted) {
-    return (
-      <div className="text-center py-12">
-        <div className="w-16 h-16 rounded-full bg-success-soft flex items-center justify-center mx-auto mb-5">
-          <CheckCircle2 className="w-8 h-8 text-success" />
-        </div>
-        <h2 className="text-xl font-bold text-[#111827] mb-2">Application Submitted</h2>
-        <p className="text-sm text-[#6b7280] max-w-md mx-auto leading-relaxed">
-          Thank you for applying to Geolabs, Inc. Your application has been submitted successfully. You will receive a confirmation email shortly.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div>

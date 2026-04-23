@@ -126,7 +126,7 @@ export default function ApplicationDetail() {
             {/* Personal info */}
             <DataSection title="Contact Information">
               <div className="grid grid-cols-2 gap-3">
-                <DataRow label="Name" value={`${app.firstName} ${app.middleName || ''} ${app.lastName}`} />
+                <DataRow label="Name" value={`${app.firstName} ${app.lastName}`} />
                 <DataRow label="Email" value={app.email} />
                 <DataRow label="Phone" value={formData.phone || app.phone || '—'} />
                 <DataRow label="Cell" value={formData.cell || '—'} />
@@ -177,11 +177,31 @@ export default function ApplicationDetail() {
             )}
 
             {/* Skills */}
-            {(formData.skillsSummary || formData.certifications) && (
+            {(formData.skillsSummary || formData.certifications || formData.computerSkills || formData.fieldExperience) && (
               <DataSection title="Skills & Certifications">
                 {formData.skillsSummary && <DataRow label="Skills" value={formData.skillsSummary} />}
                 {formData.certifications && <DataRow label="Certifications" value={formData.certifications} className="mt-2" />}
-                {formData.computerSkills && <DataRow label="Software" value={formData.computerSkills} className="mt-2" />}
+                {formData.computerSkills && <DataRow label="Software / Computer Skills" value={formData.computerSkills} className="mt-2" />}
+                {formData.fieldExperience && <DataRow label="Field Experience" value={formData.fieldExperience} className="mt-2" />}
+              </DataSection>
+            )}
+
+            {/* References */}
+            {formData.references?.some(r => r.name) && (
+              <DataSection title="References">
+                <div className="space-y-4">
+                  {formData.references.filter(r => r.name).map((r, i) => (
+                    <div key={i} className="border-l-2 border-bronze-soft pl-4">
+                      <div className="font-medium text-sm text-navy">{r.name}</div>
+                      {r.organization && <div className="text-xs text-[#374151]">{r.organization}</div>}
+                      <div className="flex flex-wrap gap-3 mt-1">
+                        {r.phone && <span className="text-[10px] text-[#9ca3af]">📞 {r.phone}</span>}
+                        {r.email && <span className="text-[10px] text-[#9ca3af]">✉ {r.email}</span>}
+                        {r.relationship && <span className="text-[10px] text-[#9ca3af]">{r.relationship}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </DataSection>
             )}
 

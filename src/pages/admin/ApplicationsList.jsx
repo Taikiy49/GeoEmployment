@@ -19,7 +19,9 @@ export default function ApplicationsList() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const reqId = urlParams.get('requisitionId');
+    const stageParam = urlParams.get('stage');
     if (reqId) setJobFilter(reqId);
+    if (stageParam) setStageFilter(stageParam);
 
     Promise.all([
       base44.entities.Application.filter({ status: 'active' }, '-created_date', 500),
