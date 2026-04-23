@@ -20,6 +20,7 @@ import JobDetail from './pages/admin/JobDetail';
 import ApplicationsList from './pages/admin/ApplicationsList';
 import ApplicationDetail from './pages/admin/ApplicationDetail';
 import AdminSettings from './pages/admin/AdminSettings';
+import EmailTemplates from './pages/admin/EmailTemplates';
 
 const BILLING_EMAIL = 'taikiy49@gmail.com';
 
@@ -76,6 +77,7 @@ const AuthenticatedApp = () => {
       <Route path="/admin/applications" element={<AdminRoute><ApplicationsList /></AdminRoute>} />
       <Route path="/admin/applications/:id" element={<AdminRoute><ApplicationDetail /></AdminRoute>} />
       <Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
+      <Route path="/admin/email-templates" element={<AdminRoute><EmailTemplates /></AdminRoute>} />
       <Route path="/admin/billing" element={<AdminRoute><BillingRoute /></AdminRoute>} />
 
       <Route path="*" element={<PageNotFound />} />

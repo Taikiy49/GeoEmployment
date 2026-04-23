@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Users, Settings,
-  Menu, Shield, ChevronRight, LogOut, CreditCard
+  Menu, Shield, ChevronRight, LogOut, CreditCard, Mail
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
@@ -12,6 +12,7 @@ const BASE_NAV = [
   { label: 'Dashboard', icon: LayoutDashboard, to: '/admin' },
   { label: 'Job Requisitions', icon: Briefcase, to: '/admin/jobs' },
   { label: 'Applications', icon: Users, to: '/admin/applications' },
+  { label: 'Email Templates', icon: Mail, to: '/admin/email-templates' },
   { label: 'Settings', icon: Settings, to: '/admin/settings' },
 ];
 

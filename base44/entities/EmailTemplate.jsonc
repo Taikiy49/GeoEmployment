@@ -1,0 +1,51 @@
+{
+  "name": "EmailTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Template name (e.g., 'Interview Invitation', 'Rejection')"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "interview_invitation",
+        "rejection",
+        "offer",
+        "general"
+      ],
+      "description": "Template category"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Email subject line"
+    },
+    "body": {
+      "type": "string",
+      "description": "Email body content (supports {{firstName}}, {{lastName}}, {{position}}, etc.)"
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of available variables for this template",
+      "default": []
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this template is available for use"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Internal notes about the template"
+    }
+  },
+  "required": [
+    "name",
+    "type",
+    "subject",
+    "body"
+  ]
+}
