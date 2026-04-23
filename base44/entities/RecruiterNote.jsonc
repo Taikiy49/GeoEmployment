@@ -1,0 +1,36 @@
+{
+  "name": "RecruiterNote",
+  "type": "object",
+  "properties": {
+    "applicationId": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "authorEmail": {
+      "type": "string"
+    },
+    "authorName": {
+      "type": "string"
+    },
+    "isPrivate": {
+      "type": "boolean",
+      "default": false
+    },
+    "noteType": {
+      "type": "string",
+      "enum": [
+        "general",
+        "interview_feedback",
+        "stage_change",
+        "system"
+      ],
+      "default": "general"
+    }
+  },
+  "required": [
+    "applicationId",
+    "note"
+  ]
+}

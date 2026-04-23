@@ -1,12 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useParams, Link } from 'react-router-dom';
+import { CheckCircle2, ExternalLink } from 'lucide-react';
 import Header from '../components/app/Header';
 import AppFooter from '../components/app/AppFooter';
 import Stepper from '../components/app/Stepper';
 import StepShell from '../components/app/StepShell';
 import { INITIAL_FORM_DATA } from '../lib/initialFormData';
 
-// Step imports
 import StartStep from '../components/steps/StartStep';
 import ResumeStep from '../components/steps/ResumeStep';
 import ApplicationInfoStep from '../components/steps/ApplicationInfoStep';
@@ -25,10 +26,29 @@ import AlcoholDrugStep from '../components/steps/AlcoholDrugStep';
 import ReviewStep from '../components/steps/ReviewStep';
 
 export default function Application() {
+  const { requisitionId } = useParams();
+  const [requisition, setRequisition] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
   const [direction, setDirection] = useState(1);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+  const [submitted, setSubmitted] = useState(false);
+  const [submittedId, setSubmittedId] = useState(null);
+
+  useEffect(() => {
+    if (requisitionId) {
+      base44.entities.JobRequisition.filter({ id: requisitionId }).then(([req]) => {
+        if (req) {
+          setRequisition(req);
+          setFormData(prev => ({
+            ...prev,
+            positionAppliedFor: req.title,
+            preferredLocation: req.office || '',
+          }));
+        }
+      });
+    }
+  }, [requisitionId]);
 
   const goToStep = useCallback((step) => {
     setDirection(step > currentStep ? 1 : -1);
@@ -46,32 +66,63 @@ export default function Application() {
   }, [currentStep, goToStep]);
 
   const handleSubmit = async () => {
+    const now = new Date().toISOString();
     setCompletedSteps(prev => prev.includes(currentStep) ? prev : [...prev, currentStep]);
-    await base44.entities.Application.create({
-      status: 'submitted',
+
+    // Separate EEO data from main form
+    const eeoData = {
+      gender: formData.eeoGender,
+      race: formData.eeoRace,
+      disabilityStatus: formData.disabilityStatus,
+      veteranStatus: formData.veteranStatus,
+    };
+
+    // Strip EEO from applicationData for recruiter-facing record
+    const { eeoGender, eeoRace, disabilityStatus, veteranStatus, ...appDataClean } = formData;
+
+    const record = await base44.entities.Application.create({
+      requisitionId: requisitionId || null,
+      requisitionTitle: requisition?.title || formData.positionAppliedFor || '',
+      stage: 'applied',
+      status: 'active',
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
       phone: formData.phone || formData.cell,
       positionAppliedFor: formData.positionAppliedFor,
       preferredLocation: formData.preferredLocation,
-      applicationData: formData,
+      applicationData: appDataClean,
       resumeFileUrl: formData.resumeFileUrl,
+      submittedAt: now,
+      isDraft: false,
+      eeoData,
+      stageHistory: [{
+        stage: 'applied',
+        changedAt: now,
+        changedBy: 'applicant',
+        note: 'Application submitted',
+      }],
+      auditTrail: [{
+        action: 'Application submitted',
+        performedBy: formData.email,
+        performedAt: now,
+        details: 'Initial submission via applicant portal',
+      }],
+      source: 'applicant_portal',
     });
+
+    setSubmittedId(record.id);
+    setSubmitted(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const stepProps = {
-    formData,
-    setFormData,
-    onNext: goNext,
-    onBack: goBack,
-  };
+  const stepProps = { formData, setFormData, onNext: goNext, onBack: goBack };
 
   const renderStep = () => {
     switch (currentStep) {
-      case 0: return <StartStep onNext={goNext} />;
+      case 0: return <StartStep onNext={goNext} requisition={requisition} />;
       case 1: return <ResumeStep {...stepProps} />;
-      case 2: return <ApplicationInfoStep {...stepProps} />;
+      case 2: return <ApplicationInfoStep {...stepProps} requisition={requisition} />;
       case 3: return <GeneralInfoStep {...stepProps} />;
       case 4: return <EmploymentStep {...stepProps} />;
       case 5: return <EducationStep {...stepProps} />;
@@ -89,41 +140,59 @@ export default function Application() {
     }
   };
 
-  return (
-    <div
-      className="min-h-screen"
-      style={{
-        background: `
-          radial-gradient(ellipse at 15% 10%, rgba(184, 115, 51, 0.08) 0%, transparent 55%),
-          radial-gradient(ellipse at 85% 15%, rgba(253, 247, 241, 0.6) 0%, transparent 50%),
-          radial-gradient(ellipse at 50% 80%, rgba(246, 236, 226, 0.3) 0%, transparent 60%),
-          #fbf7ea
-        `,
-      }}
-    >
-      <Header />
+  if (submitted) {
+    return (
+      <div className="min-h-screen" style={{ background: '#fbf7ea' }}>
+        <Header />
+        <main className="max-w-xl mx-auto px-4 py-16 text-center">
+          <div className="bg-white rounded-2xl border border-[#e5e7eb] shadow-sm p-10">
+            <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5">
+              <CheckCircle2 className="w-8 h-8 text-green-600" />
+            </div>
+            <h1 className="text-xl font-bold text-navy mb-2">Application Submitted!</h1>
+            <p className="text-sm text-[#6b7280] leading-relaxed mb-4">
+              Thank you, <strong>{formData.firstName}</strong>. Your application for <strong>{requisition?.title || formData.positionAppliedFor || 'this position'}</strong> has been received and is being reviewed.
+            </p>
+            <p className="text-xs text-[#9ca3af] mb-6">
+              Confirmation sent to <strong>{formData.email}</strong>. Your application ID: <code className="bg-[#f3f4f6] px-1.5 py-0.5 rounded text-[10px]">{submittedId}</code>
+            </p>
+            <div className="flex flex-col gap-2">
+              <Link to="/" className="inline-flex items-center justify-center gap-1.5 text-sm text-bronze hover:underline">
+                <ExternalLink className="w-3.5 h-3.5" /> View All Open Positions
+              </Link>
+            </div>
+          </div>
+        </main>
+        <AppFooter />
+      </div>
+    );
+  }
 
+  return (
+    <div className="min-h-screen" style={{
+      background: `radial-gradient(ellipse at 15% 10%, rgba(184, 115, 51, 0.08) 0%, transparent 55%), #fbf7ea`,
+    }}>
+      <Header />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Application shell */}
-        <div
-          className="rounded-2xl border border-[#e5e7eb] shadow-sm overflow-hidden"
-          style={{
-            background: 'rgba(255, 255, 255, 0.85)',
-            backdropFilter: 'blur(8px)',
-          }}
-        >
-          {/* Stepper */}
+        {/* Job context banner */}
+        {requisition && (
+          <div className="mb-4 flex items-center gap-3 bg-white rounded-xl border border-[#e5e7eb] px-4 py-3 shadow-sm">
+            <div className="w-8 h-8 rounded-lg bg-bronze-soft flex items-center justify-center flex-shrink-0">
+              <span className="text-sm">💼</span>
+            </div>
+            <div>
+              <div className="text-xs font-semibold text-navy">Applying for: {requisition.title}</div>
+              <div className="text-[10px] text-[#9ca3af]">{requisition.department} · {requisition.office || 'Geolabs, Inc.'}</div>
+            </div>
+          </div>
+        )}
+
+        <div className="rounded-2xl border border-[#e5e7eb] shadow-sm overflow-hidden" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)' }}>
           {currentStep > 0 && (
             <div className="px-5 sm:px-7 pt-5 sm:pt-6 pb-4 border-b border-[#e5e7eb]">
-              <Stepper
-                currentStep={currentStep}
-                completedSteps={completedSteps}
-                onStepClick={goToStep}
-              />
+              <Stepper currentStep={currentStep} completedSteps={completedSteps} onStepClick={goToStep} />
             </div>
           )}
-
-          {/* Step content */}
           <div className="px-5 sm:px-7 py-5 sm:py-6">
             <StepShell stepKey={currentStep} direction={direction}>
               {renderStep()}
@@ -131,7 +200,6 @@ export default function Application() {
           </div>
         </div>
       </main>
-
       <AppFooter />
     </div>
   );

@@ -1,0 +1,141 @@
+{
+  "name": "JobRequisition",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "department": {
+      "type": "string"
+    },
+    "office": {
+      "type": "string"
+    },
+    "employmentType": {
+      "type": "string",
+      "enum": [
+        "full_time",
+        "part_time",
+        "contract",
+        "temporary",
+        "internship"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending_approval",
+        "approved",
+        "published",
+        "paused",
+        "closed",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "hiringManagerEmail": {
+      "type": "string"
+    },
+    "recruiterEmail": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "requiredQualifications": {
+      "type": "string"
+    },
+    "preferredQualifications": {
+      "type": "string"
+    },
+    "screeningQuestions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "yes_no",
+              "multiple_choice"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "salaryMin": {
+      "type": "number"
+    },
+    "salaryMax": {
+      "type": "number"
+    },
+    "applicationDeadline": {
+      "type": "string",
+      "format": "date"
+    },
+    "headcount": {
+      "type": "number",
+      "default": 1
+    },
+    "approvedBy": {
+      "type": "string"
+    },
+    "approvedDate": {
+      "type": "string"
+    },
+    "publishedDate": {
+      "type": "string"
+    },
+    "closedDate": {
+      "type": "string"
+    },
+    "internalNotes": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "statusHistory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "changedBy": {
+            "type": "string"
+          },
+          "changedAt": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "title",
+    "department",
+    "employmentType"
+  ]
+}

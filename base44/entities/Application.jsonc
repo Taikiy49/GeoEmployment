@@ -2,15 +2,34 @@
   "name": "Application",
   "type": "object",
   "properties": {
+    "requisitionId": {
+      "type": "string"
+    },
+    "requisitionTitle": {
+      "type": "string"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "applied",
+        "under_review",
+        "phone_screen",
+        "interview",
+        "offer",
+        "hired",
+        "rejected",
+        "withdrawn"
+      ],
+      "default": "applied"
+    },
     "status": {
       "type": "string",
       "enum": [
-        "submitted",
-        "under_review",
-        "accepted",
-        "rejected"
+        "active",
+        "archived",
+        "deleted"
       ],
-      "default": "submitted"
+      "default": "active"
     },
     "firstName": {
       "type": "string"
@@ -34,8 +53,123 @@
       "type": "object",
       "description": "Full application form data as JSON"
     },
+    "screeningAnswers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "resumeFileUrl": {
       "type": "string"
+    },
+    "generatedPdfUrl": {
+      "type": "string"
+    },
+    "submittedAt": {
+      "type": "string"
+    },
+    "assignedRecruiterEmail": {
+      "type": "string"
+    },
+    "stageHistory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "type": "string"
+          },
+          "changedBy": {
+            "type": "string"
+          },
+          "changedAt": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "recruiterNotes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string"
+          },
+          "authorEmail": {
+            "type": "string"
+          },
+          "authorName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "isPrivate": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "auditTrail": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "performedBy": {
+            "type": "string"
+          },
+          "performedAt": {
+            "type": "string"
+          },
+          "details": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "eeoData": {
+      "type": "object",
+      "description": "Restricted EEO/disability/veteran self-ID data",
+      "properties": {
+        "gender": {
+          "type": "string"
+        },
+        "race": {
+          "type": "string"
+        },
+        "disabilityStatus": {
+          "type": "string"
+        },
+        "veteranStatus": {
+          "type": "string"
+        }
+      }
+    },
+    "isDraft": {
+      "type": "boolean",
+      "default": false
+    },
+    "draftSavedAt": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "default": "direct"
     }
   },
   "required": [
