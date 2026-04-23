@@ -16,24 +16,16 @@ export default function AdminSettings() {
     });
   }, []);
 
+  const BILLING_EMAIL = 'taikiy49@gmail.com';
+
   const ROLE_LABELS = {
-    admin: 'Super Admin',
+    billing: 'Billing Access',
     hr_admin: 'HR Admin',
-    recruiter: 'Recruiter',
-    hiring_manager: 'Hiring Manager',
-    interviewer: 'Interviewer',
-    auditor: 'Read-Only Auditor',
-    user: 'Standard User',
   };
 
   const ROLE_COLORS = {
-    admin: 'bg-purple-100 text-purple-800',
+    billing: 'bg-green-100 text-green-800',
     hr_admin: 'bg-blue-100 text-blue-800',
-    recruiter: 'bg-green-100 text-green-800',
-    hiring_manager: 'bg-amber-100 text-amber-800',
-    interviewer: 'bg-orange-100 text-orange-800',
-    auditor: 'bg-gray-100 text-gray-700',
-    user: 'bg-gray-50 text-gray-500',
   };
 
   return (
@@ -51,12 +43,8 @@ export default function AdminSettings() {
           </h2>
           <div className="space-y-2">
             {[
-              { role: 'admin', desc: 'Full system access, billing, settings, user management' },
-              { role: 'hr_admin', desc: 'Job requisitions, all applications, EEO data, reports' },
-              { role: 'recruiter', desc: 'Applications, pipeline stages, notes (no EEO data)' },
-              { role: 'hiring_manager', desc: 'View applications for their assigned requisitions' },
-              { role: 'interviewer', desc: 'View candidate profile and add interview feedback' },
-              { role: 'auditor', desc: 'Read-only access to all records and audit trails' },
+              { role: 'billing', desc: 'Access to billing and subscription management only' },
+              { role: 'hr_admin', desc: 'Full HR access — job requisitions, applications, EEO data, settings' },
             ].map(item => (
               <div key={item.role} className="flex items-start gap-3 p-3 rounded-lg bg-[#f9fafb] border border-[#f3f4f6]">
                 <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${ROLE_COLORS[item.role]}`}>
@@ -67,7 +55,7 @@ export default function AdminSettings() {
             ))}
           </div>
           <p className="text-[10px] text-[#9ca3af] mt-3">
-            To change a user's role, use the Users table below and update their role. EEO/disability/veteran data is only visible to admin and hr_admin roles.
+            {BILLING_EMAIL} has billing access. All other users assigned the HR Admin role have full platform access except billing.
           </p>
         </div>
 
@@ -108,7 +96,7 @@ export default function AdminSettings() {
             </table>
           </div>
           <p className="text-[10px] text-[#9ca3af] mt-3">
-            To invite a new user, use the platform's user management system. Contact your administrator to assign specialized roles.
+           To invite a new user, contact your administrator and assign them the HR Admin role for full platform access.
           </p>
         </div>
 
