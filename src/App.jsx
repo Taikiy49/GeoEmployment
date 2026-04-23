@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { Navigate } from 'react-router-dom';
 
 // Public pages
 import JobBoard from './pages/JobBoard';
@@ -19,6 +20,16 @@ import ApplicationsList from './pages/admin/ApplicationsList';
 import ApplicationDetail from './pages/admin/ApplicationDetail';
 import AdminSettings from './pages/admin/AdminSettings';
 import Billing from './pages/admin/Billing';
+
+// Protects /admin/* — only users with role="admin" can enter
+const AdminRoute = ({ children }) => {
+  const { user, isAuthenticated, isLoadingAuth } = useAuth();
+  if (isLoadingAuth) return null;
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -47,16 +58,16 @@ const AuthenticatedApp = () => {
       <Route path="/apply/:requisitionId" element={<Application />} />
       <Route path="/apply" element={<Application />} />
 
-      {/* Admin */}
-      <Route path="/admin" element={<Dashboard />} />
-      <Route path="/admin/jobs" element={<JobsList />} />
-      <Route path="/admin/jobs/new" element={<JobEditor />} />
-      <Route path="/admin/jobs/:id" element={<JobDetail />} />
-      <Route path="/admin/jobs/:id/edit" element={<JobEditor />} />
-      <Route path="/admin/applications" element={<ApplicationsList />} />
-      <Route path="/admin/applications/:id" element={<ApplicationDetail />} />
-      <Route path="/admin/settings" element={<AdminSettings />} />
-      <Route path="/admin/billing" element={<Billing />} />
+      {/* Admin — role="admin" required */}
+      <Route path="/admin" element={<AdminRoute><Dashboard /></AdminRoute>} />
+      <Route path="/admin/jobs" element={<AdminRoute><JobsList /></AdminRoute>} />
+      <Route path="/admin/jobs/new" element={<AdminRoute><JobEditor /></AdminRoute>} />
+      <Route path="/admin/jobs/:id" element={<AdminRoute><JobDetail /></AdminRoute>} />
+      <Route path="/admin/jobs/:id/edit" element={<AdminRoute><JobEditor /></AdminRoute>} />
+      <Route path="/admin/applications" element={<AdminRoute><ApplicationsList /></AdminRoute>} />
+      <Route path="/admin/applications/:id" element={<AdminRoute><ApplicationDetail /></AdminRoute>} />
+      <Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
+      <Route path="/admin/billing" element={<AdminRoute><Billing /></AdminRoute>} />
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>
