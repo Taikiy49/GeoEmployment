@@ -1,13 +1,12 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
-
 const CLIENT_ID = 'e00c4440-0129-4b66-94dc-02ea645fd13c';
 const TENANT_ID = '0b6bfb2a-ae2a-4961-9c6a-bd500f86bfbc';
-const REDIRECT_URI_PARAM = new URLSearchParams(new URL('http://localhost').toString()).toString();
+const AUTHORIZED_EMAILS = ['lola@geolabs.net', 'tyamashita@geolabs.net'];
 
 Deno.serve(async (req) => {
   try {
     const url = new URL(req.url);
-    const origin = req.headers.get('Origin') || 'http://localhost';
+    const origin = req.headers.get('Origin') || req.headers.get('Referer')?.split('/')[2] || 'http://localhost';
+    const baseUrl = `${url.protocol}//${origin}`;
     const code = url.searchParams.get('code');
     const error = url.searchParams.get('error');
 
@@ -15,12 +14,12 @@ Deno.serve(async (req) => {
     if (error) {
       const errorDescription = url.searchParams.get('error_description') || error;
       console.log('Azure auth error:', errorDescription);
-      return Response.json({ error: errorDescription }, { status: 400 });
+      return new Response(null, { status: 302, headers: { 'Location': '/' } });
     }
 
-    // Step 1: User initiates login
+    // Step 1: User initiates login - return auth URL
     if (!code) {
-      const redirectUri = `${origin}/admin`;
+      const redirectUri = `${baseUrl}/`;
       const authUrl = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize?` +
         `client_id=${CLIENT_ID}` +
         `&response_type=code` +
@@ -39,7 +38,7 @@ Deno.serve(async (req) => {
         body: new URLSearchParams({
           client_id: CLIENT_ID,
           code,
-          redirect_uri: `${origin}/admin`,
+          redirect_uri: baseUrl,
           grant_type: 'authorization_code',
           scope: 'openid profile email',
         }).toString(),
@@ -49,7 +48,7 @@ Deno.serve(async (req) => {
     if (!tokenResponse.ok) {
       const err = await tokenResponse.json();
       console.error('Token exchange failed:', err);
-      return Response.json({ error: 'Token exchange failed' }, { status: 400 });
+      return new Response(null, { status: 302, headers: { 'Location': '/' } });
     }
 
     const { access_token } = await tokenResponse.json();
@@ -61,25 +60,21 @@ Deno.serve(async (req) => {
 
     if (!userResponse.ok) {
       console.error('Failed to fetch user info');
-      return Response.json({ error: 'Failed to fetch user info' }, { status: 400 });
+      return new Response(null, { status: 302, headers: { 'Location': '/' } });
     }
 
     const userData = await userResponse.json();
     const userEmail = userData.mail || userData.userPrincipalName;
 
-    // Step 4: Check if user is authorized
-    const AUTHORIZED_EMAILS = ['lola@geolabs.net', 'tyamashita@geolabs.net'];
+    console.log(`Microsoft auth attempt: ${userEmail}`);
+
+    // Step 4: Check if user is authorized and redirect accordingly
     const isAuthorized = AUTHORIZED_EMAILS.includes(userEmail);
+    const redirectPath = isAuthorized ? '/admin' : '/';
 
-    console.log(`Microsoft auth attempt: ${userEmail}, authorized: ${isAuthorized}`);
-
-    return Response.json({
-      success: isAuthorized,
-      email: userEmail,
-      message: isAuthorized ? 'Login successful' : 'Email not authorized for admin access',
-    });
+    return new Response(null, { status: 302, headers: { 'Location': redirectPath } });
   } catch (error) {
     console.error('microsoftAuth error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    return new Response(null, { status: 302, headers: { 'Location': '/' } });
   }
 });
