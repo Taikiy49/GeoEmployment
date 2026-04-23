@@ -7,8 +7,18 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const origin = req.headers.get('Origin') || req.headers.get('Referer')?.split('/').slice(0, 3).join('/') || 'https://geolabs-employment.net';
     const baseUrl = origin.replace(/\/$/, '');
-    const code = url.searchParams.get('code');
-    const error = url.searchParams.get('error');
+    
+    let code, error;
+    
+    // Handle both GET and POST from Azure
+    if (req.method === 'POST') {
+      const formData = await req.formData();
+      code = formData.get('code');
+      error = formData.get('error');
+    } else {
+      code = url.searchParams.get('code');
+      error = url.searchParams.get('error');
+    }
 
     // Error from Azure
     if (error) {
