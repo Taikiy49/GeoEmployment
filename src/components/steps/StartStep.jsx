@@ -12,6 +12,27 @@ const EMP_LABELS = {
   internship: 'Internship',
 };
 
+function CollapsibleCard({ title, children }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors"
+      >
+        <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{title}</span>
+        <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="px-4 pb-4 text-[11px] text-gray-500 leading-relaxed border-t border-gray-100 pt-3">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function JobPanel({ job }) {
   const [open, setOpen] = useState(false);
 
@@ -193,42 +214,32 @@ export default function StartStep({ onNext, requisition, onBack }) {
 
         {/* RIGHT: EEO + Benefits sidebar */}
         <aside className="space-y-4 lg:sticky lg:top-6">
-          <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
-            <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Equal Employment Opportunity</h3>
-            <p className="text-[11px] text-gray-500 leading-relaxed">
-              Geolabs, Inc. provides equal employment opportunities to all employees and applicants without regard to race, color, religion, gender or gender identity, sexual orientation, national origin, age, disability, genetic information, marital status, amnesty or status as a covered veteran and lactation in accordance with applicable federal, state, and local laws.
-            </p>
-          </div>
+          <CollapsibleCard title="Equal Employment Opportunity">
+            Geolabs, Inc. provides equal employment opportunities to all employees and applicants without regard to race, color, religion, gender or gender identity, sexual orientation, national origin, age, disability, genetic information, marital status, amnesty or status as a covered veteran and lactation in accordance with applicable federal, state, and local laws.
+          </CollapsibleCard>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
-            <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Accessibility &amp; Accommodations</h3>
-            <p className="text-[11px] text-gray-500 leading-relaxed">
-              As an ADA-compliant employer, Geolabs is committed to providing reasonable accommodations for qualified applicants and employees who are able to perform the essential functions of their position satisfactorily.
-            </p>
-          </div>
+          <CollapsibleCard title="Accessibility & Accommodations">
+            As an ADA-compliant employer, Geolabs is committed to providing reasonable accommodations for qualified applicants and employees who are able to perform the essential functions of their position satisfactorily.
+          </CollapsibleCard>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
-            <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Benefits Snapshot</h3>
-            <p className="text-[11px] text-gray-400 mb-2">Geolabs is a 100% Employee-Owned Company and offers a comprehensive benefits package which may include:</p>
-            <ul className="space-y-2">
+          <CollapsibleCard title="Benefits Snapshot">
+            <ul className="space-y-1.5 mt-1">
               {[
-                ['Medical, Dental, Drug & Vision', 'Geolabs pays family coverage after twelve consecutive months of full-time employment.'],
-                ['Paid Time Off (PTO)', '14 days the first year, up to 28 days at 20+ years of service.'],
-                ['Holidays', 'Ten days per year plus 1/2 day on Christmas Eve.'],
-                ['401(k) Plan', 'Provides employees the potential for future financial security for retirement.'],
-                ['Employee Stock Ownership Plan (ESOP)', 'Provides retirement benefits to eligible employees based on ownership interest in our Company.'],
-                ['Group Term Life Insurance', ''],
-                ['Flexible Spending Account (FSA)', 'Save tax dollars on eligible health care and dependent care out-of-pocket expenses.'],
-              ].map(([title, desc], i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <span className="mt-1.5 w-1 h-1 rounded-full bg-bronze flex-shrink-0" />
-                  <span className="text-[11px] text-gray-600 leading-relaxed">
-                    <strong className="text-gray-700">{title}</strong>{desc ? ` — ${desc}` : ''}
-                  </span>
+                'Medical, Dental, Drug & Vision',
+                'Paid Time Off (PTO) — up to 28 days',
+                'Holidays — 10 days/year',
+                '401(k) Plan',
+                'Employee Stock Ownership Plan (ESOP)',
+                'Group Term Life Insurance',
+                'Flexible Spending Account (FSA)',
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-2 text-[11px] text-gray-600">
+                  <span className="w-1 h-1 rounded-full bg-bronze flex-shrink-0" />
+                  {item}
                 </li>
               ))}
             </ul>
-          </div>
+          </CollapsibleCard>
         </aside>
       </div>
     </div>
