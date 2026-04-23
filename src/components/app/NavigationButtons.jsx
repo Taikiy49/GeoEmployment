@@ -33,7 +33,7 @@ export default function NavigationButtons({
             className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all shadow-sm disabled:opacity-60
               ${isSubmit
                 ? 'bg-green-600 hover:bg-green-700'
-                : 'bg-gray-900 hover:bg-gray-700'
+                : 'bg-bronze hover:bg-bronze-dark'
               }`}
           >
             {isLoading

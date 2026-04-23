@@ -49,7 +49,7 @@ export default function StartStep({ onNext, requisition }) {
       <div className="text-center">
         <button
           onClick={onNext}
-          className="inline-flex items-center gap-2 px-8 py-3 bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold rounded-xl transition-all shadow-sm"
+          className="inline-flex items-center gap-2 px-8 py-3 bg-bronze hover:bg-bronze-dark text-white text-sm font-semibold rounded-xl transition-all shadow-sm"
         >
           Begin Application
           <ArrowRight className="w-4 h-4" />

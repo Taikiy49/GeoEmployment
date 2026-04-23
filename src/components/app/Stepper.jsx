@@ -46,7 +46,7 @@ export default function Stepper({ currentStep, completedSteps, onStepClick }) {
               className={`
                 flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border
                 ${isActive
-                  ? 'bg-gray-900 text-white border-gray-900 shadow-sm'
+                  ? 'bg-bronze text-white border-bronze shadow-sm'
                   : isCompleted
                     ? 'bg-green-50 text-green-700 border-green-200'
                     : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
