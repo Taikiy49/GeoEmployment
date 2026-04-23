@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Search, ChevronRight, Filter, Download } from 'lucide-react';
+import { Search, ChevronRight, LayoutGrid, List } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { StageBadge } from './Dashboard';
+import KanbanBoard from '../../components/admin/KanbanBoard';
 
 const STAGES = ['all', 'applied', 'under_review', 'phone_screen', 'interview', 'offer', 'hired', 'rejected', 'withdrawn'];
 
@@ -15,6 +16,7 @@ export default function ApplicationsList() {
   const [search, setSearch] = useState('');
   const [stageFilter, setStageFilter] = useState('all');
   const [jobFilter, setJobFilter] = useState('all');
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'kanban'
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -54,6 +56,20 @@ export default function ApplicationsList() {
           <div>
             <h1 className="text-xl font-semibold text-navy">Applications</h1>
             <p className="text-sm text-[#6b7280] mt-0.5">{filtered.length} result{filtered.length !== 1 ? 's' : ''} of {apps.length} total</p>
+          </div>
+          <div className="flex items-center gap-1 bg-[#f3f4f6] rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm text-navy' : 'text-[#9ca3af] hover:text-navy'}`}
+            >
+              <List className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('kanban')}
+              className={`p-1.5 rounded-md transition-colors ${viewMode === 'kanban' ? 'bg-white shadow-sm text-navy' : 'text-[#9ca3af] hover:text-navy'}`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
@@ -96,8 +112,13 @@ export default function ApplicationsList() {
           </div>
         </div>
 
+        {/* Kanban View */}
+        {viewMode === 'kanban' && !loading && (
+          <KanbanBoard apps={apps} setApps={setApps} jobFilter={jobFilter} />
+        )}
+
         {/* Table */}
-        <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm overflow-hidden">
+        {viewMode === 'list' && <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center h-48">
               <div className="w-7 h-7 border-4 border-bronze/30 border-t-bronze rounded-full animate-spin" />
@@ -151,7 +172,7 @@ export default function ApplicationsList() {
               </table>
             </div>
           )}
-        </div>
+        </div>}
       </div>
     </AdminLayout>
   );
