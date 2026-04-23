@@ -36,7 +36,7 @@ export default function Billing() {
         tenantName: 'Geolabs, Inc.',
         billingEmail: '',
         planName: 'Professional',
-        monthlyRate: 25,
+        monthlyRate: 50,
         status: 'active',
         subscriptionStartDate: new Date().toISOString().split('T')[0],
         nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -114,7 +114,7 @@ export default function Billing() {
                   {sub?.status ? sub.status.replace('_', ' ').toUpperCase() : 'ACTIVE'}
                 </span>
               </div>
-              <div className="text-3xl font-bold mt-1">${sub?.monthlyRate ?? 25}<span className="text-sm font-normal text-white/70">/month</span></div>
+              <div className="text-3xl font-bold mt-1">${sub?.monthlyRate ?? 50}<span className="text-sm font-normal text-white/70">/month</span></div>
               <div className="text-xs text-white/60 mt-1">{sub?.tenantName || 'Geolabs, Inc.'}</div>
             </div>
             <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
@@ -133,7 +133,7 @@ export default function Billing() {
               ) : (
                 <CreditCard className="w-4 h-4" />
               )}
-              {checkoutLoading ? 'Redirecting...' : 'Subscribe — $25/month'}
+              {checkoutLoading ? 'Redirecting...' : 'Subscribe — $50/month'}
               {!checkoutLoading && <ExternalLink className="w-3.5 h-3.5 opacity-60" />}
             </Button>
             <p className="text-[10px] text-white/50 mt-2">You'll be redirected to a secure checkout page to enter your card details.</p>

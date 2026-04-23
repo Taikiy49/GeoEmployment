@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
               {
                 name: "Geolabs ATS — Professional Plan",
                 quantity: 1,
-                price: "25.00",
+                price: "50.00",
                 subscriptionInfo: {
                   subscriptionSettings: {
                     frequency: "MONTH",
