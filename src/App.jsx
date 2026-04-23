@@ -31,11 +31,12 @@ const BillingRoute = () => {
   return <Billing />;
 };
 
-// Protects /admin/* — only users with role="admin" can enter
+// Protects /admin/* — only authorized admins can enter
+const ADMIN_EMAILS = ['lola@geolabs.net', 'tyamashita@geolabs.net'];
 const AdminRoute = ({ children }) => {
   const { user, isAuthenticated, isLoadingAuth } = useAuth();
   if (isLoadingAuth) return null;
-  if (!isAuthenticated || user?.role !== 'admin') {
+  if (!isAuthenticated || user?.role !== 'admin' || !ADMIN_EMAILS.includes(user?.email)) {
     return <Navigate to="/" replace />;
   }
   return children;
