@@ -5,8 +5,13 @@ const AUTHORIZED_EMAILS = ['lola@geolabs.net', 'tyamashita@geolabs.net'];
 Deno.serve(async (req) => {
   try {
     const url = new URL(req.url);
-    const origin = req.headers.get('Origin') || req.headers.get('Referer')?.split('/')[2] || 'http://localhost';
-    const baseUrl = `${url.protocol}//${origin}`;
+    let origin = req.headers.get('Origin') || req.headers.get('Referer');
+    if (origin) {
+      origin = new URL(origin).origin;
+    } else {
+      origin = 'http://localhost';
+    }
+    const baseUrl = origin;
     const code = url.searchParams.get('code');
     const error = url.searchParams.get('error');
 
