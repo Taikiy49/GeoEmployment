@@ -125,7 +125,7 @@ export default function StartStep({ onNext, requisition, onBack }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* LEFT: CTA + Job listings */}
         <div className="lg:col-span-2 space-y-5">
 
@@ -192,7 +192,7 @@ export default function StartStep({ onNext, requisition, onBack }) {
         </div>
 
         {/* RIGHT: EEO + Benefits sidebar */}
-        <aside className="space-y-4">
+        <aside className="space-y-4 lg:sticky lg:top-6">
           <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
             <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Equal Employment Opportunity</h3>
             <p className="text-[11px] text-gray-500 leading-relaxed">
