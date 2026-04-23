@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { ArrowRight, Clock, ChevronDown, ChevronUp, MapPin, Briefcase } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Clock, ChevronDown, ChevronUp, MapPin, Briefcase } from 'lucide-react';
 
 const LOGO_URL = 'https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/e4e60e6f1_geolabs.png';
 
@@ -93,7 +93,7 @@ function JobPanel({ job }) {
   );
 }
 
-export default function StartStep({ onNext, requisition }) {
+export default function StartStep({ onNext, requisition, onBack }) {
   const [jobs, setJobs] = useState([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
 
@@ -143,15 +143,25 @@ export default function StartStep({ onNext, requisition }) {
                 </li>
               ))}
             </ul>
-            <div className="pt-2">
-              <button
-                onClick={onNext}
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-bronze hover:bg-bronze-dark text-white text-sm font-semibold rounded-xl transition-all shadow-sm"
-              >
-                {requisition ? `Apply for ${requisition.title}` : 'Apply Now'}
-                <ArrowRight className="w-4 h-4" />
-              </button>
-              <p className="text-xs text-gray-400 mt-2 flex items-center gap-1.5">
+            <div className="pt-2 flex flex-col gap-2">
+              <div className="flex items-center gap-3">
+                {requisition && (
+                  <a
+                    href="/"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 text-sm font-medium rounded-xl transition-all"
+                  >
+                    <ArrowLeft className="w-4 h-4" /> Back to Jobs
+                  </a>
+                )}
+                <button
+                  onClick={onNext}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-bronze hover:bg-bronze-dark text-white text-sm font-semibold rounded-xl transition-all shadow-sm"
+                >
+                  {requisition ? `Apply for ${requisition.title}` : 'Apply Now'}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="text-xs text-gray-400 flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5" /> Estimated time: 15–20 minutes
               </p>
             </div>

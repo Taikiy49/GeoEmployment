@@ -8,9 +8,7 @@ export default function Header() {
     <header className="bg-white border-b border-gray-100 shadow-sm">
       <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
         <a
-          href="https://www.geolabs.net"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/"
           className="flex items-center gap-3 hover:opacity-80 transition-opacity"
         >
           <img src={LOGO_URL} alt="Geolabs Logo" className="h-10 w-10 object-contain" />
