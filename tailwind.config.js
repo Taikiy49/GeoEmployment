@@ -4,12 +4,36 @@ module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
   	extend: {
+      fontFamily: {
+        inter: ['var(--font-inter)'],
+      },
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+        navy: {
+          DEFAULT: '#0f172a',
+          deep: '#0b1224',
+        },
+        bronze: {
+          DEFAULT: '#b87333',
+          dark: '#945324',
+          soft: '#f6ece2',
+          softer: '#fdf7f1',
+          border: '#d1893b',
+          light: '#d4a574',
+        },
+        cream: {
+          DEFAULT: '#fbf7ea',
+          dark: '#f3ecd8',
+        },
+        success: {
+          DEFAULT: '#22c55e',
+          soft: '#ecfdf5',
+          light: '#bbf7d0',
+        },
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
@@ -63,20 +87,12 @@ module.exports = {
   		},
   		keyframes: {
   			'accordion-down': {
-  				from: {
-  					height: '0'
-  				},
-  				to: {
-  					height: 'var(--radix-accordion-content-height)'
-  				}
+  				from: { height: '0' },
+  				to: { height: 'var(--radix-accordion-content-height)' }
   			},
   			'accordion-up': {
-  				from: {
-  					height: 'var(--radix-accordion-content-height)'
-  				},
-  				to: {
-  					height: '0'
-  				}
+  				from: { height: 'var(--radix-accordion-content-height)' },
+  				to: { height: '0' }
   			}
   		},
   		animation: {
@@ -85,5 +101,6 @@ module.exports = {
   		}
   	}
   },
+  safelist: [],
   plugins: [require("tailwindcss-animate")],
 }

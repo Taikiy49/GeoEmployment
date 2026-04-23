@@ -1,0 +1,46 @@
+{
+  "name": "Application",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "under_review",
+        "accepted",
+        "rejected"
+      ],
+      "default": "submitted"
+    },
+    "firstName": {
+      "type": "string"
+    },
+    "lastName": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "positionAppliedFor": {
+      "type": "string"
+    },
+    "preferredLocation": {
+      "type": "string"
+    },
+    "applicationData": {
+      "type": "object",
+      "description": "Full application form data as JSON"
+    },
+    "resumeFileUrl": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "firstName",
+    "lastName",
+    "email"
+  ]
+}
