@@ -1,14 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Briefcase, MapPin, Clock, ChevronRight, Search, Shield } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { MapPin, Clock, ChevronRight, Search, Shield, Briefcase, ArrowRight } from 'lucide-react';
 import Header from '../components/app/Header';
 import AppFooter from '../components/app/AppFooter';
 
 const EMP_LABELS = {
-  full_time: 'Full Time', part_time: 'Part Time', contract: 'Contract',
-  temporary: 'Temporary', internship: 'Internship'
+  full_time: 'Full-time',
+  part_time: 'Part-time',
+  contract: 'Contract',
+  temporary: 'Temporary',
+  internship: 'Internship',
+};
+
+const EMP_COLORS = {
+  full_time: 'bg-green-50 text-green-700 border-green-100',
+  part_time: 'bg-blue-50 text-blue-700 border-blue-100',
+  contract: 'bg-purple-50 text-purple-700 border-purple-100',
+  temporary: 'bg-amber-50 text-amber-700 border-amber-100',
+  internship: 'bg-sky-50 text-sky-700 border-sky-100',
 };
 
 export default function JobBoard() {
@@ -34,38 +44,63 @@ export default function JobBoard() {
   });
 
   return (
-    <div className="min-h-screen" style={{
-      background: `radial-gradient(ellipse at 15% 10%, rgba(184, 115, 51, 0.08) 0%, transparent 55%), #fbf7ea`,
-    }}>
+    <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-        {/* Hero */}
-        <div className="text-center mb-10">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-bronze to-bronze-dark flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <Briefcase className="w-7 h-7 text-white" />
+      {/* Hero */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-6 py-14 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-bronze mb-3">We're Hiring</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-3">
+              Build a career in<br />environmental science.
+            </h1>
+            <p className="text-gray-500 text-sm max-w-md leading-relaxed">
+              Join our team of scientists, engineers, and field professionals making a difference across Hawaii and the Pacific.
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-navy mb-2">Careers at Geolabs</h1>
-          <p className="text-sm text-[#6b7280] max-w-md mx-auto leading-relaxed">
-            Join our team of environmental and engineering professionals. Browse open positions below.
-          </p>
+          <div className="flex flex-col sm:flex-row gap-3 md:items-end">
+            <div className="flex items-center gap-4 bg-gray-50 rounded-2xl px-6 py-5 border border-gray-100">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">{jobs.length}</div>
+                <div className="text-[11px] text-gray-400 mt-0.5">Open Roles</div>
+              </div>
+              <div className="w-px h-8 bg-gray-200" />
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">{new Set(jobs.map(j => j.department)).size}</div>
+                <div className="text-[11px] text-gray-400 mt-0.5">Departments</div>
+              </div>
+              <div className="w-px h-8 bg-gray-200" />
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">HI</div>
+                <div className="text-[11px] text-gray-400 mt-0.5">Hawaii-Based</div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      <main className="max-w-6xl mx-auto px-6 py-10">
+        {/* Search + Filters */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-8">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af]" />
-            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search positions..." className="pl-9 h-10 text-sm bg-white" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search positions, departments, locations…"
+              className="w-full h-11 pl-11 pr-4 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-bronze/30 focus:border-bronze transition-all"
+            />
           </div>
-          <div className="flex gap-1.5 flex-wrap">
+          <div className="flex gap-2 flex-wrap">
             {departments.map(d => (
               <button
                 key={d}
                 onClick={() => setDeptFilter(d)}
-                className={`px-3 py-2 rounded-full text-[11px] font-medium border transition-colors ${
+                className={`h-11 px-4 rounded-xl text-xs font-medium border transition-all whitespace-nowrap ${
                   deptFilter === d
-                    ? 'bg-navy text-white border-navy'
-                    : 'bg-white text-[#6b7280] border-[#e5e7eb] hover:border-bronze'
+                    ? 'bg-gray-900 text-white border-gray-900'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
                 }`}
               >
                 {d === 'all' ? 'All Departments' : d}
@@ -74,47 +109,88 @@ export default function JobBoard() {
           </div>
         </div>
 
-        {/* Job listings */}
+        {/* Results count */}
+        {!loading && (
+          <p className="text-xs text-gray-400 mb-4">
+            {filtered.length} position{filtered.length !== 1 ? 's' : ''} available
+          </p>
+        )}
+
+        {/* Job Listings */}
         {loading ? (
-          <div className="flex items-center justify-center h-48">
-            <div className="w-7 h-7 border-4 border-bronze/30 border-t-bronze rounded-full animate-spin" />
+          <div className="flex flex-col gap-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 animate-pulse">
+                <div className="h-4 bg-gray-100 rounded w-48 mb-3" />
+                <div className="h-3 bg-gray-100 rounded w-32" />
+              </div>
+            ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-xl border border-[#e5e7eb]">
-            <p className="text-sm text-[#6b7280]">No open positions match your search.</p>
+          <div className="bg-white rounded-2xl border border-gray-100 py-20 text-center">
+            <Briefcase className="w-8 h-8 text-gray-200 mx-auto mb-3" />
+            <p className="text-sm text-gray-400">No open positions match your search.</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             {filtered.map(job => (
               <Link
                 key={job.id}
                 to={`/apply/${job.id}`}
-                className="block bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5 hover:border-bronze hover:shadow-md transition-all group"
+                className="group bg-white rounded-2xl border border-gray-100 hover:border-bronze/40 hover:shadow-md transition-all duration-200 p-6 flex items-start justify-between gap-6"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
+                <div className="flex items-start gap-5 flex-1 min-w-0">
+                  {/* Icon */}
+                  <div className="w-11 h-11 rounded-xl bg-bronze/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Briefcase className="w-5 h-5 text-bronze" />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                      <h2 className="text-sm font-semibold text-navy group-hover:text-bronze transition-colors">{job.title}</h2>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-800 border border-green-200 font-medium">Open</span>
+                      <h2 className="text-base font-semibold text-gray-900 group-hover:text-bronze transition-colors">
+                        {job.title}
+                      </h2>
+                      <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${EMP_COLORS[job.employmentType] || 'bg-gray-50 text-gray-600 border-gray-100'}`}>
+                        {EMP_LABELS[job.employmentType] || job.employmentType}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-3 text-[11px] text-[#6b7280] flex-wrap">
-                      <span className="flex items-center gap-1"><Briefcase className="w-3 h-3" />{job.department}</span>
-                      {job.office && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{job.office}</span>}
-                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{EMP_LABELS[job.employmentType] || job.employmentType}</span>
-                      {job.applicationDeadline && <span>Deadline: {job.applicationDeadline}</span>}
+
+                    <div className="flex items-center gap-4 text-xs text-gray-400 flex-wrap mb-3">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
+                        {job.department}
+                      </span>
+                      {job.office && (
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="w-3 h-3" />
+                          {job.office}
+                        </span>
+                      )}
+                      {job.applicationDeadline && (
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="w-3 h-3" />
+                          Closes {new Date(job.applicationDeadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      )}
                     </div>
+
                     {job.description && (
-                      <p className="text-xs text-[#9ca3af] mt-2 leading-relaxed line-clamp-2">{job.description}</p>
-                    )}
-                    {job.salaryMin && job.salaryMax && (
-                      <div className="mt-2 text-[11px] font-medium text-bronze">
-                        ${Number(job.salaryMin).toLocaleString()} – ${Number(job.salaryMax).toLocaleString()} / year
-                      </div>
+                      <p className="text-xs text-gray-400 leading-relaxed line-clamp-2 max-w-2xl">
+                        {job.description}
+                      </p>
                     )}
                   </div>
-                  <div className="flex items-center gap-1 text-bronze flex-shrink-0">
-                    <span className="text-xs font-medium">Apply</span>
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+
+                <div className="flex flex-col items-end gap-2 flex-shrink-0 pt-0.5">
+                  {job.salaryMin && job.salaryMax && (
+                    <div className="text-sm font-semibold text-gray-700">
+                      ${Number(job.salaryMin).toLocaleString()}–${Number(job.salaryMax).toLocaleString()}
+                      <span className="text-xs font-normal text-gray-400">/yr</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1 text-bronze text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    Apply <ArrowRight className="w-3.5 h-3.5" />
                   </div>
                 </div>
               </Link>
@@ -122,8 +198,9 @@ export default function JobBoard() {
           </div>
         )}
 
-        <div className="text-center mt-10">
-          <Link to="/admin" className="inline-flex items-center gap-1.5 text-[11px] text-[#9ca3af] hover:text-bronze transition-colors">
+        {/* Admin link */}
+        <div className="mt-14 pt-8 border-t border-gray-100 text-center">
+          <Link to="/admin" className="inline-flex items-center gap-1.5 text-xs text-gray-300 hover:text-bronze transition-colors">
             <Shield className="w-3.5 h-3.5" /> HR Admin Portal
           </Link>
         </div>

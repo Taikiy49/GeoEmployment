@@ -41,9 +41,11 @@ export default function AdminLayout({ children }) {
       {/* Logo */}
       <div className="px-4 py-4 border-b border-[#e5e7eb]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-bronze to-bronze-dark flex items-center justify-center">
-            <span className="text-white font-bold text-sm">G</span>
-          </div>
+          <img
+            src="https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/e4e60e6f1_geolabs.png"
+            alt="Geolabs"
+            className="w-8 h-8 object-contain"
+          />
           <div>
             <div className="text-xs font-semibold text-navy leading-tight">Geolabs, Inc.</div>
             <div className="text-[10px] text-[#9ca3af]">HR Admin Portal</div>
