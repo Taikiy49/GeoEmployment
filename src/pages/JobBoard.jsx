@@ -202,7 +202,7 @@ export default function JobBoard() {
         <div className="mt-14 pt-8 border-t border-gray-100 text-center">
           <button
             onClick={() => {
-              window.location.href = '/microsoftAuth';
+              base44.auth.redirectToLogin('/admin');
             }}
             className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
           >
