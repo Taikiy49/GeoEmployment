@@ -5,26 +5,22 @@ const AUTHORIZED_EMAILS = ['lola@geolabs.net', 'tyamashita@geolabs.net'];
 Deno.serve(async (req) => {
   try {
     const url = new URL(req.url);
-    let origin = req.headers.get('Origin') || req.headers.get('Referer');
-    if (origin) {
-      origin = new URL(origin).origin;
-    } else {
-      origin = 'http://localhost';
-    }
-    const baseUrl = origin;
+    const origin = req.headers.get('Origin') || 'https://geolabs-employment.net';
     const code = url.searchParams.get('code');
     const error = url.searchParams.get('error');
 
-    // Check for auth errors from Azure
+    // Error from Azure
     if (error) {
-      const errorDescription = url.searchParams.get('error_description') || error;
-      console.log('Azure auth error:', errorDescription);
-      return new Response(null, { status: 302, headers: { 'Location': '/' } });
+      console.log('Azure error:', error, url.searchParams.get('error_description'));
+      return new Response(`<html><body><p>Auth failed: ${error}</p><a href="/">Go back</a></body></html>`, { 
+        status: 400, 
+        headers: { 'Content-Type': 'text/html' } 
+      });
     }
 
-    // Step 1: User initiates login - return auth URL
+    // Step 1: Initiate login - return auth URL for frontend to redirect to
     if (!code) {
-      const redirectUri = `${baseUrl}/`;
+      const redirectUri = `${origin}`;
       const authUrl = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize?` +
         `client_id=${CLIENT_ID}` +
         `&response_type=code` +
@@ -34,7 +30,7 @@ Deno.serve(async (req) => {
       return Response.json({ authUrl });
     }
 
-    // Step 2: Exchange code for token
+    // Step 2: Handle callback from Azure with code
     const tokenResponse = await fetch(
       `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`,
       {
@@ -43,9 +39,8 @@ Deno.serve(async (req) => {
         body: new URLSearchParams({
           client_id: CLIENT_ID,
           code,
-          redirect_uri: baseUrl,
+          redirect_uri: origin,
           grant_type: 'authorization_code',
-          scope: 'openid profile email',
         }).toString(),
       }
     );
@@ -53,7 +48,10 @@ Deno.serve(async (req) => {
     if (!tokenResponse.ok) {
       const err = await tokenResponse.json();
       console.error('Token exchange failed:', err);
-      return new Response(null, { status: 302, headers: { 'Location': '/' } });
+      return new Response('<html><body><p>Token exchange failed</p><a href="/">Go back</a></body></html>', { 
+        status: 400, 
+        headers: { 'Content-Type': 'text/html' } 
+      });
     }
 
     const { access_token } = await tokenResponse.json();
@@ -65,21 +63,34 @@ Deno.serve(async (req) => {
 
     if (!userResponse.ok) {
       console.error('Failed to fetch user info');
-      return new Response(null, { status: 302, headers: { 'Location': '/' } });
+      return new Response('<html><body><p>Failed to get user info</p><a href="/">Go back</a></body></html>', { 
+        status: 400, 
+        headers: { 'Content-Type': 'text/html' } 
+      });
     }
 
     const userData = await userResponse.json();
     const userEmail = userData.mail || userData.userPrincipalName;
 
-    console.log(`Microsoft auth attempt: ${userEmail}`);
+    console.log(`Microsoft auth: ${userEmail}, authorized: ${AUTHORIZED_EMAILS.includes(userEmail)}`);
 
-    // Step 4: Check if user is authorized and redirect accordingly
-    const isAuthorized = AUTHORIZED_EMAILS.includes(userEmail);
-    const redirectPath = isAuthorized ? '/admin' : '/';
-
-    return new Response(null, { status: 302, headers: { 'Location': redirectPath } });
+    // Step 4: Check authorization and redirect
+    if (AUTHORIZED_EMAILS.includes(userEmail)) {
+      return new Response(null, { 
+        status: 302, 
+        headers: { 'Location': '/admin' } 
+      });
+    } else {
+      return new Response(`<html><body><p>Email ${userEmail} not authorized</p><a href="/">Go back</a></body></html>`, { 
+        status: 403, 
+        headers: { 'Content-Type': 'text/html' } 
+      });
+    }
   } catch (error) {
     console.error('microsoftAuth error:', error.message);
-    return new Response(null, { status: 302, headers: { 'Location': '/' } });
+    return new Response(`<html><body><p>Error: ${error.message}</p><a href="/">Go back</a></body></html>`, { 
+      status: 500, 
+      headers: { 'Content-Type': 'text/html' } 
+    });
   }
 });
