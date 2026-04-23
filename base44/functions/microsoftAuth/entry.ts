@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
 
     // Callback from Azure with code
     if (code) {
-      const redirectUri = `${baseUrl}/admin`;
+      const redirectUri = `${baseUrl}/functions/microsoftAuth`;
       
       const tokenResponse = await fetch(
         `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`,
@@ -108,7 +108,7 @@ Deno.serve(async (req) => {
     }
 
     // Initial login request - return redirect to Azure
-    const redirectUri = `${baseUrl}/admin`;
+    const redirectUri = `${baseUrl}/functions/microsoftAuth`;
     const authUrl = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize?` +
       `client_id=${CLIENT_ID}` +
       `&response_type=code` +
