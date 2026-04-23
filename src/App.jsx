@@ -32,11 +32,12 @@ const BillingRoute = () => {
   return <Billing />;
 };
 
-// Protects /admin/* — only tyamashita can enter
+// Protects /admin/* — only tyamashita or lola can enter
 const AdminRoute = ({ children }) => {
   const { user, isAuthenticated, isLoadingAuth } = useAuth();
+  const ADMIN_EMAILS = ['tyamashita@geolabs.net', 'lola@geolabs.net'];
   if (isLoadingAuth) return null;
-  if (!isAuthenticated || user?.email !== ADMIN_EMAIL) {
+  if (!isAuthenticated || !ADMIN_EMAILS.includes(user?.email)) {
     return <Navigate to="/" replace />;
   }
   return children;
