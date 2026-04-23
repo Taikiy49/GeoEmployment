@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
     let code, error;
     
     // Handle both GET and POST from Azure
-    if (req.method === 'POST') {
+    if (req.method === 'POST' && req.headers.get('Content-Type')?.includes('application/x-www-form-urlencoded')) {
       const formData = await req.formData();
       code = formData.get('code');
       error = formData.get('error');
