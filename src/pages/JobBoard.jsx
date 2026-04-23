@@ -53,10 +53,10 @@ export default function JobBoard() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-bronze mb-3">We're Hiring</p>
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-3">
-              Build a career in<br />environmental science.
+              Build a career in<br />geotechnical engineering.
             </h1>
             <p className="text-gray-500 text-sm max-w-md leading-relaxed">
-              Join our team of scientists, engineers, and field professionals making a difference across Hawaii and the Pacific.
+              Join our 100% employee-owned team of engineers, technicians, and drilling professionals serving Hawaiʻi and California.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 md:items-end">

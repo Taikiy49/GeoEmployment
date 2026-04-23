@@ -36,7 +36,7 @@ export default function Billing() {
         tenantName: 'Geolabs, Inc.',
         billingEmail: '',
         planName: 'Professional',
-        monthlyRate: 20,
+        monthlyRate: 25,
         status: 'active',
         subscriptionStartDate: new Date().toISOString().split('T')[0],
         nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -114,7 +114,7 @@ export default function Billing() {
                   {sub?.status ? sub.status.replace('_', ' ').toUpperCase() : 'ACTIVE'}
                 </span>
               </div>
-              <div className="text-3xl font-bold mt-1">${sub?.monthlyRate ?? 20}<span className="text-sm font-normal text-white/70">/month</span></div>
+              <div className="text-3xl font-bold mt-1">${sub?.monthlyRate ?? 25}<span className="text-sm font-normal text-white/70">/month</span></div>
               <div className="text-xs text-white/60 mt-1">{sub?.tenantName || 'Geolabs, Inc.'}</div>
             </div>
             <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
@@ -238,7 +238,7 @@ export default function Billing() {
                 ['Tenant', sub?.tenantName || 'Geolabs, Inc.'],
                 ['Billing Email', sub?.billingEmail || '—'],
                 ['Plan', sub?.planName || 'Professional'],
-                ['Monthly Rate', `$${sub?.monthlyRate ?? 20}`],
+                ['Monthly Rate', `$${sub?.monthlyRate ?? 25}`],
                 ['Status', sub?.status?.replace('_', ' ') || 'Active'],
                 ['Start Date', sub?.subscriptionStartDate || '—'],
                 ['Next Billing', sub?.nextBillingDate || '—'],
@@ -257,7 +257,7 @@ export default function Billing() {
         <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
           <h3 className="text-xs font-semibold text-blue-800 mb-1">Multi-Tenant Expansion</h3>
           <p className="text-[11px] text-blue-700 leading-relaxed">
-            This system is architected to support multiple companies. When ready to onboard additional tenants, the subscription model scales to per-company billing at $20/month per tenant. Contact your administrator to enable multi-tenant mode.
+            This system is architected to support multiple companies. When ready to onboard additional tenants, the subscription model scales to per-company billing at $25/month per tenant. Contact your administrator to enable multi-tenant mode.
           </p>
         </div>
       </div>

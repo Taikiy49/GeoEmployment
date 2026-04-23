@@ -14,7 +14,7 @@ export default function Header() {
           <img src={LOGO_URL} alt="Geolabs Logo" className="h-10 w-10 object-contain" />
           <div>
             <div className="text-sm font-bold text-gray-900 tracking-tight leading-tight">Geolabs, Inc.</div>
-            <div className="text-[11px] text-gray-400 font-normal leading-tight">Environmental · Engineering · Science</div>
+            <div className="text-[11px] text-gray-400 font-normal leading-tight">Geotechnical · Engineering · Drilling</div>
           </div>
         </a>
 

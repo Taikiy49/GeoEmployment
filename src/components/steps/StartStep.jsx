@@ -115,7 +115,7 @@ export default function StartStep({ onNext, requisition, onBack }) {
         <div className="flex-1">
           <h2 className="text-2xl font-bold text-gray-900 leading-tight">Geolabs, Inc. — Employment Opportunities</h2>
           <p className="text-sm text-gray-500 mt-1">
-            Join a 100% employee-owned geotechnical engineering and drilling firm serving Hawaiʻi and California.
+            Join a 100% employee-owned geotechnical engineering and drilling firm serving Hawaiʻi and California. Offices in Waipahu, HI and California.
           </p>
           <div className="flex flex-wrap gap-2 mt-3">
             <span className="text-[11px] font-medium px-3 py-1 rounded-full bg-bronze/10 text-bronze border border-bronze/20">Employee-Owned (ESOP)</span>
