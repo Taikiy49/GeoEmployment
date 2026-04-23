@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Users, Settings,
-  Menu, X, Shield, ChevronRight, LogOut
+  Menu, Shield, ChevronRight, LogOut, CreditCard
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
-const NAV = [
+const BILLING_EMAIL = 'taikiy49@gmail.com';
+
+const BASE_NAV = [
   { label: 'Dashboard', icon: LayoutDashboard, to: '/admin' },
   { label: 'Job Requisitions', icon: Briefcase, to: '/admin/jobs' },
   { label: 'Applications', icon: Users, to: '/admin/applications' },
@@ -16,6 +18,15 @@ const NAV = [
 export default function AdminLayout({ children }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState(null);
+
+  useEffect(() => {
+    base44.auth.me().then(u => setUserEmail(u?.email)).catch(() => {});
+  }, []);
+
+  const NAV = userEmail === BILLING_EMAIL
+    ? [...BASE_NAV, { label: 'Billing', icon: CreditCard, to: '/admin/billing' }]
+    : BASE_NAV;
 
   const NavItem = ({ item }) => {
     const active = location.pathname === item.to || (item.to !== '/admin' && location.pathname.startsWith(item.to));
