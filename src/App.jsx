@@ -6,6 +6,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { Navigate } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 
 // Public pages
 import JobBoard from './pages/JobBoard';
@@ -34,7 +35,8 @@ const AdminRoute = ({ children }) => {
   const { user, isAuthenticated, isLoadingAuth } = useAuth();
   if (isLoadingAuth) return null;
   if (!isAuthenticated || user?.role !== 'admin') {
-    return <Navigate to="/login" replace />;
+    base44.auth.redirectToLogin('/admin');
+    return null;
   }
   return children;
 };
