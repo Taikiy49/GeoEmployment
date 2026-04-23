@@ -204,7 +204,7 @@ export default function Billing() {
                 </div>
                 <div>
                   <label className="text-[11px] font-medium text-[#374151] block mb-1">Monthly Rate ($)</label>
-                  <Input type="number" value={form.monthlyRate || 20} onChange={e => update('monthlyRate', parseFloat(e.target.value))} className="h-9 text-sm" />
+                  <Input type="number" value={form.monthlyRate || 25} onChange={e => update('monthlyRate', parseFloat(e.target.value))} className="h-9 text-sm" />
                 </div>
                 <div>
                   <label className="text-[11px] font-medium text-[#374151] block mb-1">Status</label>
