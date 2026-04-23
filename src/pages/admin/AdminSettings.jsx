@@ -16,15 +16,11 @@ export default function AdminSettings() {
     });
   }, []);
 
-  const BILLING_EMAIL = 'taikiy49@gmail.com';
-
   const ROLE_LABELS = {
-    billing: 'Billing Access',
     hr_admin: 'HR Admin',
   };
 
   const ROLE_COLORS = {
-    billing: 'bg-green-100 text-green-800',
     hr_admin: 'bg-blue-100 text-blue-800',
   };
 
@@ -42,20 +38,15 @@ export default function AdminSettings() {
             <Shield className="w-4 h-4 text-bronze" /> Role-Based Access Control
           </h2>
           <div className="space-y-2">
-            {[
-              { role: 'billing', desc: 'Access to billing and subscription management only' },
-              { role: 'hr_admin', desc: 'Full HR access — job requisitions, applications, EEO data, settings' },
-            ].map(item => (
-              <div key={item.role} className="flex items-start gap-3 p-3 rounded-lg bg-[#f9fafb] border border-[#f3f4f6]">
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${ROLE_COLORS[item.role]}`}>
-                  {ROLE_LABELS[item.role]}
-                </span>
-                <span className="text-xs text-[#6b7280]">{item.desc}</span>
-              </div>
-            ))}
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-[#f9fafb] border border-[#f3f4f6]">
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap bg-blue-100 text-blue-800">
+                HR Admin
+              </span>
+              <span className="text-xs text-[#6b7280]">Full platform access — job requisitions, applications, settings, and management</span>
+            </div>
           </div>
           <p className="text-[10px] text-[#9ca3af] mt-3">
-            {BILLING_EMAIL} has billing access. All other users assigned the HR Admin role have full platform access except billing.
+            Assign the HR Admin role to team members who need full platform access.
           </p>
         </div>
 
@@ -96,7 +87,7 @@ export default function AdminSettings() {
             </table>
           </div>
           <p className="text-[10px] text-[#9ca3af] mt-3">
-           To invite a new user, contact your administrator and assign them the HR Admin role for full platform access.
+            All users should be assigned the HR Admin role for full platform access.
           </p>
         </div>
 
