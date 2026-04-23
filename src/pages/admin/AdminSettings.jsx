@@ -1,20 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Save, Users, Shield, Building } from 'lucide-react';
+import { Save, Users, Shield, Building, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '../../components/admin/AdminLayout';
 
+const BILLING_EMAIL = 'taikiy49@gmail.com';
+
 export default function AdminSettings() {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviting, setInviting] = useState(false);
+  const [inviteMessage, setInviteMessage] = useState('');
 
-  useEffect(() => {
+  const load = () => {
     Promise.all([base44.auth.me(), base44.entities.User.list()]).then(([u, us]) => {
       setUser(u);
       setUsers(us);
     });
-  }, []);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleInvite = async () => {
+    if (!inviteEmail.trim()) {
+      setInviteMessage('Please enter an email address');
+      return;
+    }
+    setInviting(true);
+    try {
+      await base44.users.inviteUser(inviteEmail.trim(), 'admin');
+      setInviteMessage('Invitation sent successfully!');
+      setInviteEmail('');
+      setTimeout(() => setInviteMessage(''), 3000);
+      load();
+    } catch (err) {
+      setInviteMessage('Failed to send invitation: ' + err.message);
+    }
+    setInviting(false);
+  };
 
   const ROLE_LABELS = {
     hr_admin: 'HR Admin',
@@ -49,6 +74,37 @@ export default function AdminSettings() {
             Assign the HR Admin role to team members who need full platform access.
           </p>
         </div>
+
+        {/* Invite form - only for billing email */}
+        {user?.email === BILLING_EMAIL && (
+          <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
+            <h2 className="text-sm font-semibold text-navy mb-4 flex items-center gap-2">
+              <Plus className="w-4 h-4 text-bronze" /> Invite HR Admin
+            </h2>
+            <div className="flex gap-2">
+              <Input
+                value={inviteEmail}
+                onChange={e => setInviteEmail(e.target.value)}
+                placeholder="Email address"
+                type="email"
+                className="h-9 text-sm flex-1"
+                onKeyPress={e => e.key === 'Enter' && handleInvite()}
+              />
+              <Button
+                onClick={handleInvite}
+                disabled={inviting}
+                className="rounded-lg px-4 h-9 text-sm bg-bronze hover:bg-bronze-dark text-white"
+              >
+                {inviting ? 'Sending...' : 'Invite'}
+              </Button>
+            </div>
+            {inviteMessage && (
+              <p className={`text-xs mt-2 ${inviteMessage.includes('successfully') ? 'text-green-600' : 'text-red-600'}`}>
+                {inviteMessage}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Users table */}
         <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">

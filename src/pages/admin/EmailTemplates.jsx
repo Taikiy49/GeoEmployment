@@ -237,7 +237,7 @@ export default function EmailTemplates() {
                     placeholder="Enter email content. Use {{firstName}}, {{lastName}}, {{position}} for variable insertion."
                     className="w-full h-40 px-3 py-2 text-sm rounded-lg border border-[#e5e7eb] focus:outline-none focus:ring-1 focus:ring-bronze"
                   />
-                  <p className="text-[10px] text-[#9ca3af] mt-1">Available variables: firstname, lastname, position, company, email (use double braces: {'{'{'}firstName{'}{'}'}})</p>
+                  <p className="text-[10px] text-[#9ca3af] mt-1">Available variables: firstname, lastname, position, company, email (example: {`{{firstName}}`})</p>
                 </div>
 
                 <div>
