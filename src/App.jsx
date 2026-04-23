@@ -19,7 +19,6 @@ import JobDetail from './pages/admin/JobDetail';
 import ApplicationsList from './pages/admin/ApplicationsList';
 import ApplicationDetail from './pages/admin/ApplicationDetail';
 import AdminSettings from './pages/admin/AdminSettings';
-import Billing from './pages/admin/Billing';
 
 // Protects /admin/* — only users with role="admin" can enter
 const AdminRoute = ({ children }) => {
@@ -67,7 +66,6 @@ const AuthenticatedApp = () => {
       <Route path="/admin/applications" element={<AdminRoute><ApplicationsList /></AdminRoute>} />
       <Route path="/admin/applications/:id" element={<AdminRoute><ApplicationDetail /></AdminRoute>} />
       <Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
-      <Route path="/admin/billing" element={<AdminRoute><Billing /></AdminRoute>} />
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>

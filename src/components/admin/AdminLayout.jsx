@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard, Briefcase, Users, Settings, CreditCard,
+  LayoutDashboard, Briefcase, Users, Settings,
   Menu, X, Shield, ChevronRight, LogOut
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -11,7 +11,6 @@ const NAV = [
   { label: 'Job Requisitions', icon: Briefcase, to: '/admin/jobs' },
   { label: 'Applications', icon: Users, to: '/admin/applications' },
   { label: 'Settings', icon: Settings, to: '/admin/settings' },
-  { label: 'Billing', icon: CreditCard, to: '/admin/billing' },
 ];
 
 export default function AdminLayout({ children }) {
