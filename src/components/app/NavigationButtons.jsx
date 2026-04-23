@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Send } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Send, Loader2 } from 'lucide-react';
 
 export default function NavigationButtons({
   onBack,
@@ -12,36 +11,40 @@ export default function NavigationButtons({
   isLoading = false,
 }) {
   return (
-    <div className="flex items-center justify-between mt-8 pt-5 border-t border-[#e5e7eb]">
+    <div className="flex items-center justify-between mt-8 pt-5 border-t border-gray-100">
       <div>
         {showBack && (
-          <Button
+          <button
             type="button"
-            variant="outline"
             onClick={onBack}
-            className="rounded-full px-5 h-9 text-sm border-[#cbd5e1] text-[#374151] hover:bg-[#f9fafb]"
+            className="flex items-center gap-1.5 px-4 py-2 text-sm text-gray-500 hover:text-gray-800 rounded-lg hover:bg-gray-100 transition-all font-medium"
           >
-            <ChevronLeft className="w-4 h-4 mr-1" />
+            <ChevronLeft className="w-4 h-4" />
             Back
-          </Button>
+          </button>
         )}
       </div>
       <div>
         {showNext && (
-          <Button
+          <button
             type="button"
             onClick={onNext}
             disabled={isLoading}
-            className="rounded-full px-6 h-9 text-sm bg-bronze hover:bg-bronze-dark text-white border border-bronze-dark shadow-sm"
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all shadow-sm disabled:opacity-60
+              ${isSubmit
+                ? 'bg-green-600 hover:bg-green-700'
+                : 'bg-gray-900 hover:bg-gray-700'
+              }`}
           >
-            {isLoading ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-            ) : isSubmit ? (
-              <Send className="w-3.5 h-3.5 mr-1.5" />
-            ) : null}
+            {isLoading
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : isSubmit
+                ? <Send className="w-3.5 h-3.5" />
+                : null
+            }
             {isSubmit ? 'Submit Application' : nextLabel}
-            {!isSubmit && !isLoading && <ChevronRight className="w-4 h-4 ml-1" />}
-          </Button>
+            {!isSubmit && !isLoading && <ChevronRight className="w-4 h-4" />}
+          </button>
         )}
       </div>
     </div>

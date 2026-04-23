@@ -1,6 +1,4 @@
 import React from 'react';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function FormField({
@@ -18,20 +16,21 @@ export default function FormField({
 }) {
   const id = label?.toLowerCase().replace(/\s+/g, '-');
 
+  const inputClass = "w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-bronze/25 focus:border-bronze transition-all disabled:bg-gray-50 disabled:text-gray-400";
+
   return (
     <div className={className}>
       {label && (
-        <label htmlFor={id} className="block text-[11px] font-medium text-[#374151] mb-1.5">
+        <label htmlFor={id} className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
           {label}
-          {required && <span className="text-destructive ml-0.5">*</span>}
+          {required && <span className="text-red-400 ml-0.5 normal-case">*</span>}
         </label>
       )}
+
       {type === 'select' ? (
         <Select value={value || ''} onValueChange={onChange} disabled={disabled}>
-          <SelectTrigger
-            className="h-9 text-sm rounded-lg border-[#e5e7eb] bg-white focus:ring-bronze focus:border-bronze"
-          >
-            <SelectValue placeholder={placeholder || 'Select...'} />
+          <SelectTrigger className="h-11 text-sm rounded-xl border-gray-200 bg-white focus:ring-2 focus:ring-bronze/25 focus:border-bronze">
+            <SelectValue placeholder={placeholder || 'Select…'} />
           </SelectTrigger>
           <SelectContent>
             {options?.map((opt) => (
@@ -42,28 +41,29 @@ export default function FormField({
           </SelectContent>
         </Select>
       ) : type === 'textarea' ? (
-        <Textarea
+        <textarea
           id={id}
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           rows={rows}
           disabled={disabled}
-          className="text-sm rounded-lg border-[#e5e7eb] bg-white focus:ring-bronze focus:border-bronze resize-none"
+          className={`${inputClass} resize-none`}
         />
       ) : (
-        <Input
+        <input
           id={id}
           type={type}
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
-          className="h-9 text-sm rounded-lg border-[#e5e7eb] bg-white focus:ring-bronze focus:border-bronze"
+          className={inputClass}
         />
       )}
+
       {hint && (
-        <p className="text-[10px] text-[#9ca3af] mt-1">{hint}</p>
+        <p className="text-[11px] text-gray-400 mt-1.5 leading-relaxed">{hint}</p>
       )}
     </div>
   );

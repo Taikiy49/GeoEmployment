@@ -169,31 +169,29 @@ export default function Application() {
   }
 
   return (
-    <div className="min-h-screen" style={{
-      background: `radial-gradient(ellipse at 15% 10%, rgba(184, 115, 51, 0.08) 0%, transparent 55%), #fbf7ea`,
-    }}>
+    <div className="min-h-screen bg-gray-50">
       <Header />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Job context banner */}
         {requisition && (
-          <div className="mb-4 flex items-center gap-3 bg-white rounded-xl border border-[#e5e7eb] px-4 py-3 shadow-sm">
-            <div className="w-8 h-8 rounded-lg bg-bronze-soft flex items-center justify-center flex-shrink-0">
+          <div className="mb-4 flex items-center gap-3 bg-white rounded-xl border border-gray-100 px-5 py-3 shadow-sm">
+            <div className="w-8 h-8 rounded-lg bg-bronze/10 flex items-center justify-center flex-shrink-0">
               <span className="text-sm">💼</span>
             </div>
             <div>
-              <div className="text-xs font-semibold text-navy">Applying for: {requisition.title}</div>
-              <div className="text-[10px] text-[#9ca3af]">{requisition.department} · {requisition.office || 'Geolabs, Inc.'}</div>
+              <div className="text-xs font-semibold text-gray-900">Applying for: {requisition.title}</div>
+              <div className="text-[11px] text-gray-400">{requisition.department} · {requisition.office || 'Geolabs, Inc.'}</div>
             </div>
           </div>
         )}
 
-        <div className="rounded-2xl border border-[#e5e7eb] shadow-sm overflow-hidden" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(8px)' }}>
+        <div className="rounded-2xl border border-gray-100 shadow-sm overflow-hidden bg-white">
           {currentStep > 0 && (
-            <div className="px-5 sm:px-7 pt-5 sm:pt-6 pb-4 border-b border-[#e5e7eb]">
+            <div className="px-6 sm:px-8 pt-6 pb-5 border-b border-gray-100">
               <Stepper currentStep={currentStep} completedSteps={completedSteps} onStepClick={goToStep} />
             </div>
           )}
-          <div className="px-5 sm:px-7 py-5 sm:py-6">
+          <div className="px-6 sm:px-8 py-7">
             <StepShell stepKey={currentStep} direction={direction}>
               {renderStep()}
             </StepShell>
