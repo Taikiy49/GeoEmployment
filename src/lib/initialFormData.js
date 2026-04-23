@@ -60,14 +60,23 @@ export const INITIAL_FORM_DATA = {
   certificationDate: '',
 
   // EEO
+  eeoName: '',
+  eeoDate: '',
   eeoGender: '',
   eeoRace: '',
 
   // Disability
+  disabilityName: '',
+  disabilityDate: '',
+  disabilityEmployeeId: '',
   disabilityStatus: '',
+  disabilitySignature: '',
+  disabilitySignatureDate: '',
 
   // Veteran
   veteranStatus: '',
+  vetSignature: '',
+  vetDate: '',
 
   // Alcohol & Drug
   drugTestAgreed: false,
