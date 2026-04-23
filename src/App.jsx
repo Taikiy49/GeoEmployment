@@ -22,23 +22,19 @@ import ApplicationDetail from './pages/admin/ApplicationDetail';
 import AdminSettings from './pages/admin/AdminSettings';
 import EmailTemplates from './pages/admin/EmailTemplates';
 
-const BILLING_EMAIL = 'taikiy49@gmail.com';
-const ADMIN_EMAIL = 'tyamashita@geolabs.net';
-
-// Billing route — only accessible to the specific billing email
+// Billing route — only accessible to billing role
 const BillingRoute = () => {
   const { user } = useAuth();
-  if (user?.email !== BILLING_EMAIL) return <Navigate to="/admin" replace />;
+  if (user?.role !== 'billing') return <Navigate to="/admin" replace />;
   return <Billing />;
 };
 
-// Protects /admin/* — only tyamashita or lola can enter
+// Protects /admin/* — only admin role can enter
 const AdminRoute = ({ children }) => {
   const { user, isAuthenticated, isLoadingAuth } = useAuth();
-  const ADMIN_EMAILS = ['tyamashita@geolabs.net', 'lola@geolabs.net'];
   if (isLoadingAuth) return null;
-  if (!isAuthenticated || !ADMIN_EMAILS.includes(user?.email)) {
-    return <Navigate to="/" replace />;
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return <Navigate to="/login" replace />;
   }
   return children;
 };

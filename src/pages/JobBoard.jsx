@@ -200,17 +200,12 @@ export default function JobBoard() {
 
         {/* Admin link */}
         <div className="mt-14 pt-8 border-t border-gray-100 text-center">
-          <button
-            onClick={async () => {
-              const res = await base44.functions.invoke('microsoftAuth', {});
-              if (res.data?.authUrl) {
-                window.location.href = res.data.authUrl;
-              }
-            }}
+          <a
+            href="/admin"
             className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
           >
             <Shield className="w-3.5 h-3.5" /> HR Admin Portal
-          </button>
+          </a>
         </div>
       </main>
 
