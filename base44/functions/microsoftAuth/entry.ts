@@ -1,0 +1,85 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+
+const CLIENT_ID = 'e00c4440-0129-4b66-94dc-02ea645fd13c';
+const TENANT_ID = '0b6bfb2a-ae2a-4961-9c6a-bd500f86bfbc';
+const REDIRECT_URI_PARAM = new URLSearchParams(new URL('http://localhost').toString()).toString();
+
+Deno.serve(async (req) => {
+  try {
+    const url = new URL(req.url);
+    const origin = req.headers.get('Origin') || 'http://localhost';
+    const code = url.searchParams.get('code');
+    const error = url.searchParams.get('error');
+
+    // Check for auth errors from Azure
+    if (error) {
+      const errorDescription = url.searchParams.get('error_description') || error;
+      console.log('Azure auth error:', errorDescription);
+      return Response.json({ error: errorDescription }, { status: 400 });
+    }
+
+    // Step 1: User initiates login
+    if (!code) {
+      const redirectUri = `${origin}/admin`;
+      const authUrl = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize?` +
+        `client_id=${CLIENT_ID}` +
+        `&response_type=code` +
+        `&scope=openid%20profile%20email` +
+        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+        `&response_mode=query`;
+      return Response.json({ authUrl });
+    }
+
+    // Step 2: Exchange code for token
+    const tokenResponse = await fetch(
+      `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          client_id: CLIENT_ID,
+          code,
+          redirect_uri: `${origin}/admin`,
+          grant_type: 'authorization_code',
+          scope: 'openid profile email',
+        }).toString(),
+      }
+    );
+
+    if (!tokenResponse.ok) {
+      const err = await tokenResponse.json();
+      console.error('Token exchange failed:', err);
+      return Response.json({ error: 'Token exchange failed' }, { status: 400 });
+    }
+
+    const { access_token } = await tokenResponse.json();
+
+    // Step 3: Get user info from Microsoft Graph
+    const userResponse = await fetch('https://graph.microsoft.com/v1.0/me', {
+      headers: { 'Authorization': `Bearer ${access_token}` },
+    });
+
+    if (!userResponse.ok) {
+      console.error('Failed to fetch user info');
+      return Response.json({ error: 'Failed to fetch user info' }, { status: 400 });
+    }
+
+    const userData = await userResponse.json();
+    const userEmail = userData.mail || userData.userPrincipalName;
+
+    // Step 4: Check if user is authorized
+    const AUTHORIZED_EMAILS = ['lola@geolabs.net', 'tyamashita@geolabs.net'];
+    const isAuthorized = AUTHORIZED_EMAILS.includes(userEmail);
+
+    console.log(`Microsoft auth attempt: ${userEmail}, authorized: ${isAuthorized}`);
+
+    return Response.json({
+      success: isAuthorized,
+      email: userEmail,
+      message: isAuthorized ? 'Login successful' : 'Email not authorized for admin access',
+    });
+  } catch (error) {
+    console.error('microsoftAuth error:', error.message);
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+});
