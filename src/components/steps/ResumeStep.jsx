@@ -16,9 +16,10 @@ const MAX_SIZE = 5 * 1024 * 1024;
 export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
   const [file, setFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
-  const [status, setStatus] = useState('idle'); // idle, uploading, parsing, success, error
+  // If resume was already uploaded (persisted in formData), start in success state
+  const [status, setStatus] = useState(formData.resumeFileUrl ? 'success' : 'idle');
   const [errorMsg, setErrorMsg] = useState('');
-  const [parsedPreview, setParsedPreview] = useState(null);
+  const [parsedPreview, setParsedPreview] = useState(formData.resumeParsedPreview || null);
   const [showJson, setShowJson] = useState(false);
 
   const handleFile = useCallback((f) => {
@@ -125,6 +126,7 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
 
       setParsedPreview(parsed);
       mergeResumeData(parsed);
+      setFormData(prev => ({ ...prev, resumeParsedPreview: parsed }));
       setStatus('success');
     } catch (err) {
       setErrorMsg(err.message || 'Failed to parse resume.');
@@ -237,15 +239,23 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
             className="hidden"
             onChange={(e) => handleFile(e.target.files[0])}
           />
-          {file ? (
+          {file || formData.resumeFileUrl ? (
             <div className="flex items-center justify-center gap-3">
-              <FileText className="w-8 h-8 text-success" />
+              <FileText className={`w-8 h-8 ${status === 'success' ? 'text-success' : 'text-bronze'}`} />
               <div className="text-left">
-                <p className="text-sm font-medium text-[#111827]">{file.name}</p>
-                <p className="text-[10px] text-[#6b7280]">{(file.size / 1024).toFixed(1)} KB</p>
+                <p className="text-sm font-medium text-[#111827]">{file ? file.name : 'Resume uploaded'}</p>
+                <p className="text-[10px] text-[#6b7280]">
+                  {file ? `${(file.size / 1024).toFixed(1)} KB` : status === 'success' ? 'Previously uploaded & analyzed' : 'Ready to analyze'}
+                </p>
               </div>
               <button
-                onClick={(e) => { e.stopPropagation(); setFile(null); setStatus('idle'); setParsedPreview(null); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setFile(null);
+                  setStatus('idle');
+                  setParsedPreview(null);
+                  setFormData(prev => ({ ...prev, resumeFileUrl: '', resumeParsedPreview: null }));
+                }}
                 className="ml-2 p-1 rounded-full hover:bg-[#f3f4f6]"
               >
                 <X className="w-4 h-4 text-[#6b7280]" />
@@ -265,7 +275,7 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
         </div>
 
         {/* Upload button */}
-        {file && status !== 'success' && (
+        {file && status !== 'success' && !formData.resumeFileUrl && (
           <div className="mt-4 flex justify-center">
             <Button
               onClick={handleUploadAndParse}
