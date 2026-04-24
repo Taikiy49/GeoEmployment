@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft, FileText, Lock, MessageSquare, Clock, ExternalLink, Send, Shield, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, FileText, Lock, MessageSquare, Clock, ExternalLink, Send, Shield, AlertTriangle, Download } from 'lucide-react';
+import { generateInterviewPDF, generateFullPDF } from '@/utils/generateApplicationPDF';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '../../components/admin/AdminLayout';
@@ -23,6 +24,8 @@ export default function ApplicationDetail() {
   const [showEEO, setShowEEO] = useState(false);
   const [user, setUser] = useState(null);
   const [confirmStage, setConfirmStage] = useState(null);
+  const [exportingInterview, setExportingInterview] = useState(false);
+  const [exportingFull, setExportingFull] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -104,6 +107,25 @@ export default function ApplicationDetail() {
             <div className="text-xs text-[#6b7280] mt-0.5">
               {app.email} · Applied {new Date(app.submittedAt || app.created_date).toLocaleDateString()} · {app.requisitionTitle || app.positionAppliedFor || 'Position TBD'}
             </div>
+          </div>
+          {/* PDF Export Buttons */}
+          <div className="flex gap-2 flex-shrink-0 flex-wrap">
+            <button
+              onClick={async () => { setExportingInterview(true); await generateInterviewPDF(app); setExportingInterview(false); }}
+              disabled={exportingInterview}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-[#e5e7eb] bg-white text-[#374151] hover:border-bronze hover:text-bronze transition-colors disabled:opacity-50"
+            >
+              <Download className="w-3.5 h-3.5" />
+              {exportingInterview ? 'Generating…' : 'Interview Packet'}
+            </button>
+            <button
+              onClick={async () => { setExportingFull(true); await generateFullPDF(app); setExportingFull(false); }}
+              disabled={exportingFull}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-bronze text-white hover:bg-bronze-dark transition-colors disabled:opacity-50"
+            >
+              <Download className="w-3.5 h-3.5" />
+              {exportingFull ? 'Generating…' : 'Full Record (HR/Compliance)'}
+            </button>
           </div>
         </div>
 
