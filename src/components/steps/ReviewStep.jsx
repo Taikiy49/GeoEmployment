@@ -62,11 +62,11 @@ export default function ReviewStep({ formData, onBack, onSubmit }) {
             <ReviewRow label="Resume Uploaded" value={formData.resumeFileUrl ? 'Yes' : 'No'} />
           </ReviewBlock>
 
-          {(!formData.certificationAgreed || !formData.drugTestAgreed) && (
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200">
-              <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-amber-700">
-                Some required acknowledgments have not been completed. Please go back and complete them before submitting.
+          {(!formData.certificationAgreed || !formData.drugTestAgreed || !formData.certificationSignature || !formData.drugTestSignature) && (
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 border border-red-200">
+              <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-red-700">
+                <strong>Required signatures missing.</strong> You must complete the Employment Certification (Step 11) and Alcohol & Drug Testing (Step 15) signatures before submitting.
               </p>
             </div>
           )}
@@ -84,7 +84,7 @@ export default function ReviewStep({ formData, onBack, onSubmit }) {
         </Button>
         <Button
           onClick={handleSubmit}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !formData.certificationAgreed || !formData.drugTestAgreed || !formData.certificationSignature || !formData.drugTestSignature}
           className="rounded-full px-6 h-10 text-sm bg-bronze hover:bg-bronze-dark text-white border border-bronze-dark shadow-sm"
         >
           {isSubmitting ? (
