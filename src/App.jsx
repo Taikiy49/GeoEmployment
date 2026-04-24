@@ -23,10 +23,8 @@ import ApplicationDetail from './pages/admin/ApplicationDetail';
 import AdminSettings from './pages/admin/AdminSettings';
 import EmailTemplates from './pages/admin/EmailTemplates';
 
-// Billing route — only accessible to billing role
+// Billing route — accessible to any admin
 const BillingRoute = () => {
-  const { user } = useAuth();
-  if (user?.role !== 'billing') return <Navigate to="/admin" replace />;
   return <Billing />;
 };
 

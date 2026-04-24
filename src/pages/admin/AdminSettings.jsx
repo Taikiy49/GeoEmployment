@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '../../components/admin/AdminLayout';
 
-const BILLING_EMAIL = 'taikiy49@gmail.com';
+
 
 export default function AdminSettings() {
   const [user, setUser] = useState(null);
@@ -77,8 +77,8 @@ export default function AdminSettings() {
           </p>
         </div>
 
-        {/* Invite form - only for billing email */}
-        {user?.email === BILLING_EMAIL && (
+        {/* Invite form - visible to all admins */}
+        {user?.role === 'admin' && (
           <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
             <h2 className="text-sm font-semibold text-navy mb-4 flex items-center gap-2">
               <Plus className="w-4 h-4 text-bronze" /> Invite HR Admin
