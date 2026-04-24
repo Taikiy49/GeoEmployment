@@ -27,7 +27,7 @@ const BENEFITS = [
 ];
 
 const WHY_GEOLABS = [
-  { stat: '49+', label: 'Years of Experience' },
+  { stat: '50+', label: 'Years of Experience' },
   { stat: '80+', label: 'Team Members' },
   { stat: '100%', label: 'Employee-Owned' },
   { stat: '16', label: 'Engineering Awards' },
@@ -77,7 +77,7 @@ export default function JobBoard() {
               <span className="text-bronze">moves the earth.</span>
             </h1>
             <p className="text-gray-300 text-base leading-relaxed mb-8 max-w-xl">
-              Join Geolabs — Hawaii's premier 100% employee-owned geotechnical engineering firm with 49 years of experience. Work on landmark projects across the Pacific Basin alongside award-winning engineers and scientists.
+              Join Geolabs — Hawaii's premier 100% employee-owned geotechnical engineering firm with 50 years of experience. Work on landmark projects across the Pacific Basin alongside award-winning engineers and scientists.
             </p>
             <div className="flex flex-wrap gap-3">
               <a
@@ -150,7 +150,7 @@ export default function JobBoard() {
                 {[
                   "Work on high-profile projects shaping Hawaii's infrastructure",
                   'Gain mentorship from licensed PEs and senior scientists',
-                  'Grow with a stable, award-winning firm with 49+ years of history',
+                  'Grow with a stable, award-winning firm with 50+ years of history',
                   'Earn ownership through our Employee Stock Ownership Plan (ESOP)',
                 ].map((pt, i) => (
                   <div key={i} className="flex items-start gap-2.5">
