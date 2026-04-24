@@ -69,7 +69,7 @@ export default function JobBoard() {
           muted
           playsInline
           className="absolute inset-0 w-full h-full object-cover opacity-40"
-          src="YOUR_VIDEO_URL_HERE"
+          src="https://us-east.storage.cloudconvert.com/tasks/03899d04-144b-42d3-a387-46f17eb47f56/Waihonua%20Drilled%20Shaft%20Installation%20v1%20%281%29.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cloudconvert-production%2F20260424%2Fva%2Fs3%2Faws4_request&X-Amz-Date=20260424T005308Z&X-Amz-Expires=86400&X-Amz-Signature=1db6596def668408c09102198cf0d90c380900cad142ceaf53eb975720863f67&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22Waihonua%20Drilled%20Shaft%20Installation%20v1%20%281%29.mp4%22&response-content-type=video%2Fmp4&x-id=GetObject"
         />
         <div className="relative max-w-6xl mx-auto px-6 py-20 md:py-28">
           <div className="max-w-2xl">
