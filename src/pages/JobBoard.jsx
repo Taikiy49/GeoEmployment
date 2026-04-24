@@ -126,7 +126,7 @@ export default function JobBoard() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/60 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
                   <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3">
-                    <p className="text-white text-xs font-medium">🏗️ Honolulu High Capacity Transit — one of many landmark projects</p>
+                    <p className="text-white text-xs font-medium">🏗️ SWVT Testing at Blaisdell Center — Honolulu High Capacity Transit Project</p>
                   </div>
                 </div>
               </div>
