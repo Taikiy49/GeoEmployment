@@ -27,23 +27,48 @@ import ReviewStep from '../components/steps/ReviewStep';
 
 export default function Application() {
   const { requisitionId } = useParams();
+  const storageKey = `geolabs_application_${requisitionId || 'general'}`;
+
   const [requisition, setRequisition] = useState(null);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [completedSteps, setCompletedSteps] = useState([]);
+  const [currentStep, setCurrentStep] = useState(() => {
+    try { return parseInt(localStorage.getItem(`${storageKey}_step`) || '0', 10); } catch { return 0; }
+  });
+  const [completedSteps, setCompletedSteps] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(`${storageKey}_completed`) || '[]'); } catch { return []; }
+  });
   const [direction, setDirection] = useState(1);
-  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+  const [formData, setFormData] = useState(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      return saved ? { ...INITIAL_FORM_DATA, ...JSON.parse(saved) } : INITIAL_FORM_DATA;
+    } catch { return INITIAL_FORM_DATA; }
+  });
   const [submitted, setSubmitted] = useState(false);
   const [submittedId, setSubmittedId] = useState(null);
+
+  // Persist form data to localStorage whenever it changes
+  useEffect(() => {
+    try { localStorage.setItem(storageKey, JSON.stringify(formData)); } catch {}
+  }, [formData, storageKey]);
+
+  // Persist step and completed steps
+  useEffect(() => {
+    try {
+      localStorage.setItem(`${storageKey}_step`, String(currentStep));
+      localStorage.setItem(`${storageKey}_completed`, JSON.stringify(completedSteps));
+    } catch {}
+  }, [currentStep, completedSteps, storageKey]);
 
   useEffect(() => {
     if (requisitionId) {
       base44.entities.JobRequisition.filter({ id: requisitionId }).then(([req]) => {
         if (req) {
           setRequisition(req);
+          // Only pre-fill position/location if not already saved
           setFormData(prev => ({
             ...prev,
-            positionAppliedFor: req.title,
-            preferredLocation: req.office || '',
+            positionAppliedFor: prev.positionAppliedFor || req.title,
+            preferredLocation: prev.preferredLocation || req.office || '',
           }));
         }
       });
@@ -110,6 +135,13 @@ export default function Application() {
       }],
       source: 'applicant_portal',
     });
+
+    // Clear saved progress after successful submission
+    try {
+      localStorage.removeItem(storageKey);
+      localStorage.removeItem(`${storageKey}_step`);
+      localStorage.removeItem(`${storageKey}_completed`);
+    } catch {}
 
     setSubmittedId(record.id);
     setSubmitted(true);
