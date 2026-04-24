@@ -4,98 +4,129 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const payload = await req.json();
-
     const { data: app } = payload;
 
     if (!app || app.isDraft) {
-      console.log('Skipping — no data or draft application');
       return Response.json({ ok: true });
     }
 
     const formData = app.applicationData || {};
-
-    const employmentSummary = (formData.employment || [])
-      .filter(e => e.company)
-      .slice(0, 3)
-      .map(e => `<li><strong>${e.position || 'Position'}</strong> at ${e.company} (${e.dateFrom || ''}–${e.dateTo || 'Present'})</li>`)
-      .join('') || '<li>Not provided</li>';
-
-    const educationSummary = (formData.education || [])
-      .filter(e => e.institution)
-      .slice(0, 3)
-      .map(e => `<li>${e.degree || ''} ${e.field ? '– ' + e.field : ''} — ${e.institution}${e.yearCompleted ? ', ' + e.yearCompleted : ''}</li>`)
-      .join('') || '<li>Not provided</li>';
-
-    const referencesSummary = (formData.references || [])
-      .filter(r => r.name)
-      .slice(0, 3)
-      .map(r => `<li>${r.name}${r.company ? ' (' + r.company + ')' : ''}${r.phone ? ' — ' + r.phone : ''}</li>`)
-      .join('') || '<li>Not provided</li>';
+    const position = app.requisitionTitle || app.positionAppliedFor || 'Open Position';
 
     const submittedAt = app.submittedAt
       ? new Date(app.submittedAt).toLocaleString('en-US', { timeZone: 'Pacific/Honolulu', dateStyle: 'long', timeStyle: 'short' })
       : new Date().toLocaleString('en-US', { timeZone: 'Pacific/Honolulu', dateStyle: 'long', timeStyle: 'short' });
 
-    const position = app.requisitionTitle || app.positionAppliedFor || 'Open Position';
+    const employmentRows = (formData.employment || [])
+      .filter(e => e.company)
+      .slice(0, 3)
+      .map(e => `
+        <tr>
+          <td style="padding:10px 12px; border-bottom:1px solid #f3f4f6;">
+            <div style="font-weight:600; color:#111827; font-size:13px;">${e.position || 'Position'} — ${e.company}</div>
+            <div style="color:#6b7280; font-size:12px; margin-top:2px;">${[e.dateFrom, e.dateTo || 'Present'].filter(Boolean).join(' – ')}</div>
+          </td>
+        </tr>`)
+      .join('');
 
-    const subject = `Application Received — ${position} | Geolabs, Inc.`;
+    const educationRows = (formData.education || [])
+      .filter(e => e.institution)
+      .slice(0, 3)
+      .map(e => `
+        <tr>
+          <td style="padding:10px 12px; border-bottom:1px solid #f3f4f6;">
+            <div style="font-weight:600; color:#111827; font-size:13px;">${[e.degree, e.field].filter(Boolean).join(' – ')}</div>
+            <div style="color:#6b7280; font-size:12px; margin-top:2px;">${e.institution}${e.yearCompleted ? ', ' + e.yearCompleted : ''}</div>
+          </td>
+        </tr>`)
+      .join('');
+
+    const referenceRows = (formData.references || [])
+      .filter(r => r.name)
+      .slice(0, 3)
+      .map(r => `
+        <tr>
+          <td style="padding:10px 12px; border-bottom:1px solid #f3f4f6;">
+            <div style="font-weight:600; color:#111827; font-size:13px;">${r.name}</div>
+            <div style="color:#6b7280; font-size:12px; margin-top:2px;">${[r.company, r.phone].filter(Boolean).join(' · ')}</div>
+          </td>
+        </tr>`)
+      .join('');
+
+    const section = (title, content) => `
+      <div style="margin-bottom:28px;">
+        <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#b87333; margin-bottom:10px;">${title}</div>
+        ${content}
+      </div>`;
+
+    const tableWrap = (rows) => rows
+      ? `<table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb; border-radius:8px; overflow:hidden; border-collapse:separate; border-spacing:0;">${rows}</table>`
+      : `<p style="color:#9ca3af; font-size:13px; margin:0;">Not provided</p>`;
+
+    const infoRow = (label, value) => value ? `
+      <tr>
+        <td style="padding:9px 12px; color:#6b7280; font-size:13px; width:140px; border-bottom:1px solid #f3f4f6; vertical-align:top;">${label}</td>
+        <td style="padding:9px 12px; color:#111827; font-size:13px; font-weight:500; border-bottom:1px solid #f3f4f6;">${value}</td>
+      </tr>` : '';
+
+    const subject = `Your Geolabs Application Has Been Received — ${position}`;
 
     const body = `
-<div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #111827;">
+<div style="font-family:'Helvetica Neue',Arial,sans-serif; background:#f3f4f6; padding:32px 16px;">
+<div style="max-width:600px; margin:0 auto;">
 
-  <div style="background: #0f172a; padding: 28px 32px; border-radius: 12px 12px 0 0;">
-    <h1 style="color: #b87333; margin: 0; font-size: 20px;">Geolabs, Inc.</h1>
-    <p style="color: #94a3b8; margin: 4px 0 0; font-size: 13px;">Geotechnical · Engineering · Drilling</p>
+  <!-- Header -->
+  <div style="background:#0f172a; border-radius:12px 12px 0 0; padding:28px 32px; display:flex; align-items:center;">
+    <div>
+      <div style="color:#b87333; font-size:18px; font-weight:700; letter-spacing:-0.02em;">Geolabs, Inc.</div>
+      <div style="color:#64748b; font-size:12px; margin-top:3px;">Geotechnical · Engineering · Drilling · Since 1975</div>
+    </div>
   </div>
 
-  <div style="background: #ffffff; border: 1px solid #e5e7eb; border-top: none; padding: 32px; border-radius: 0 0 12px 12px;">
+  <!-- Body -->
+  <div style="background:#ffffff; padding:36px 32px; border:1px solid #e5e7eb; border-top:none; border-radius:0 0 12px 12px;">
 
-    <h2 style="font-size: 18px; color: #111827; margin: 0 0 8px;">Thank you, ${app.firstName}!</h2>
-    <p style="color: #6b7280; font-size: 14px; margin: 0 0 24px; line-height: 1.6;">
-      We've received your application for <strong>${position}</strong>. Our HR team will review your materials and be in touch if your background is a match.
+    <h2 style="margin:0 0 8px; font-size:20px; color:#111827;">Application Received ✓</h2>
+    <p style="margin:0 0 28px; font-size:14px; color:#6b7280; line-height:1.7;">
+      Hi <strong style="color:#111827;">${app.firstName}</strong>, thank you for applying to Geolabs! We've received your application for <strong style="color:#111827;">${position}</strong> and will review it shortly.
     </p>
 
-    <div style="background: #fdf7f1; border: 1px solid #f6ece2; border-radius: 10px; padding: 20px; margin-bottom: 24px;">
-      <p style="margin: 0 0 4px; font-size: 11px; font-weight: 700; color: #945324; text-transform: uppercase; letter-spacing: 0.05em;">Application Summary</p>
-      <table style="width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px;">
-        <tr><td style="padding: 5px 0; color: #6b7280; width: 140px;">Application ID</td><td style="padding: 5px 0; color: #111827; font-family: monospace; font-size: 12px;">${app.id}</td></tr>
-        <tr><td style="padding: 5px 0; color: #6b7280;">Position</td><td style="padding: 5px 0; color: #111827; font-weight: 600;">${position}</td></tr>
-        <tr><td style="padding: 5px 0; color: #6b7280;">Submitted</td><td style="padding: 5px 0; color: #111827;">${submittedAt} (HST)</td></tr>
-        <tr><td style="padding: 5px 0; color: #6b7280;">Name</td><td style="padding: 5px 0; color: #111827;">${app.firstName} ${app.lastName}</td></tr>
-        <tr><td style="padding: 5px 0; color: #6b7280;">Email</td><td style="padding: 5px 0; color: #111827;">${app.email}</td></tr>
-        <tr><td style="padding: 5px 0; color: #6b7280;">Phone</td><td style="padding: 5px 0; color: #111827;">${app.phone || formData.cell || '—'}</td></tr>
-        ${formData.availableStartDate ? `<tr><td style="padding: 5px 0; color: #6b7280;">Available Start</td><td style="padding: 5px 0; color: #111827;">${formData.availableStartDate}</td></tr>` : ''}
-      </table>
-    </div>
+    ${section('Application Details',
+      `<table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb; border-radius:8px; overflow:hidden; border-collapse:separate; border-spacing:0;">
+        ${infoRow('Application ID', `<span style="font-family:monospace; font-size:11px; background:#f3f4f6; padding:2px 6px; border-radius:4px;">${app.id}</span>`)}
+        ${infoRow('Position', position)}
+        ${infoRow('Submitted', submittedAt + ' HST')}
+        ${infoRow('Name', app.firstName + ' ' + app.lastName)}
+        ${infoRow('Email', app.email)}
+        ${infoRow('Phone', app.phone || formData.cell || null)}
+        ${formData.availableStartDate ? infoRow('Available Start', formData.availableStartDate) : ''}
+      </table>`
+    )}
 
-    <h3 style="font-size: 13px; font-weight: 700; color: #374151; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.05em;">Employment History</h3>
-    <ul style="margin: 0 0 20px; padding-left: 18px; font-size: 13px; color: #374151; line-height: 1.8;">${employmentSummary}</ul>
+    ${section('Employment History', tableWrap(employmentRows || null))}
+    ${section('Education', tableWrap(educationRows || null))}
+    ${formData.skillsSummary ? section('Skills & Qualifications', `<p style="font-size:13px; color:#374151; line-height:1.7; margin:0; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; padding:14px 16px;">${formData.skillsSummary}</p>`) : ''}
+    ${section('Professional References', tableWrap(referenceRows || null))}
 
-    <h3 style="font-size: 13px; font-weight: 700; color: #374151; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.05em;">Education</h3>
-    <ul style="margin: 0 0 20px; padding-left: 18px; font-size: 13px; color: #374151; line-height: 1.8;">${educationSummary}</ul>
-
-    ${formData.skillsSummary ? `
-    <h3 style="font-size: 13px; font-weight: 700; color: #374151; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.05em;">Skills</h3>
-    <p style="font-size: 13px; color: #374151; margin: 0 0 20px; line-height: 1.6;">${formData.skillsSummary}</p>
-    ` : ''}
-
-    <h3 style="font-size: 13px; font-weight: 700; color: #374151; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.05em;">References</h3>
-    <ul style="margin: 0 0 24px; padding-left: 18px; font-size: 13px; color: #374151; line-height: 1.8;">${referencesSummary}</ul>
-
-    <div style="background: #f9fafb; border-radius: 8px; padding: 16px; font-size: 12px; color: #6b7280; line-height: 1.6;">
-      <strong>What happens next?</strong><br>
-      Our HR team typically reviews applications within 5–7 business days. If selected for an interview, you will be contacted at <strong>${app.email}</strong>. For questions, email us at <a href="mailto:employment@geolabs.net" style="color: #b87333;">employment@geolabs.net</a>.
+    <!-- Next Steps -->
+    <div style="background:#fdf7f1; border:1px solid #f6ece2; border-radius:10px; padding:20px 22px; margin-top:4px;">
+      <div style="font-size:13px; font-weight:700; color:#945324; margin-bottom:8px;">What happens next?</div>
+      <p style="font-size:13px; color:#6b7280; margin:0; line-height:1.7;">
+        Our HR team typically reviews applications within <strong style="color:#374151;">5–7 business days</strong>. If your background is a match, we'll reach out to you at <strong style="color:#374151;">${app.email}</strong> to schedule a phone screen.<br><br>
+        Questions? Email us at <a href="mailto:employment@geolabs.net" style="color:#b87333; text-decoration:none;">employment@geolabs.net</a>.
+      </p>
     </div>
 
   </div>
 
-  <p style="text-align: center; font-size: 11px; color: #9ca3af; margin: 16px 0 0;">
-    © ${new Date().getFullYear()} Geolabs, Inc. · 94-429 Koaki St, Suite 200, Waipahu, HI 96797<br>
-    Equal Opportunity Employer
-  </p>
+  <!-- Footer -->
+  <div style="text-align:center; padding:20px 0 4px; font-size:11px; color:#9ca3af; line-height:1.8;">
+    Geolabs, Inc. · 94-429 Koaki St, Suite 200 · Waipahu, HI 96797<br>
+    Equal Opportunity Employer · <a href="https://geolabs-employment.base44.app" style="color:#9ca3af;">geolabs-employment.base44.app</a>
+  </div>
 
 </div>
-    `.trim();
+</div>`.trim();
 
     await base44.asServiceRole.integrations.Core.SendEmail({
       from_name: 'Geolabs HR',
