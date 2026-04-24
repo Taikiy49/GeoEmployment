@@ -15,9 +15,11 @@ export default function AdminSettings() {
   const [inviteMessage, setInviteMessage] = useState('');
 
   const load = () => {
-    Promise.all([base44.auth.me(), base44.entities.User.list()]).then(([u, us]) => {
+    base44.auth.me().then(u => {
       setUser(u);
-      setUsers(us);
+      if (u?.role === 'admin') {
+        base44.entities.User.list().then(us => setUsers(us)).catch(() => {});
+      }
     });
   };
 
