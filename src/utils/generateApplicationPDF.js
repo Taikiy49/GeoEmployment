@@ -147,7 +147,6 @@ export async function generateInterviewPDF(app) {
     ['Phone', fd.phone || app.phone || '—'],
     ['Cell', fd.cell || '—'],
     ['Address', [fd.address, fd.city, fd.state, fd.zip].filter(Boolean).join(', ')],
-    ['Preferred Location', fd.preferredLocation || '—'],
   ]);
 
   // Application details
@@ -155,7 +154,6 @@ export async function generateInterviewPDF(app) {
   y = sectionTitle(doc, y, 'Application Details');
   y = twoCol(doc, y, [
     ['Position Applied For', position],
-    ['Desired Salary', fd.desiredSalary || '—'],
     ['Available Start Date', fd.availableStartDate || '—'],
     ['Referred By', fd.referredBy || '—'],
   ]);
@@ -214,14 +212,14 @@ export async function generateInterviewPDF(app) {
   }
 
   // Skills
-  if (fd.skillsSummary || fd.certifications || fd.computerSkills || fd.fieldExperience) {
+  if (fd.skillsSummary || fd.certifications || fd.computerSkills || fd.fieldLabExperience) {
     y = checkPage(doc, y, 20, logoData, subtitle);
     y = sectionTitle(doc, y, 'Skills & Certifications');
     for (const [label, val] of [
       ['Skills Summary', fd.skillsSummary],
       ['Certifications', fd.certifications],
       ['Software / Computer Skills', fd.computerSkills],
-      ['Field Experience', fd.fieldExperience],
+      ['Field / Lab Experience', fd.fieldLabExperience],
     ]) {
       if (val) {
         const lines = doc.splitTextToSize(val, 178);
@@ -352,7 +350,6 @@ export async function generateFullPDF(app) {
     ['Phone', fd.phone || app.phone || '—'],
     ['Cell', fd.cell || '—'],
     ['Address', [fd.address, fd.city, fd.state, fd.zip].filter(Boolean).join(', ')],
-    ['Preferred Location', fd.preferredLocation || '—'],
   ]);
 
   // Application details
@@ -360,7 +357,6 @@ export async function generateFullPDF(app) {
   y = sectionTitle(doc, y, 'Application Details');
   y = twoCol(doc, y, [
     ['Position Applied For', position],
-    ['Desired Salary', fd.desiredSalary || '—'],
     ['Available Start Date', fd.availableStartDate || '—'],
     ['Referred By', fd.referredBy || '—'],
     ['Source', app.source || '—'],
@@ -422,14 +418,14 @@ export async function generateFullPDF(app) {
   }
 
   // Skills
-  if (fd.skillsSummary || fd.certifications || fd.computerSkills || fd.fieldExperience) {
+  if (fd.skillsSummary || fd.certifications || fd.computerSkills || fd.fieldLabExperience) {
     y = checkPage(doc, y, 20, logoData, subtitle);
     y = sectionTitle(doc, y, 'Skills & Certifications');
     for (const [label, val] of [
       ['Skills Summary', fd.skillsSummary],
       ['Certifications', fd.certifications],
       ['Software / Computer Skills', fd.computerSkills],
-      ['Field Experience', fd.fieldExperience],
+      ['Field / Lab Experience', fd.fieldLabExperience],
     ]) {
       if (val) {
         const lines = doc.splitTextToSize(val, 178);
@@ -509,14 +505,14 @@ export async function generateFullPDF(app) {
     ['Medical Disclosure Initials', fd.medInitials || '—'],
     ['ADA / Can Perform Duties', fd.canPerformDuties ? 'Yes' : 'No'],
     ['Accommodation Requested', fd.needsAccommodation ? 'Yes' : 'No'],
+    ['Known Geolabs Employee?', fd.knowEmployee || '—'],
+    ['Employee Name(s)', fd.knowEmployeeName || '—'],
     ['Certification Agreed', fd.certificationAgreed ? 'Yes' : 'No'],
     ['Electronic Signature', fd.certificationSignature || '—'],
     ['Signature Date', fd.certificationDate || '—'],
-    ['Drug Test Initials', fd.drugTestInitials || '—'],
+    ['Drug Test Agreed', fd.drugTestAgreed ? 'Yes' : 'No'],
     ['Drug Test Signature', fd.drugTestSignature || '—'],
     ['Drug Test Signed Date', fd.drugTestDate || '—'],
-    ['Known Geolabs Employee?', fd.knowEmployee || '—'],
-    ['Employee Name(s)', fd.knowEmployeeName || '—'],
   ]);
 
   // EEO / Self-ID
@@ -533,6 +529,8 @@ export async function generateFullPDF(app) {
   y += 10;
   y = sectionTitle(doc, y, 'EEO Self-Identification (Form EEO-1)');
   y = twoCol(doc, y, [
+    ['Name (EEO)', fd.eeoName || '—'],
+    ['Date (EEO)', fd.eeoDate || '—'],
     ['Gender', eeo.gender || fd.eeoGender || '—'],
     ['Race / Ethnicity', eeo.race || fd.eeoRace || '—'],
   ]);
@@ -541,7 +539,10 @@ export async function generateFullPDF(app) {
   y = sectionTitle(doc, y, 'Disability Self-Identification (Form CC-305)');
   y = twoCol(doc, y, [
     ['Disability Status', eeo.disabilityStatus || fd.disabilityStatus || '—'],
-    ['Full Name (CC-305)', fd.disabilityName || '—'],
+    ['Name (CC-305)', fd.disabilityName || '—'],
+    ['Date (CC-305)', fd.disabilityDate || '—'],
+    ['Employee ID', fd.disabilityEmployeeId || '—'],
+    ['Signature (CC-305)', fd.disabilitySignature || '—'],
     ['Signature Date (CC-305)', fd.disabilitySignatureDate || '—'],
   ]);
 
@@ -549,8 +550,8 @@ export async function generateFullPDF(app) {
   y = sectionTitle(doc, y, 'Veteran Status Self-Identification (VEVRAA)');
   y = twoCol(doc, y, [
     ['Veteran Status', eeo.veteranStatus || fd.veteranStatus || '—'],
-    ['Full Name (VEVRAA)', fd.veteranName || '—'],
-    ['Signature Date (VEVRAA)', fd.veteranSignatureDate || '—'],
+    ['Signature (VEVRAA)', fd.vetSignature || '—'],
+    ['Signature Date (VEVRAA)', fd.vetDate || '—'],
   ]);
 
   // Stage history

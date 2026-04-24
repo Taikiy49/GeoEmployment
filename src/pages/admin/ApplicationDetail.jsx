@@ -169,10 +169,10 @@ export default function ApplicationDetail() {
             <DataSection title="Application Details">
               <div className="grid grid-cols-2 gap-3">
                 <DataRow label="Position" value={app.positionAppliedFor || app.requisitionTitle || '—'} />
-                <DataRow label="Preferred Location" value={formData.preferredLocation || '—'} />
-                <DataRow label="Desired Salary" value={formData.desiredSalary || '—'} />
                 <DataRow label="Available Start" value={formData.availableStartDate || '—'} />
                 <DataRow label="Referred By" value={formData.referredBy || '—'} />
+                <DataRow label="Knows Geolabs Employee?" value={formData.knowEmployee || '—'} />
+                {formData.knowEmployeeName && <DataRow label="Employee Name(s)" value={formData.knowEmployeeName} />}
               </div>
             </DataSection>
 
@@ -208,12 +208,12 @@ export default function ApplicationDetail() {
             )}
 
             {/* Skills */}
-            {(formData.skillsSummary || formData.certifications || formData.computerSkills || formData.fieldExperience) && (
+            {(formData.skillsSummary || formData.certifications || formData.computerSkills || formData.fieldLabExperience) && (
               <DataSection title="Skills & Certifications">
                 {formData.skillsSummary && <DataRow label="Skills" value={formData.skillsSummary} />}
                 {formData.certifications && <DataRow label="Certifications" value={formData.certifications} className="mt-2" />}
                 {formData.computerSkills && <DataRow label="Software / Computer Skills" value={formData.computerSkills} className="mt-2" />}
-                {formData.fieldExperience && <DataRow label="Field Experience" value={formData.fieldExperience} className="mt-2" />}
+                {formData.fieldLabExperience && <DataRow label="Field / Lab Experience" value={formData.fieldLabExperience} className="mt-2" />}
               </DataSection>
             )}
 
@@ -235,6 +235,29 @@ export default function ApplicationDetail() {
                 </div>
               </DataSection>
             )}
+
+            {/* Affiliations */}
+            {formData.affiliations && (
+              <DataSection title="Professional Affiliations">
+                <DataRow label="Affiliations / Memberships" value={formData.affiliations} />
+              </DataSection>
+            )}
+
+            {/* Certifications & Disclosures */}
+            <DataSection title="Certifications & Legal Disclosures">
+              <div className="grid grid-cols-2 gap-3">
+                <DataRow label="FCRA Initials" value={formData.fcrInitials || '—'} />
+                <DataRow label="Medical Disclosure Initials" value={formData.medInitials || '—'} />
+                <DataRow label="Can Perform Duties (ADA)" value={formData.canPerformDuties ? 'Yes' : 'No'} />
+                <DataRow label="Accommodation Requested" value={formData.needsAccommodation ? 'Yes' : 'No'} />
+                <DataRow label="Certification Agreed" value={formData.certificationAgreed ? 'Yes' : 'No'} />
+                <DataRow label="Electronic Signature" value={formData.certificationSignature || '—'} />
+                <DataRow label="Signature Date" value={formData.certificationDate || '—'} />
+                <DataRow label="Drug Test Agreed" value={formData.drugTestAgreed ? 'Yes' : 'No'} />
+                <DataRow label="Drug Test Signature" value={formData.drugTestSignature || '—'} />
+                <DataRow label="Drug Test Date" value={formData.drugTestDate || '—'} />
+              </div>
+            </DataSection>
 
             {/* EEO section - access restricted */}
             <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
