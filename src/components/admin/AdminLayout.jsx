@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Users, Settings,
@@ -6,18 +6,28 @@ import {
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
-const NAV = [
+const BASE_NAV = [
   { label: 'Dashboard', icon: LayoutDashboard, to: '/admin' },
   { label: 'Job Requisitions', icon: Briefcase, to: '/admin/jobs' },
   { label: 'Applications', icon: Users, to: '/admin/applications' },
   { label: 'Email Templates', icon: Mail, to: '/admin/email-templates' },
   { label: 'Settings', icon: Settings, to: '/admin/settings' },
-  { label: 'Billing', icon: CreditCard, to: '/admin/billing' },
 ];
+
+const BILLING_NAV = { label: 'Billing', icon: CreditCard, to: '/admin/billing' };
 
 export default function AdminLayout({ children }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    base44.auth.me().then(u => setCurrentUser(u)).catch(() => {});
+  }, []);
+
+  const nav = currentUser?.email === 'taikiy49@gmail.com'
+    ? [...BASE_NAV, BILLING_NAV]
+    : BASE_NAV;
 
   const NavItem = ({ item }) => {
     const active = location.pathname === item.to || (item.to !== '/admin' && location.pathname.startsWith(item.to));
@@ -56,7 +66,7 @@ export default function AdminLayout({ children }) {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {NAV.map(item => <NavItem key={item.to} item={item} />)}
+        {nav.map(item => <NavItem key={item.to} item={item} />)}
       </nav>
 
       {/* Public portal link */}

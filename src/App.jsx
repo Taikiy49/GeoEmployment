@@ -23,8 +23,10 @@ import ApplicationDetail from './pages/admin/ApplicationDetail';
 import AdminSettings from './pages/admin/AdminSettings';
 import EmailTemplates from './pages/admin/EmailTemplates';
 
-// Billing route — accessible to any admin
+// Billing route — only accessible to taikiy49@gmail.com
 const BillingRoute = () => {
+  const { user } = useAuth();
+  if (user?.email !== 'taikiy49@gmail.com') return <Navigate to="/admin" />;
   return <Billing />;
 };
 
