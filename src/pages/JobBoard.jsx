@@ -62,9 +62,14 @@ export default function JobBoard() {
 
       {/* Hero */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1a2744] to-[#0f172a]">
-        {/* Background texture */}
-        <div className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: 'radial-gradient(circle at 25% 50%, #b87333 0%, transparent 50%), radial-gradient(circle at 75% 20%, #b87333 0%, transparent 40%)' }}
+        {/* Background video — replace src with your .mov/.mp4 URL */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
+          src="YOUR_VIDEO_URL_HERE"
         />
         <div className="relative max-w-6xl mx-auto px-6 py-20 md:py-28">
           <div className="max-w-2xl">
