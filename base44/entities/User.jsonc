@@ -1,0 +1,19 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user"
+      ],
+      "default": "user"
+    },
+    "notificationsEnabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this admin receives email notifications for new applications"
+    }
+  }
+}

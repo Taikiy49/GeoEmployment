@@ -5,14 +5,14 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const payload = await req.json();
 
-    const { data: app, event } = payload;
+    const { data: app } = payload;
 
     if (!app) {
       console.log('No application data in payload, skipping');
       return Response.json({ ok: true });
     }
 
-    // Get the requisition to find the hiring manager email
+    // Get the requisition to find the hiring manager / recruiter
     let hiringManagerEmail = null;
     let recruiterEmail = null;
     let requisitionTitle = app.requisitionTitle || app.positionAppliedFor || 'Position';
@@ -26,15 +26,23 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Collect all recipients (hiring manager + recruiter, deduplicated)
-    const recipients = [...new Set([hiringManagerEmail, recruiterEmail].filter(Boolean))];
+    // Get all admin users who have notifications enabled (notificationsEnabled != false)
+    const allAdmins = await base44.asServiceRole.entities.User.filter({ role: 'admin' });
+    const adminEmails = allAdmins
+      .filter(u => u.notificationsEnabled !== false && u.email)
+      .map(u => u.email);
+
+    console.log(`Admin emails with notifications on: ${adminEmails.join(', ')}`);
+
+    // Merge: requisition contacts + admins, deduplicated
+    const recipients = [...new Set([hiringManagerEmail, recruiterEmail, ...adminEmails].filter(Boolean))];
 
     if (recipients.length === 0) {
-      console.log('No hiring manager or recruiter email found for requisition, skipping email');
+      console.log('No recipients found, skipping email');
       return Response.json({ ok: true, skipped: true });
     }
 
-    // Build a clean summary
+    // Build email body
     const formData = app.applicationData || {};
     const employmentSummary = (formData.employment || [])
       .filter(e => e.company)
@@ -59,10 +67,9 @@ A new application has been submitted for <strong>${requisitionTitle}</strong>.
 
 <strong>Applicant Details</strong>
 ━━━━━━━━━━━━━━━━━━━━━━
-Name:     ${app.firstName} ${app.lastName}
-Email:    ${app.email}
-Phone:    ${app.phone || formData.cell || '—'}
-Location: ${formData.preferredLocation || app.preferredLocation || '—'}
+Name:      ${app.firstName} ${app.lastName}
+Email:     ${app.email}
+Phone:     ${app.phone || formData.cell || '—'}
 Submitted: ${submittedAt}
 
 <strong>Recent Employment</strong>
@@ -73,9 +80,6 @@ ${educationSummary}
 
 <strong>Skills Summary</strong>
 ${formData.skillsSummary || '  (not provided)'}
-
-<strong>Desired Salary</strong>
-${formData.desiredSalary || '—'}
 
 ─────────────────────────────
 View the full application in the HR Admin Portal:

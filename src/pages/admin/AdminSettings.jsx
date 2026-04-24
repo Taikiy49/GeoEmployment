@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Save, Users, Shield, Building, Plus } from 'lucide-react';
+import { Users, Shield, Building, Plus, Bell, BellOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '../../components/admin/AdminLayout';
@@ -13,6 +13,7 @@ export default function AdminSettings() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviting, setInviting] = useState(false);
   const [inviteMessage, setInviteMessage] = useState('');
+  const [togglingNotif, setTogglingNotif] = useState(null);
 
   const load = () => {
     base44.auth.me().then(u => {
@@ -41,6 +42,14 @@ export default function AdminSettings() {
       setInviteMessage('Failed to send invitation: ' + err.message);
     }
     setInviting(false);
+  };
+
+  const handleToggleNotification = async (u) => {
+    setTogglingNotif(u.id);
+    const newVal = u.notificationsEnabled === false ? true : false;
+    await base44.entities.User.update(u.id, { notificationsEnabled: newVal });
+    setUsers(prev => prev.map(x => x.id === u.id ? { ...x, notificationsEnabled: newVal } : x));
+    setTogglingNotif(null);
   };
 
   const ROLE_LABELS = {
@@ -107,6 +116,48 @@ export default function AdminSettings() {
             )}
           </div>
         )}
+
+        {/* Notification Settings */}
+        <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
+          <h2 className="text-sm font-semibold text-navy mb-1 flex items-center gap-2">
+            <Bell className="w-4 h-4 text-bronze" /> Email Notification Settings
+          </h2>
+          <p className="text-xs text-[#6b7280] mb-4">Control which HR admins receive an email when a new application is submitted.</p>
+          <div className="space-y-2">
+            {users.filter(u => u.role === 'admin').map(u => {
+              const enabled = u.notificationsEnabled !== false;
+              const isToggling = togglingNotif === u.id;
+              return (
+                <div key={u.id} className="flex items-center justify-between p-3 rounded-lg bg-[#f9fafb] border border-[#f3f4f6]">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-full bg-bronze-soft flex items-center justify-center">
+                      <span className="text-[10px] font-bold text-bronze-dark">{(u.full_name || u.email)[0].toUpperCase()}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-navy">{u.full_name || u.email}</p>
+                      <p className="text-[10px] text-[#9ca3af]">{u.email}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleToggleNotification(u)}
+                    disabled={isToggling}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                      enabled
+                        ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                        : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
+                    }`}
+                  >
+                    {enabled ? <Bell className="w-3.5 h-3.5" /> : <BellOff className="w-3.5 h-3.5" />}
+                    {isToggling ? 'Saving...' : enabled ? 'Notifications On' : 'Notifications Off'}
+                  </button>
+                </div>
+              );
+            })}
+            {users.filter(u => u.role === 'admin').length === 0 && (
+              <p className="text-xs text-[#9ca3af] text-center py-4">No admin users found.</p>
+            )}
+          </div>
+        </div>
 
         {/* Users table */}
         <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
