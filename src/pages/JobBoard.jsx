@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { MapPin, Clock, Briefcase, ArrowRight, Shield, Users, Award, TrendingUp, Heart, Star, ChevronDown } from 'lucide-react';
 import Header from '../components/app/Header';
+import useSEO from '../hooks/useSEO';
 import AppFooter from '../components/app/AppFooter';
 
 const EMP_LABELS = {
@@ -34,6 +35,11 @@ const WHY_GEOLABS = [
 ];
 
 export default function JobBoard() {
+  useSEO(
+    'Careers at Geolabs, Inc. | Geotechnical Engineering Jobs in Hawaii',
+    'Join Geolabs — Hawaii\'s premier 100% employee-owned geotechnical engineering firm. Explore open positions in geotechnical engineering, drilling, and environmental science across the Pacific Basin.'
+  );
+
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');

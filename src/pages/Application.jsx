@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useParams, Link } from 'react-router-dom';
 import { CheckCircle2, ExternalLink, Cloud, Loader2, RotateCcw } from 'lucide-react';
 import Header from '../components/app/Header';
+import useSEO from '../hooks/useSEO';
 import AppFooter from '../components/app/AppFooter';
 import Stepper from '../components/app/Stepper';
 import StepShell from '../components/app/StepShell';
@@ -29,6 +30,11 @@ const SAVE_DEBOUNCE_MS = 2500;
 
 export default function Application() {
   const { requisitionId } = useParams();
+
+  useSEO(
+    'Apply Now | Geolabs, Inc. Careers',
+    'Submit your application to join the Geolabs team. Complete our online employment application for geotechnical engineering and related positions in Hawaii.'
+  );
   const storageKey = `geolabs_application_${requisitionId || 'general'}`;
 
   const [requisition, setRequisition] = useState(null);
