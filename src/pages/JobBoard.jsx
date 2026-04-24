@@ -326,10 +326,7 @@ export default function JobBoard() {
             </div>
           )}
 
-          <p className="text-center text-xs text-gray-400 mt-8">
-            Don't see a fit? Send your resume to{' '}
-            <a href="mailto:employment@geolabs.net" className="text-bronze hover:underline">employment@geolabs.net</a>
-          </p>
+
         </div>
       </section>
 
