@@ -169,7 +169,7 @@ export default function ApplicationDetail() {
             <DataSection title="Application Details">
               <div className="grid grid-cols-2 gap-3">
                 <DataRow label="Position" value={app.positionAppliedFor || app.requisitionTitle || '—'} />
-                <DataRow label="Available Start" value={formData.availableStartDate || '—'} />
+                <DataRow label="Available Start Date" value={formData.availableStartDate || '—'} />
                 <DataRow label="Referred By" value={formData.referredBy || '—'} />
                 <DataRow label="Knows Geolabs Employee?" value={formData.knowEmployee || '—'} />
                 {formData.knowEmployeeName && <DataRow label="Employee Name(s)" value={formData.knowEmployeeName} />}
