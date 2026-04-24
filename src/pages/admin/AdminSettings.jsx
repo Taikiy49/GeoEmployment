@@ -44,11 +44,11 @@ export default function AdminSettings() {
   };
 
   const ROLE_LABELS = {
-    hr_admin: 'HR Admin',
+    admin: 'HR Admin',
   };
 
   const ROLE_COLORS = {
-    hr_admin: 'bg-blue-100 text-blue-800',
+    admin: 'bg-blue-100 text-blue-800',
   };
 
   return (
