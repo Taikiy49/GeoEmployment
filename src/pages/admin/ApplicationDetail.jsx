@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft, FileText, Lock, MessageSquare, Clock, ExternalLink, AlertTriangle, Send, Shield } from 'lucide-react';
+import { ChevronLeft, FileText, Lock, MessageSquare, Clock, ExternalLink, Send, Shield, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '../../components/admin/AdminLayout';
@@ -22,6 +22,7 @@ export default function ApplicationDetail() {
   const [notes, setNotes] = useState([]);
   const [showEEO, setShowEEO] = useState(false);
   const [user, setUser] = useState(null);
+  const [confirmStage, setConfirmStage] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -37,7 +38,10 @@ export default function ApplicationDetail() {
     });
   }, [id]);
 
-  const handleStageChange = async (newStage) => {
+  const handleStageChangeConfirmed = async () => {
+    if (!confirmStage) return;
+    const newStage = confirmStage;
+    setConfirmStage(null);
     const now = new Date().toISOString();
     const stageHistory = [...(app.stageHistory || []), {
       stage: newStage, changedAt: now, changedBy: user?.email || 'admin',
@@ -49,6 +53,11 @@ export default function ApplicationDetail() {
     }];
     const updated = await base44.entities.Application.update(id, { stage: newStage, stageHistory, auditTrail });
     setApp(updated);
+  };
+
+  const handleStageChange = (newStage) => {
+    if (newStage === app.stage) return;
+    setConfirmStage(newStage);
   };
 
   const handleAddNote = async () => {
@@ -335,6 +344,46 @@ export default function ApplicationDetail() {
           </div>
         </div>
       </div>
+
+      {/* Stage Change Confirm Modal */}
+      {confirmStage && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-navy">Move Candidate?</h3>
+                <p className="text-xs text-[#6b7280] mt-0.5">This will update their stage and send an email notification.</p>
+              </div>
+            </div>
+            <div className="bg-[#f9fafb] rounded-lg p-3 mb-5 flex items-center gap-3 text-sm">
+              <span className="text-[#6b7280] text-xs">{STAGE_LABELS[app.stage]}</span>
+              <span className="text-[#9ca3af]">→</span>
+              <span className="font-semibold text-navy text-xs">{STAGE_LABELS[confirmStage]}</span>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setConfirmStage(null)}
+                className="px-4 py-2 rounded-lg text-xs font-medium border border-[#e5e7eb] text-[#374151] hover:bg-[#f9fafb] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleStageChangeConfirmed}
+                className={`px-4 py-2 rounded-lg text-xs font-semibold text-white transition-colors ${
+                  ['rejected', 'withdrawn'].includes(confirmStage)
+                    ? 'bg-red-500 hover:bg-red-600'
+                    : 'bg-bronze hover:bg-bronze-dark'
+                }`}
+              >
+                Yes, move to {STAGE_LABELS[confirmStage]}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }

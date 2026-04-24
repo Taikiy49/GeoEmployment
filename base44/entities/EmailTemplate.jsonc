@@ -4,11 +4,26 @@
   "properties": {
     "name": {
       "type": "string",
-      "description": "Template name (e.g., 'Interview Invitation', 'Rejection')"
+      "description": "Template name (e.g., 'Interview Invitation')"
+    },
+    "stageKey": {
+      "type": "string",
+      "enum": [
+        "under_review",
+        "phone_screen",
+        "interview",
+        "offer",
+        "hired",
+        "rejected",
+        "withdrawn",
+        ""
+      ],
+      "description": "If set, this template is used automatically when a candidate moves to this stage"
     },
     "type": {
       "type": "string",
       "enum": [
+        "stage_update",
         "interview_invitation",
         "rejection",
         "offer",
@@ -18,28 +33,19 @@
     },
     "subject": {
       "type": "string",
-      "description": "Email subject line"
+      "description": "Email subject line. Use {{firstName}}, {{position}}, {{stageLabel}} as variables."
     },
     "body": {
       "type": "string",
-      "description": "Email body content (supports {{firstName}}, {{lastName}}, {{position}}, etc.)"
-    },
-    "variables": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "List of available variables for this template",
-      "default": []
+      "description": "Email body (plain text message shown inside the styled template). Use {{firstName}}, {{lastName}}, {{position}}, {{stageLabel}} as variables."
     },
     "isActive": {
       "type": "boolean",
-      "default": true,
-      "description": "Whether this template is available for use"
+      "default": true
     },
     "notes": {
       "type": "string",
-      "description": "Internal notes about the template"
+      "description": "Internal notes"
     }
   },
   "required": [
