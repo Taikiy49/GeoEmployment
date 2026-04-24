@@ -119,8 +119,8 @@ export default function JobBoard() {
             <div className="relative">
               <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-200 to-gray-300 relative">
                 <img
-                  src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80"
-                  alt="Geolabs field work"
+                  src="https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/a3e1d3d0a_SWVTTestingatBlaisdellCenter1.jpg"
+                  alt="Geolabs field work - Honolulu High Capacity Transit"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/60 to-transparent" />
