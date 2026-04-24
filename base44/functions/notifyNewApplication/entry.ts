@@ -92,8 +92,13 @@ Deno.serve(async (req) => {
 
   <!-- Header -->
   <div style="background:#0f172a; border-radius:12px 12px 0 0; padding:28px 32px;">
-    <div style="color:#b87333; font-size:18px; font-weight:700;">Geolabs HR Portal</div>
-    <div style="color:#64748b; font-size:12px; margin-top:3px;">New Application Alert</div>
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+      <img src="https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/e4e60e6f1_geolabs.png" alt="Geolabs" width="40" height="40" style="border-radius:8px; display:block;" />
+      <div>
+        <div style="color:#b87333; font-size:18px; font-weight:700; line-height:1.2;">Geolabs HR Portal</div>
+        <div style="color:#64748b; font-size:12px; margin-top:2px;">New Application Alert</div>
+      </div>
+    </div>
   </div>
 
   <!-- Body -->

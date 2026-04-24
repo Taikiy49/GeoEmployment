@@ -76,10 +76,13 @@ Deno.serve(async (req) => {
 <div style="max-width:600px; margin:0 auto;">
 
   <!-- Header -->
-  <div style="background:#0f172a; border-radius:12px 12px 0 0; padding:28px 32px; display:flex; align-items:center;">
-    <div>
-      <div style="color:#b87333; font-size:18px; font-weight:700; letter-spacing:-0.02em;">Geolabs, Inc.</div>
-      <div style="color:#64748b; font-size:12px; margin-top:3px;">Geotechnical · Engineering · Drilling · Since 1975</div>
+  <div style="background:#0f172a; border-radius:12px 12px 0 0; padding:28px 32px;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <img src="https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/e4e60e6f1_geolabs.png" alt="Geolabs" width="40" height="40" style="border-radius:8px; display:block;" />
+      <div>
+        <div style="color:#b87333; font-size:18px; font-weight:700; letter-spacing:-0.02em;">Geolabs, Inc.</div>
+        <div style="color:#64748b; font-size:12px; margin-top:2px;">Geotechnical · Engineering · Drilling · Since 1975</div>
+      </div>
     </div>
   </div>
 
