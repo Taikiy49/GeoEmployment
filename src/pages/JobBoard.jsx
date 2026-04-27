@@ -72,7 +72,7 @@ export default function JobBoard() {
         <img
           src="https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/329e48e77_geolabs-cover.gif"
           alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
+          className="absolute inset-0 w-full h-full object-cover opacity-60"
         />
         <div className="relative max-w-6xl mx-auto px-6 py-20 md:py-28">
           <div className="max-w-2xl">
