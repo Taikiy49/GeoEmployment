@@ -58,8 +58,9 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
       setFormData(prev => ({ ...prev, resumeFileUrl: file_url }));
 
       const parsed = await base44.integrations.Core.InvokeLLM({
-        prompt: `Extract structured data from this resume. Be thorough and extract all available information.`,
+        prompt: `Extract structured data from this resume. Be thorough and extract all available information including contact details, employment history, education, skills, certifications, and references.`,
         file_urls: [file_url],
+        model: 'gemini_3_flash',
         response_json_schema: {
           type: 'object',
           properties: {
