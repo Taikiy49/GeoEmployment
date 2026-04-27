@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Users, Shield, Building, Plus, Bell, BellOff } from 'lucide-react';
+import { Users, Shield, Building, Plus, Bell, BellOff, Mail, ChevronRight, CheckCircle, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/admin/AdminLayout';
+
+const STAGE_KEYS = ['under_review', 'phone_screen', 'interview', 'offer', 'hired', 'rejected', 'withdrawn'];
+const STAGE_LABELS = {
+  under_review: 'Under Review', phone_screen: 'Phone Screen', interview: 'Interview',
+  offer: 'Offer Extended', hired: 'Hired', rejected: 'Not Selected', withdrawn: 'Withdrawn',
+};
 
 
 
 export default function AdminSettings() {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
+  const [templates, setTemplates] = useState([]);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviting, setInviting] = useState(false);
   const [inviteMessage, setInviteMessage] = useState('');
@@ -22,6 +30,7 @@ export default function AdminSettings() {
         base44.entities.User.list().then(us => setUsers(us)).catch(() => {});
       }
     });
+    base44.entities.EmailTemplate.list('-created_date', 100).then(t => setTemplates(t)).catch(() => {});
   };
 
   useEffect(() => { load(); }, []);
@@ -116,6 +125,52 @@ export default function AdminSettings() {
             )}
           </div>
         )}
+
+        {/* Email Templates Quick View */}
+        <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-sm font-semibold text-navy flex items-center gap-2">
+              <Mail className="w-4 h-4 text-bronze" /> Candidate Email Templates
+            </h2>
+            <Link to="/admin/email-templates" className="flex items-center gap-1 text-xs text-bronze hover:underline font-medium">
+              Manage All <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <p className="text-xs text-[#6b7280] mb-4">
+            Emails are sent automatically when candidates move through hiring stages. Stages without a custom template use a built-in default.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {STAGE_KEYS.map(stageKey => {
+              const stageTemplateMap = {};
+              templates.forEach(t => { if (t.stageKey) stageTemplateMap[t.stageKey] = t; });
+              const tmpl = stageTemplateMap[stageKey];
+              return (
+                <Link
+                  key={stageKey}
+                  to="/admin/email-templates"
+                  className="flex items-center gap-2.5 p-2.5 rounded-lg border border-[#f3f4f6] hover:border-bronze/30 hover:bg-[#fdf7f1] transition-all"
+                >
+                  {tmpl
+                    ? <CheckCircle className="w-3.5 h-3.5 text-bronze flex-shrink-0" />
+                    : <Circle className="w-3.5 h-3.5 text-[#d1d5db] flex-shrink-0" />
+                  }
+                  <span className="text-xs text-[#374151] font-medium flex-1">{STAGE_LABELS[stageKey]}</span>
+                  <span className={`text-[10px] font-medium ${tmpl ? 'text-bronze' : 'text-[#9ca3af] italic'}`}>
+                    {tmpl ? 'Custom' : 'Default'}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+          <div className="mt-3 pt-3 border-t border-[#f3f4f6] flex items-center justify-between">
+            <p className="text-[11px] text-[#9ca3af]">
+              {templates.filter(t => t.stageKey).length} of {STAGE_KEYS.length} stages have custom templates
+            </p>
+            <Link to="/admin/email-templates" className="text-xs bg-bronze/10 text-bronze hover:bg-bronze/20 px-3 py-1.5 rounded-lg font-medium transition-colors">
+              Edit Templates →
+            </Link>
+          </div>
+        </div>
 
         {/* Notification Settings */}
         <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
