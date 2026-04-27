@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { CreditCard, CheckCircle2, ExternalLink } from 'lucide-react';
+import { CreditCard, CheckCircle2, ExternalLink, XCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AdminLayout from '../../components/admin/AdminLayout';
 
@@ -25,6 +25,9 @@ export default function Billing() {
     });
   }, []);
 
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
   const handleSubscribe = async () => {
     setCheckoutLoading(true);
     const response = await base44.functions.invoke('createCheckout', {});
@@ -34,6 +37,18 @@ export default function Billing() {
       alert('Failed to start checkout. Please try again.');
       setCheckoutLoading(false);
     }
+  };
+
+  const handleCancel = async () => {
+    setCancelLoading(true);
+    setShowCancelConfirm(false);
+    const response = await base44.functions.invoke('cancelSubscription', {});
+    if (response.data?.success) {
+      setSub(prev => ({ ...prev, status: 'cancelled' }));
+    } else {
+      alert('Failed to cancel subscription: ' + (response.data?.error || 'Unknown error'));
+    }
+    setCancelLoading(false);
   };
 
   const STATUS_COLORS = {
@@ -96,18 +111,35 @@ export default function Billing() {
             </div>
           </div>
 
-          <Button
-            onClick={handleSubscribe}
-            disabled={checkoutLoading}
-            className="bg-white text-navy hover:bg-white/90 font-semibold text-sm px-5 h-10 rounded-xl flex items-center gap-2"
-          >
-            {checkoutLoading
-              ? <div className="w-4 h-4 border-2 border-navy/30 border-t-navy rounded-full animate-spin" />
-              : <CreditCard className="w-4 h-4" />
-            }
-            {checkoutLoading ? 'Redirecting...' : `Pay $${sub?.monthlyRate ?? 50}/month`}
-            {!checkoutLoading && <ExternalLink className="w-3.5 h-3.5 opacity-60" />}
-          </Button>
+          <div className="flex gap-3 flex-wrap">
+            {sub?.status !== 'active' && (
+              <Button
+                onClick={handleSubscribe}
+                disabled={checkoutLoading}
+                className="bg-white text-navy hover:bg-white/90 font-semibold text-sm px-5 h-10 rounded-xl flex items-center gap-2"
+              >
+                {checkoutLoading
+                  ? <div className="w-4 h-4 border-2 border-navy/30 border-t-navy rounded-full animate-spin" />
+                  : <CreditCard className="w-4 h-4" />
+                }
+                {checkoutLoading ? 'Redirecting...' : `Subscribe — $${sub?.monthlyRate ?? 50}/month`}
+                {!checkoutLoading && <ExternalLink className="w-3.5 h-3.5 opacity-60" />}
+              </Button>
+            )}
+            {sub?.status === 'active' && (
+              <Button
+                onClick={() => setShowCancelConfirm(true)}
+                disabled={cancelLoading}
+                className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-sm px-5 h-10 rounded-xl flex items-center gap-2"
+              >
+                {cancelLoading
+                  ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  : <XCircle className="w-4 h-4" />
+                }
+                {cancelLoading ? 'Cancelling...' : 'Cancel Subscription'}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Subscription details — read only, auto-managed by webhook */}
@@ -131,6 +163,36 @@ export default function Billing() {
           <p className="text-[11px] text-[#9ca3af] mt-4">Dates and status are updated automatically after each payment.</p>
         </div>
       </div>
+      {/* Cancel Confirmation Modal */}
+      {showCancelConfirm && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-5 h-5 text-red-500" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-navy">Cancel Subscription?</h3>
+                <p className="text-xs text-[#6b7280] mt-0.5">You'll keep access until the end of the current billing cycle.</p>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setShowCancelConfirm(false)}
+                className="px-4 py-2 rounded-lg text-xs font-medium border border-[#e5e7eb] text-[#374151] hover:bg-[#f9fafb] transition-colors"
+              >
+                Keep Subscription
+              </button>
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 rounded-lg text-xs font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors"
+              >
+                Yes, Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }
