@@ -2,15 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { CreditCard, CheckCircle2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import AdminLayout from '../../components/admin/AdminLayout';
 
 export default function Billing() {
   const [sub, setSub] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({});
-  const [saving, setSaving] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
 
@@ -24,35 +20,10 @@ export default function Billing() {
 
   useEffect(() => {
     base44.entities.Subscription.list().then(subs => {
-      const s = subs[0];
-      setSub(s || null);
-      setForm(s || {
-        tenantName: 'Geolabs, Inc.',
-        billingEmail: '',
-        planName: 'Professional',
-        monthlyRate: 50,
-        status: 'active',
-        subscriptionStartDate: new Date().toISOString().split('T')[0],
-        nextBillingDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      });
+      setSub(subs[0] || null);
       setLoading(false);
     });
   }, []);
-
-  const save = async () => {
-    setSaving(true);
-    let updated;
-    if (sub?.id) {
-      updated = await base44.entities.Subscription.update(sub.id, form);
-    } else {
-      updated = await base44.entities.Subscription.create(form);
-    }
-    setSub(updated);
-    setEditing(false);
-    setSaving(false);
-  };
-
-  const update = (k, v) => setForm(prev => ({ ...prev, [k]: v }));
 
   const handleSubscribe = async () => {
     setCheckoutLoading(true);
@@ -139,69 +110,25 @@ export default function Billing() {
           </Button>
         </div>
 
-        {/* Subscription details */}
+        {/* Subscription details — read only, auto-managed by webhook */}
         <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-navy">Subscription Details</h2>
-            {!editing && (
-              <Button onClick={() => setEditing(true)} variant="outline" size="sm" className="rounded-full h-7 px-3 text-xs">
-                Edit
-              </Button>
-            )}
+          <h2 className="text-sm font-semibold text-navy mb-4">Subscription Details</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              ['Billing Email', sub?.billingEmail || '—'],
+              ['Plan', sub?.planName || 'Professional'],
+              ['Monthly Rate', `$${sub?.monthlyRate ?? 50}/month`],
+              ['Status', sub?.status?.replace('_', ' ') || '—'],
+              ['Start Date', sub?.subscriptionStartDate || '—'],
+              ['Next Billing', sub?.nextBillingDate || '—'],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <div className="text-[10px] text-[#9ca3af] uppercase tracking-wide">{label}</div>
+                <div className="text-xs font-medium text-navy capitalize mt-0.5">{value}</div>
+              </div>
+            ))}
           </div>
-
-          {editing ? (
-            <div className="space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[11px] font-medium text-[#374151] block mb-1">Tenant Name</label>
-                  <Input value={form.tenantName || ''} onChange={e => update('tenantName', e.target.value)} className="h-9 text-sm" />
-                </div>
-                <div>
-                  <label className="text-[11px] font-medium text-[#374151] block mb-1">Billing Email</label>
-                  <Input type="email" value={form.billingEmail || ''} onChange={e => update('billingEmail', e.target.value)} className="h-9 text-sm" />
-                </div>
-                <div>
-                  <label className="text-[11px] font-medium text-[#374151] block mb-1">Monthly Rate ($)</label>
-                  <Input type="number" value={form.monthlyRate || 50} onChange={e => update('monthlyRate', parseFloat(e.target.value))} className="h-9 text-sm" />
-                </div>
-                <div>
-                  <label className="text-[11px] font-medium text-[#374151] block mb-1">Status</label>
-                  <select value={form.status || 'active'} onChange={e => update('status', e.target.value)} className="w-full h-9 px-3 text-sm rounded-lg border border-[#e5e7eb] bg-white">
-                    <option value="active">Active</option>
-                    <option value="trial">Trial</option>
-                    <option value="past_due">Past Due</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </div>
-              </div>
-              <p className="text-[11px] text-[#9ca3af]">Start date and next billing date are set automatically when payment is received.</p>
-              <div className="flex gap-2 pt-2">
-                <Button onClick={save} disabled={saving} className="rounded-full px-5 h-9 text-sm bg-bronze hover:bg-bronze-dark text-white">
-                  {saving && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />}
-                  Save
-                </Button>
-                <Button onClick={() => setEditing(false)} variant="outline" className="rounded-full px-5 h-9 text-sm">Cancel</Button>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                ['Tenant', sub?.tenantName || 'Geolabs, Inc.'],
-                ['Billing Email', sub?.billingEmail || '—'],
-                ['Plan', sub?.planName || 'Professional'],
-                ['Monthly Rate', `$${sub?.monthlyRate ?? 50}/month`],
-                ['Status', sub?.status?.replace('_', ' ') || 'Active'],
-                ['Start Date', sub?.subscriptionStartDate || '—'],
-                ['Next Billing', sub?.nextBillingDate || '—'],
-              ].map(([label, value]) => (
-                <div key={label}>
-                  <div className="text-[10px] text-[#9ca3af] uppercase tracking-wide">{label}</div>
-                  <div className="text-xs font-medium text-navy capitalize mt-0.5">{value}</div>
-                </div>
-              ))}
-            </div>
-          )}
+          <p className="text-[11px] text-[#9ca3af] mt-4">Dates and status are updated automatically after each payment.</p>
         </div>
       </div>
     </AdminLayout>
