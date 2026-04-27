@@ -174,15 +174,8 @@ export default function Billing() {
                     <option value="cancelled">Cancelled</option>
                   </select>
                 </div>
-                <div>
-                  <label className="text-[11px] font-medium text-[#374151] block mb-1">Subscription Start</label>
-                  <Input type="date" value={form.subscriptionStartDate || ''} onChange={e => update('subscriptionStartDate', e.target.value)} className="h-9 text-sm" />
-                </div>
-                <div>
-                  <label className="text-[11px] font-medium text-[#374151] block mb-1">Next Billing Date</label>
-                  <Input type="date" value={form.nextBillingDate || ''} onChange={e => update('nextBillingDate', e.target.value)} className="h-9 text-sm" />
-                </div>
               </div>
+              <p className="text-[11px] text-[#9ca3af]">Start date and next billing date are set automatically when payment is received.</p>
               <div className="flex gap-2 pt-2">
                 <Button onClick={save} disabled={saving} className="rounded-full px-5 h-9 text-sm bg-bronze hover:bg-bronze-dark text-white">
                   {saving && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />}
