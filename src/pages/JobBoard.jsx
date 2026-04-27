@@ -69,11 +69,14 @@ export default function JobBoard() {
       {/* Hero */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1a2744] to-[#0f172a]">
         {/* Background video — replace src with your .mov/.mp4 URL */}
-        <img
-          src="https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/329e48e77_geolabs-cover.gif"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-60"
-        />
+        <div className="absolute inset-0 w-full h-full overflow-hidden">
+          <iframe
+            src="https://www.youtube.com/embed/tbyqrhBD-hA?autoplay=1&mute=1&loop=1&playlist=tbyqrhBD-hA&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3"
+            allow="autoplay; fullscreen"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-50"
+            style={{ width: '177.78vh', height: '100vh', minWidth: '100%', minHeight: '56.25vw', border: 'none', pointerEvents: 'none' }}
+          />
+        </div>
         <div className="relative max-w-6xl mx-auto px-6 py-20 md:py-28">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-bronze/20 border border-bronze/30 rounded-full px-4 py-1.5 mb-6">
