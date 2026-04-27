@@ -156,7 +156,7 @@ export default function Billing() {
             ].map(([label, value]) => (
               <div key={label}>
                 <div className="text-[10px] text-[#9ca3af] uppercase tracking-wide">{label}</div>
-                <div className="text-xs font-medium text-navy capitalize mt-0.5">{value}</div>
+                <div className="text-xs font-medium text-navy mt-0.5">{value}</div>
               </div>
             ))}
           </div>
