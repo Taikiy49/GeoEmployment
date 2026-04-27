@@ -75,7 +75,7 @@ export default function JobBoard() {
           muted
           playsInline
           className="absolute inset-0 w-full h-full object-cover opacity-40"
-          src="https://drive.google.com/file/d/1D2T1H6EEAHYXLXJ3zWwnzNhb1mZTFL6O/view?usp=sharing"
+          src="https://drive.google.com/uc?export=download&id=1D2T1H6EEAHYXLXJ3zWwnzNhb1mZTFL6O"
         />
         <div className="relative max-w-6xl mx-auto px-6 py-20 md:py-28">
           <div className="max-w-2xl">
