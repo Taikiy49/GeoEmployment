@@ -402,13 +402,6 @@ export default function JobBoard() {
         </div>
       </section>
 
-      {/* Admin link */}
-      <div className="py-6 text-center border-t border-gray-100 bg-white">
-        <a href="/admin" className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors">
-          <Shield className="w-3.5 h-3.5" /> HR Admin Portal
-        </a>
-      </div>
-
       <AppFooter />
     </div>
   );
