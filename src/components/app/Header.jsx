@@ -6,7 +6,7 @@ const LOGO_URL = 'https://media.base44.com/images/public/69ea7ba8b51b3834e92174e
 export default function Header() {
   return (
     <header className="bg-gradient-to-r from-[#171C26] to-[#1F3451] border-b border-[#F5C400]/20 shadow-lg">
-      <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
+      <div className="w-full px-4 py-3.5 flex items-center justify-between">
         <a
           href="/"
           className="flex items-center gap-3 hover:opacity-90 transition-opacity"
