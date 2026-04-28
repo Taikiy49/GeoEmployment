@@ -203,20 +203,20 @@ export default function ApplicationDetail() {
 
             {/* Employment history */}
             {formData.employment?.some(e => e.company) && (
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
-              <DataSection title="Employment History">
-                <div className="space-y-4">
-                  {formData.employment.filter(e => e.company).map((e, i) => (
-                    <div key={i} className="border-l-2 border-bronze-soft pl-4">
-                      <div className="font-medium text-sm text-navy">{e.position}</div>
-                      <div className="text-xs text-[#374151]">{e.company}</div>
-                      <div className="text-[10px] text-[#9ca3af]">{e.dateFrom} – {e.dateTo || 'Present'}</div>
-                      {e.duties && <div className="text-xs text-[#6b7280] mt-1">{e.duties}</div>}
-                    </div>
-                  ))}
-                </div>
-              </DataSection>
-            </motion.div>
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
+                <DataSection title="Employment History">
+                  <div className="space-y-4">
+                    {formData.employment.filter(e => e.company).map((e, i) => (
+                      <div key={i} className="border-l-2 border-bronze-soft pl-4">
+                        <div className="font-medium text-sm text-navy">{e.position}</div>
+                        <div className="text-xs text-[#374151]">{e.company}</div>
+                        <div className="text-[10px] text-[#9ca3af]">{e.dateFrom} – {e.dateTo || 'Present'}</div>
+                        {e.duties && <div className="text-xs text-[#6b7280] mt-1">{e.duties}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </DataSection>
+              </motion.div>
             )}
 
             {/* Education */}
@@ -352,8 +352,8 @@ export default function ApplicationDetail() {
                   {savingNote ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Send className="w-4 h-4" />}
                 </Button>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
           {/* Sidebar */}
           <div className="space-y-4">
