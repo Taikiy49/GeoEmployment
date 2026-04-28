@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft, FileText, Lock, MessageSquare, Clock, ExternalLink, Send, Shield, AlertTriangle, Download } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { generateInterviewPDF, generateFullPDF } from '@/utils/generateApplicationPDF';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -95,7 +96,12 @@ export default function ApplicationDetail() {
     <AdminLayout>
       <div className="max-w-5xl mx-auto space-y-5">
         {/* Header */}
-        <div className="flex items-start gap-3">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex items-start gap-3"
+        >
           <Link to="/admin/applications" className="p-1.5 rounded-lg hover:bg-[#f3f4f6] text-[#6b7280] mt-1">
             <ChevronLeft className="w-4 h-4" />
           </Link>
@@ -127,15 +133,25 @@ export default function ApplicationDetail() {
               {exportingFull ? 'Generating…' : 'Full Record (HR/Compliance)'}
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Stage pipeline */}
-        <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5"
+        >
           <h2 className="text-xs font-semibold text-[#6b7280] uppercase tracking-wide mb-3">Move Candidate</h2>
           <div className="flex flex-wrap gap-1.5">
-            {STAGES.map(stage => (
-              <button
+            {STAGES.map((stage, i) => (
+              <motion.button
                 key={stage}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.05 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => handleStageChange(stage)}
                 className={`px-3 py-1.5 rounded-full text-[11px] font-medium border transition-colors ${
                   app.stage === stage
@@ -146,16 +162,22 @@ export default function ApplicationDetail() {
                 }`}
               >
                 {STAGE_LABELS[stage]}
-              </button>
+              </motion.button>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Main content */}
-          <div className="lg:col-span-2 space-y-4">
+          <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ staggerChildren: 0.1, delayChildren: 0.2 }}
+          className="lg:col-span-2 space-y-4"
+        >
             {/* Personal info */}
-            <DataSection title="Contact Information">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+              <DataSection title="Contact Information">
               <div className="grid grid-cols-2 gap-3">
                 <DataRow label="Name" value={`${app.firstName} ${app.lastName}`} />
                 <DataRow label="Email" value={app.email} />
@@ -164,9 +186,11 @@ export default function ApplicationDetail() {
                 <DataRow label="Address" value={[formData.address, formData.city, formData.state, formData.zip].filter(Boolean).join(', ')} />
               </div>
             </DataSection>
+            </motion.div>
 
             {/* Application */}
-            <DataSection title="Application Details">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
+              <DataSection title="Application Details">
               <div className="grid grid-cols-2 gap-3">
                 <DataRow label="Position" value={app.positionAppliedFor || app.requisitionTitle || '—'} />
                 <DataRow label="Available Start Date" value={formData.availableStartDate || '—'} />
@@ -175,9 +199,11 @@ export default function ApplicationDetail() {
                 {formData.knowEmployeeName && <DataRow label="Employee Name(s)" value={formData.knowEmployeeName} />}
               </div>
             </DataSection>
+            </motion.div>
 
             {/* Employment history */}
             {formData.employment?.some(e => e.company) && (
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
               <DataSection title="Employment History">
                 <div className="space-y-4">
                   {formData.employment.filter(e => e.company).map((e, i) => (
@@ -190,6 +216,7 @@ export default function ApplicationDetail() {
                   ))}
                 </div>
               </DataSection>
+            </motion.div>
             )}
 
             {/* Education */}
@@ -325,8 +352,8 @@ export default function ApplicationDetail() {
                   {savingNote ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Send className="w-4 h-4" />}
                 </Button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Sidebar */}
           <div className="space-y-4">

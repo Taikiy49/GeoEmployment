@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { MapPin, Clock, Briefcase, ArrowRight, Shield, Users, Award, TrendingUp, Heart, Star, ChevronDown } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Header from '../components/app/Header';
 import useSEO from '../hooks/useSEO';
 import AppFooter from '../components/app/AppFooter';
@@ -80,18 +81,49 @@ export default function JobBoard() {
         </video>
         <div className="relative max-w-6xl mx-auto px-6 py-24 md:py-40">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-yellow-400/20 border border-yellow-400/40 rounded-lg px-4 py-2 mb-8">
-              <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-2 bg-yellow-400/20 border border-yellow-400/40 rounded-lg px-4 py-2 mb-8"
+            >
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+                className="w-2 h-2 rounded-full bg-yellow-400"
+              />
               <span className="text-xs font-bold text-yellow-400 tracking-widest uppercase">Now Hiring</span>
-            </div>
-            <h1 className="text-5xl sm:text-6xl font-black text-white leading-tight mb-6 tracking-tight">
+            </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="text-5xl sm:text-6xl font-black text-white leading-tight mb-6 tracking-tight"
+            >
               Build a career that
-              <span className="block text-yellow-400">moves the earth</span>
-            </h1>
-            <p className="text-gray-200 text-lg leading-relaxed mb-10 max-w-2xl font-light">
+              <motion.span
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 }}
+                className="block text-yellow-400"
+              >
+                moves the earth
+              </motion.span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="text-gray-200 text-lg leading-relaxed mb-10 max-w-2xl font-light"
+            >
               Join Geolabs — Hawaii's premier 100% employee-owned geotechnical engineering firm. Work on landmark infrastructure projects across the Pacific Basin alongside award-winning engineers and scientists.
-            </p>
-            <div className="flex flex-wrap gap-4">
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="flex flex-wrap gap-4"
+            >
               <a
                 href="#open-roles"
                 onClick={e => { e.preventDefault(); document.getElementById('open-roles')?.scrollIntoView({ behavior: 'smooth' }); }}
@@ -106,7 +138,7 @@ export default function JobBoard() {
               >
                 Why Geolabs?
               </a>
-            </div>
+            </motion.div>
           </div>
         </div>
 
@@ -114,10 +146,18 @@ export default function JobBoard() {
         <div className="relative border-t border-white/10 bg-white/5 backdrop-blur-sm">
           <div className="max-w-6xl mx-auto px-6 py-5 grid grid-cols-2 sm:grid-cols-4 gap-6">
             {WHY_GEOLABS.map((s, i) => (
-              <div key={i} className="text-center">
-                <div className="text-2xl font-bold text-bronze">{s.stat}</div>
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                className="text-center"
+              >
+                <motion.div className="text-2xl font-bold text-yellow-400">
+                  {s.stat}
+                </motion.div>
                 <div className="text-[11px] text-gray-400 mt-0.5">{s.label}</div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -189,15 +229,25 @@ export default function JobBoard() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {BENEFITS.map((b, i) => (
-              <div key={i} className="group flex flex-col items-start gap-4 bg-white hover:shadow-lg border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-yellow-400/30">
-                <div className="w-12 h-12 rounded-lg bg-yellow-400/10 group-hover:bg-yellow-400/20 flex items-center justify-center flex-shrink-0 border border-yellow-400/20 transition-all">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                whileHover={{ y: -8, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+                className="group flex flex-col items-start gap-4 bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 hover:border-yellow-400/30 cursor-pointer"
+              >
+                <motion.div
+                  className="w-12 h-12 rounded-lg bg-yellow-400/10 flex items-center justify-center flex-shrink-0 border border-yellow-400/20"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                >
                   <b.icon className="w-6 h-6 text-yellow-600" />
-                </div>
+                </motion.div>
                 <div>
                   <h3 className="text-sm font-bold text-[#0f172a] mb-2">{b.title}</h3>
                   <p className="text-xs text-gray-600 leading-relaxed font-light">{b.desc}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -281,12 +331,18 @@ export default function JobBoard() {
             </div>
           ) : (
           <div className="grid grid-cols-1 gap-4">
-            {filtered.map(job => (
-              <Link
+            {filtered.map((job, idx) => (
+              <motion.div
                 key={job.id}
-                to={`/apply/${job.id}`}
-                className="group bg-white rounded-lg border border-gray-200 hover:border-yellow-400 hover:shadow-xl transition-all duration-300 p-6 flex items-start justify-between gap-6 hover:bg-yellow-50/30"
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.05, duration: 0.4 }}
+                asChild
               >
+                <Link
+                  to={`/apply/${job.id}`}
+                  className="group bg-white rounded-lg border border-gray-200 hover:border-yellow-400 hover:shadow-xl transition-all duration-300 p-6 flex items-start justify-between gap-6 hover:bg-yellow-50/30"
+                >
                   <div className="flex items-start gap-5 flex-1 min-w-0">
                     <div className="w-12 h-12 rounded-lg bg-yellow-400/15 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-yellow-400/25 transition-colors border border-yellow-400/20">
                       <Briefcase className="w-6 h-6 text-yellow-600" />
@@ -336,7 +392,8 @@ export default function JobBoard() {
                     </div>
                   </div>
                 </Link>
-              ))}
+              </motion.div>
+            ))}
             </div>
           )}
 

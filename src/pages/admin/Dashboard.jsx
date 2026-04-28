@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { Briefcase, Users, TrendingUp, Clock, ChevronRight, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import AdminLayout from '../../components/admin/AdminLayout';
 
 const STAGE_ORDER = ['applied', 'under_review', 'phone_screen', 'interview', 'offer', 'hired'];
@@ -60,38 +61,68 @@ export default function Dashboard() {
             { label: 'New This Week', value: thisWeek, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },
             { label: 'Pending Approval', value: pendingApproval, icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-50' },
           ].map((kpi, i) => (
-            <div key={i} className="bg-white rounded-xl border border-[#e5e7eb] p-4 shadow-sm">
-              <div className={`w-9 h-9 rounded-lg ${kpi.bg} flex items-center justify-center mb-3`}>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1, duration: 0.4 }}
+              whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(0,0,0,0.08)' }}
+              className="bg-white rounded-xl border border-[#e5e7eb] p-4 shadow-sm cursor-pointer"
+            >
+              <motion.div
+                className={`w-9 h-9 rounded-lg ${kpi.bg} flex items-center justify-center mb-3`}
+                whileHover={{ scale: 1.1, rotate: 5 }}
+              >
                 <kpi.icon className={`w-4 h-4 ${kpi.color}`} />
-              </div>
+              </motion.div>
               <div className="text-2xl font-bold text-navy">{kpi.value}</div>
               <div className="text-[11px] text-[#6b7280] mt-0.5">{kpi.label}</div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         {/* Pipeline funnel */}
-        <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.4 }}
+          className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5"
+        >
           <h2 className="text-sm font-semibold text-navy mb-4">Hiring Pipeline</h2>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-            {STAGE_ORDER.map((stage) => (
-              <div key={stage} className="text-center">
-                <div className="text-2xl font-bold text-navy">{stageCounts[stage] || 0}</div>
+            {STAGE_ORDER.map((stage, i) => (
+              <motion.div
+                key={stage}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4 + i * 0.05, duration: 0.3 }}
+                className="text-center"
+              >
+                <motion.div className="text-2xl font-bold text-navy">
+                  {stageCounts[stage] || 0}
+                </motion.div>
                 <div className="text-[10px] text-[#6b7280] mt-0.5">{STAGE_LABELS[stage]}</div>
                 <div className="mt-1.5 h-1.5 bg-[#f3f4f6] rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-bronze transition-all"
-                    style={{ width: apps.length ? `${((stageCounts[stage] || 0) / apps.length) * 100}%` : '0%' }}
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: apps.length ? `${((stageCounts[stage] || 0) / apps.length) * 100}%` : '0%' }}
+                    transition={{ delay: 0.6 + i * 0.1, duration: 0.8, ease: 'easeOut' }}
+                    className="h-full rounded-full bg-bronze"
                   />
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Recent applications */}
-          <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, duration: 0.4 }}
+            className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5"
+          >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-navy">Recent Applications</h2>
               <Link to="/admin/applications" className="text-[11px] text-bronze hover:underline flex items-center gap-0.5">
@@ -99,12 +130,18 @@ export default function Dashboard() {
               </Link>
             </div>
             <div className="space-y-2">
-              {recentApps.map(app => (
-                <Link
+              {recentApps.map((app, idx) => (
+                <motion.div
                   key={app.id}
-                  to={`/admin/applications/${app.id}`}
-                  className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-[#f9fafb] transition-colors group"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + idx * 0.05, duration: 0.3 }}
+                  asChild
                 >
+                  <Link
+                    to={`/admin/applications/${app.id}`}
+                    className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-[#f9fafb] transition-colors group"
+                  >
                   <div>
                     <div className="text-xs font-medium text-navy">{app.firstName} {app.lastName}</div>
                     <div className="text-[10px] text-[#9ca3af]">{app.positionAppliedFor || app.requisitionTitle || '—'}</div>
@@ -113,14 +150,20 @@ export default function Dashboard() {
                     <StageBadge stage={app.stage} />
                     <ChevronRight className="w-3 h-3 text-[#d1d5db] group-hover:text-bronze transition-colors" />
                   </div>
-                </Link>
-              ))}
-              {recentApps.length === 0 && <p className="text-xs text-[#9ca3af] text-center py-4">No applications yet.</p>}
-            </div>
-          </div>
+                  </Link>
+                  </motion.div>
+                  ))}
+                  {recentApps.length === 0 && <p className="text-xs text-[#9ca3af] text-center py-4">No applications yet.</p>}
+                  </div>
+                  </motion.div>
 
-          {/* Active jobs */}
-          <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
+                  {/* Active jobs */}
+                  <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5, duration: 0.4 }}
+                  className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5"
+                  >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-navy">Job Requisitions</h2>
               <Link to="/admin/jobs" className="text-[11px] text-bronze hover:underline flex items-center gap-0.5">
@@ -148,10 +191,10 @@ export default function Dashboard() {
                 );
               })}
               {reqs.length === 0 && <p className="text-xs text-[#9ca3af] text-center py-4">No requisitions yet.</p>}
-            </div>
-          </div>
-        </div>
-      </div>
+              </div>
+              </motion.div>
+              </div>
+              </div>
     </AdminLayout>
   );
 }
