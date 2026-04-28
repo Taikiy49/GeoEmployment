@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { MapPin, Clock, Briefcase, ArrowRight, Shield, Users, Award, TrendingUp, Heart, Star, ChevronDown } from 'lucide-react';
+import { MapPin, Clock, Briefcase, ArrowRight, Users, Award, TrendingUp, Heart, Star, ChevronDown, Shield } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Header from '../components/app/Header';
 import useSEO from '../hooks/useSEO';
 import AppFooter from '../components/app/AppFooter';
@@ -68,108 +69,148 @@ export default function JobBoard() {
 
       {/* Hero */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1a2744] to-[#0f172a]">
-        {/* Background video — replace src with your .mov/.mp4 URL */}
+        {/* Background video */}
         <video
           autoPlay
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-50"
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
         >
           <source src="https://geolabs-s3-bucket.s3.us-west-1.amazonaws.com/geolabs-cover.mp4" type="video/mp4" />
         </video>
-        <div className="relative max-w-6xl mx-auto px-6 py-20 md:py-28">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-bronze/20 border border-bronze/30 rounded-full px-4 py-1.5 mb-6">
-              <div className="w-2 h-2 rounded-full bg-bronze animate-pulse" />
-              <span className="text-xs font-semibold text-bronze tracking-wide uppercase">We're Hiring</span>
-            </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-5">
-              Build a career that<br />
-              <span className="text-bronze">moves the earth.</span>
-            </h1>
-            <p className="text-gray-300 text-base leading-relaxed mb-8 max-w-xl">
-              Join Geolabs — Hawaii's premier 100% employee-owned geotechnical engineering firm with 50 years of experience. Work on landmark projects across the Pacific Basin alongside award-winning engineers and scientists.
-            </p>
-            <div className="flex flex-wrap gap-3">
+        <div className="relative max-w-6xl mx-auto px-6 py-24 md:py-40">
+          <div className="max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-2 bg-yellow-400/20 border border-yellow-400/40 rounded-lg px-4 py-2 mb-8"
+            >
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+                className="w-2 h-2 rounded-full bg-yellow-400"
+              />
+              <span className="text-xs font-bold text-yellow-400 tracking-widest uppercase">Now Hiring</span>
+            </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="text-5xl sm:text-6xl font-black text-white leading-tight mb-6 tracking-tight"
+            >
+              Build a career that
+              <motion.span
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 }}
+                className="block text-yellow-400"
+              >
+                moves the earth
+              </motion.span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="text-gray-200 text-lg leading-relaxed mb-10 max-w-2xl font-light"
+            >
+              Join Geolabs — Hawaii's premier 100% employee-owned geotechnical engineering firm. Work on landmark infrastructure projects across the Pacific Basin alongside award-winning engineers and scientists.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="flex flex-wrap gap-4"
+            >
               <a
                 href="#open-roles"
                 onClick={e => { e.preventDefault(); document.getElementById('open-roles')?.scrollIntoView({ behavior: 'smooth' }); }}
-                className="inline-flex items-center gap-2 bg-bronze hover:bg-bronze-dark text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
+                className="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-[#0f172a] font-bold px-7 py-3.5 rounded-lg transition-all text-sm shadow-lg hover:shadow-xl"
               >
                 View Open Roles <ArrowRight className="w-4 h-4" />
               </a>
               <a
                 href="#why-geolabs"
                 onClick={e => { e.preventDefault(); document.getElementById('why-geolabs')?.scrollIntoView({ behavior: 'smooth' }); }}
-                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-medium px-6 py-3 rounded-xl transition-colors text-sm border border-white/20"
+                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white font-semibold px-7 py-3.5 rounded-lg transition-colors text-sm border border-white/30 backdrop-blur-sm"
               >
                 Why Geolabs?
               </a>
-            </div>
+            </motion.div>
           </div>
         </div>
 
         {/* Stats bar */}
-        <div className="relative border-t border-white/10 bg-white/5 backdrop-blur-sm">
+        <div className="relative border-t border-white/10 bg-[#1a2744] backdrop-blur-sm">
           <div className="max-w-6xl mx-auto px-6 py-5 grid grid-cols-2 sm:grid-cols-4 gap-6">
             {WHY_GEOLABS.map((s, i) => (
-              <div key={i} className="text-center">
-                <div className="text-2xl font-bold text-bronze">{s.stat}</div>
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                className="text-center"
+              >
+                <motion.div className="text-2xl font-bold text-yellow-400">
+                  {s.stat}
+                </motion.div>
                 <div className="text-[11px] text-gray-400 mt-0.5">{s.label}</div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </div>
 
       {/* Why Geolabs */}
-      <section id="why-geolabs" className="bg-gray-50 border-b border-gray-100 py-16">
+      <section id="why-geolabs" className="bg-white py-20">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Image placeholder */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Image */}
             <div className="relative">
-              <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-gray-200 to-gray-300 relative">
+              <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
                 <img
                   src="https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/a3e1d3d0a_SWVTTestingatBlaisdellCenter1.jpg"
                   alt="Geolabs field work - Honolulu High Capacity Transit"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/60 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3">
-                    <p className="text-white text-xs font-medium">🏗️ SWVT Testing at Blaisdell Center</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/90 to-[#0f172a]/40" />
+                <div className="absolute bottom-6 left-6 right-6">
+                  <div className="bg-white/95 backdrop-blur-sm border border-white rounded-xl px-4 py-3 shadow-lg">
+                    <p className="text-[#0f172a] text-xs font-bold">🏗️ SWVT Testing at Blaisdell Center</p>
                   </div>
                 </div>
               </div>
-              {/* Floating badge */}
-              <div className="absolute -top-4 -right-4 bg-bronze text-white rounded-2xl px-4 py-3 shadow-lg">
-                <div className="text-lg font-bold">100%</div>
-                <div className="text-[10px] font-medium opacity-90">Employee Owned</div>
+              {/* Badge */}
+              <div className="absolute -top-6 -right-6 bg-yellow-400 text-[#0f172a] rounded-xl px-5 py-4 shadow-xl font-bold">
+                <div className="text-2xl">100%</div>
+                <div className="text-xs font-bold">Employee Owned</div>
               </div>
             </div>
 
             {/* Text */}
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-bronze mb-3">Why Join Us</p>
-              <h2 className="text-3xl font-bold text-gray-900 mb-5 leading-snug">
-                More than a job —<br />it's your company.
+              <span className="inline-block text-xs font-black uppercase tracking-widest text-yellow-600 mb-4 bg-yellow-400/10 px-3 py-1 rounded-lg">Why Join Geolabs</span>
+              <h2 className="text-4xl font-black text-[#0f172a] mb-6 leading-tight">
+                More than a job<br />
+                <span className="text-yellow-500">It's your company</span>
               </h2>
-              <p className="text-gray-500 text-sm leading-relaxed mb-6">
-                Founded in 1975 and employee-owned since 1991, Geolabs has spent nearly five decades delivering exceptional geotechnical engineering across Hawaii and the Pacific Basin. When you join Geolabs, you're not just an employee — you're an owner.
+              <p className="text-gray-600 text-base leading-relaxed mb-8 font-light">
+                Founded in 1975 and employee-owned since 1991, Geolabs has spent nearly five decades delivering exceptional geotechnical engineering. When you join, you're not just an employee — you're an owner with real equity.
               </p>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {[
-                  "Work on high-profile projects shaping Hawaii's infrastructure",
-                  'Gain mentorship from licensed PEs and senior scientists',
-                  'Grow with a stable, award-winning firm with 50+ years of history',
-                  'Earn ownership through our Employee Stock Ownership Plan (ESOP)',
+                  "Work on high-profile infrastructure projects across Hawaii and the Pacific",
+                  'Mentorship from licensed professional engineers and senior scientists',
+                  'Stability and growth with a 50-year award-winning track record',
+                  'Real ownership through our Employee Stock Ownership Plan (ESOP)',
                 ].map((pt, i) => (
-                  <div key={i} className="flex items-start gap-2.5">
-                    <div className="w-5 h-5 rounded-full bg-bronze/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-bronze" />
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-yellow-400/20 flex items-center justify-center flex-shrink-0 mt-0.5 border border-yellow-400/40">
+                      <div className="w-2 h-2 rounded-full bg-yellow-500" />
                     </div>
-                    <p className="text-sm text-gray-600">{pt}</p>
+                    <p className="text-sm text-gray-700 font-medium">{pt}</p>
                   </div>
                 ))}
               </div>
@@ -179,23 +220,34 @@ export default function JobBoard() {
       </section>
 
       {/* Benefits */}
-      <section className="py-16 bg-white border-b border-gray-100">
+      <section className="py-20 bg-[#1a2744]">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-10">
-            <p className="text-xs font-semibold uppercase tracking-widest text-bronze mb-2">Compensation & Benefits</p>
-            <h2 className="text-2xl font-bold text-gray-900">Everything you need to thrive</h2>
+          <div className="text-center mb-14">
+            <span className="inline-block text-xs font-black uppercase tracking-widest text-yellow-400 mb-4 bg-yellow-400/10 px-3 py-1 rounded-lg">Compensation & Benefits</span>
+            <h2 className="text-4xl font-black text-white mb-2">Everything you need to thrive</h2>
+            <p className="text-gray-300 font-light">Comprehensive benefits designed for your success and security</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {BENEFITS.map((b, i) => (
-              <div key={i} className="group flex items-start gap-4 bg-gray-50 hover:bg-bronze-softer border border-gray-100 hover:border-bronze/20 rounded-2xl p-5 transition-all duration-200">
-                <div className="w-10 h-10 rounded-xl bg-bronze/10 group-hover:bg-bronze/20 flex items-center justify-center flex-shrink-0 transition-colors">
-                  <b.icon className="w-5 h-5 text-bronze" />
-                </div>
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                whileHover={{ y: -8, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+                className="group flex flex-col items-start gap-4 bg-[#0f172a] border border-gray-600 rounded-xl p-6 transition-all duration-300 hover:border-yellow-400/50 cursor-pointer"
+              >
+                <motion.div
+                  className="w-12 h-12 rounded-lg bg-yellow-400/10 flex items-center justify-center flex-shrink-0 border border-yellow-400/20"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                >
+                  <b.icon className="w-6 h-6 text-yellow-600" />
+                </motion.div>
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-1">{b.title}</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">{b.desc}</p>
+                  <h3 className="text-sm font-bold text-white mb-2">{b.title}</h3>
+                  <p className="text-xs text-gray-300 leading-relaxed font-light">{b.desc}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -221,26 +273,26 @@ export default function JobBoard() {
       </section>
 
       {/* Open Roles */}
-      <section id="open-roles" className="py-16 bg-gray-50">
+      <section id="open-roles" className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-10">
-            <p className="text-xs font-semibold uppercase tracking-widest text-bronze mb-2">Open Positions</p>
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">Find your next role</h2>
-            <p className="text-sm text-gray-400">
+          <div className="text-center mb-12">
+            <span className="inline-block text-xs font-black uppercase tracking-widest text-yellow-600 mb-4 bg-yellow-400/10 px-3 py-1 rounded-lg">Career Opportunities</span>
+            <h2 className="text-4xl font-black text-[#0f172a] mb-3">Find your next role</h2>
+            <p className="text-gray-600 font-light">
               {loading ? 'Loading positions…' : `${jobs.length} open position${jobs.length !== 1 ? 's' : ''} across our offices`}
             </p>
           </div>
 
           {/* Search + Filters */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <div className="relative flex-1">
               <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search positions, departments, locations…"
-                className="w-full h-11 pl-11 pr-4 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-bronze/30 focus:border-bronze transition-all"
+                className="w-full h-12 pl-12 pr-4 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition-all font-light"
               />
-              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -249,10 +301,10 @@ export default function JobBoard() {
                 <button
                   key={d}
                   onClick={() => setDeptFilter(d)}
-                  className={`h-11 px-4 rounded-xl text-xs font-medium border transition-all whitespace-nowrap ${
+                  className={`h-12 px-5 rounded-lg text-xs font-bold border transition-all whitespace-nowrap ${
                     deptFilter === d
-                      ? 'bg-gray-900 text-white border-gray-900'
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                      ? 'bg-[#0f172a] text-yellow-400 border-[#0f172a]'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-yellow-400 hover:text-yellow-600'
                   }`}
                 >
                   {d === 'all' ? 'All Departments' : d}
@@ -278,20 +330,26 @@ export default function JobBoard() {
               <p className="text-xs text-gray-300 mt-1">Try adjusting your filters or check back soon.</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-3">
-              {filtered.map(job => (
+          <div className="grid grid-cols-1 gap-4">
+            {filtered.map((job, idx) => (
+              <motion.div
+                key={job.id}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.05, duration: 0.4 }}
+                asChild
+              >
                 <Link
-                  key={job.id}
                   to={`/apply/${job.id}`}
-                  className="group bg-white rounded-2xl border border-gray-100 hover:border-bronze/40 hover:shadow-lg transition-all duration-200 p-6 flex items-start justify-between gap-6"
+                  className="group bg-white rounded-lg border border-gray-200 hover:border-yellow-400 hover:shadow-xl transition-all duration-300 p-6 flex items-start justify-between gap-6 hover:bg-yellow-50/30"
                 >
                   <div className="flex items-start gap-5 flex-1 min-w-0">
-                    <div className="w-11 h-11 rounded-xl bg-bronze/10 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-bronze/20 transition-colors">
-                      <Briefcase className="w-5 h-5 text-bronze" />
+                    <div className="w-12 h-12 rounded-lg bg-yellow-400/15 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-yellow-400/25 transition-colors border border-yellow-400/20">
+                      <Briefcase className="w-6 h-6 text-yellow-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                        <h2 className="text-base font-semibold text-gray-900 group-hover:text-bronze transition-colors">
+                      <div className="flex items-center gap-2 flex-wrap mb-2">
+                        <h2 className="text-base font-bold text-[#0f172a] group-hover:text-yellow-600 transition-colors">
                           {job.title}
                         </h2>
                         <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${EMP_COLORS[job.employmentType] || 'bg-gray-50 text-gray-600 border-gray-100'}`}>
@@ -299,6 +357,7 @@ export default function JobBoard() {
                         </span>
                       </div>
                       <div className="flex items-center gap-4 text-xs text-gray-400 flex-wrap mb-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-gray-500" />
                         <span className="flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
                           {job.department}
@@ -329,25 +388,19 @@ export default function JobBoard() {
                         <span className="text-xs font-normal text-gray-400">/yr</span>
                       </div>
                     )}
-                    <div className="flex items-center gap-1 text-bronze text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 text-yellow-600 text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
                       Apply now <ArrowRight className="w-3.5 h-3.5" />
                     </div>
                   </div>
                 </Link>
-              ))}
+              </motion.div>
+            ))}
             </div>
           )}
 
 
         </div>
       </section>
-
-      {/* Admin link */}
-      <div className="py-6 text-center border-t border-gray-100 bg-white">
-        <a href="/admin" className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors">
-          <Shield className="w-3.5 h-3.5" /> HR Admin Portal
-        </a>
-      </div>
 
       <AppFooter />
     </div>
