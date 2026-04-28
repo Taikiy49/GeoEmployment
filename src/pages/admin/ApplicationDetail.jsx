@@ -352,10 +352,10 @@ export default function ApplicationDetail() {
                   {savingNote ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Send className="w-4 h-4" />}
                 </Button>
               </div>
-            </div>
-          </div>
+              </div>
+              </motion.div>
 
-          {/* Sidebar */}
+              {/* Sidebar */}
           <div className="space-y-4">
             {/* Resume */}
             {app.resumeFileUrl && (
