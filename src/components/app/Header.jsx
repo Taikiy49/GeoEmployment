@@ -5,7 +5,7 @@ const LOGO_URL = 'https://media.base44.com/images/public/69ea7ba8b51b3834e92174e
 
 export default function Header() {
   return (
-    <header className="bg-gradient-to-r from-[#0f172a] to-[#1a2744] border-b border-yellow-400/20 shadow-lg">
+    <header className="bg-gradient-to-r from-[#171C26] to-[#1F3451] border-b border-[#F5C400]/20 shadow-lg">
       <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
         <a
           href="/"
@@ -19,7 +19,7 @@ export default function Header() {
         </a>
 
         <div className="flex items-center gap-1.5 text-[11px] text-gray-300">
-          <Shield className="w-3.5 h-3.5 text-yellow-400" />
+          <Shield className="w-3.5 h-3.5 text-[#F5C400]" />
           <span>Secure & Confidential</span>
         </div>
       </div>

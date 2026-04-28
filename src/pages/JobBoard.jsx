@@ -64,11 +64,11 @@ export default function JobBoard() {
   });
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#FFFFFF]">
       <Header />
 
       {/* Hero */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1a2744] to-[#0f172a]">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#171C26] via-[#1F3451] to-[#171C26]">
         {/* Background video */}
         <video
           autoPlay
@@ -85,14 +85,14 @@ export default function JobBoard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 bg-yellow-400/20 border border-yellow-400/40 rounded-lg px-4 py-2 mb-8"
+              className="inline-flex items-center gap-2 bg-[#F5C400]/20 border border-[#F5C400]/40 rounded-lg px-4 py-2 mb-8"
             >
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ repeat: Infinity, duration: 2 }}
-                className="w-2 h-2 rounded-full bg-yellow-400"
+                className="w-2 h-2 rounded-full bg-[#F5C400]"
               />
-              <span className="text-xs font-bold text-yellow-400 tracking-widest uppercase">Now Hiring</span>
+              <span className="text-xs font-bold text-[#F5C400] tracking-widest uppercase">Now Hiring</span>
             </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
@@ -105,7 +105,7 @@ export default function JobBoard() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
-                className="block text-yellow-400"
+                className="block text-[#F5C400]"
               >
                 moves the earth
               </motion.span>
@@ -127,7 +127,7 @@ export default function JobBoard() {
               <a
                 href="#open-roles"
                 onClick={e => { e.preventDefault(); document.getElementById('open-roles')?.scrollIntoView({ behavior: 'smooth' }); }}
-                className="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-[#0f172a] font-bold px-7 py-3.5 rounded-lg transition-all text-sm shadow-lg hover:shadow-xl"
+                className="inline-flex items-center gap-2 bg-[#F5C400] hover:bg-[#EFB506] text-[#171C26] font-bold px-7 py-3.5 rounded-lg transition-all text-sm shadow-lg hover:shadow-xl"
               >
                 View Open Roles <ArrowRight className="w-4 h-4" />
               </a>
@@ -143,7 +143,7 @@ export default function JobBoard() {
         </div>
 
         {/* Stats bar */}
-        <div className="relative border-t border-white/10 bg-[#1a2744] backdrop-blur-sm">
+        <div className="relative border-t border-white/10 bg-[#1F3451] backdrop-blur-sm">
           <div className="max-w-6xl mx-auto px-6 py-5 grid grid-cols-2 sm:grid-cols-4 gap-6">
             {WHY_GEOLABS.map((s, i) => (
               <motion.div
@@ -153,7 +153,7 @@ export default function JobBoard() {
                 transition={{ delay: i * 0.1, duration: 0.5 }}
                 className="text-center"
               >
-                <motion.div className="text-2xl font-bold text-yellow-400">
+                <motion.div className="text-2xl font-bold text-[#F5C400]">
                   {s.stat}
                 </motion.div>
                 <div className="text-[11px] text-gray-400 mt-0.5">{s.label}</div>
@@ -164,7 +164,7 @@ export default function JobBoard() {
       </div>
 
       {/* Why Geolabs */}
-      <section id="why-geolabs" className="bg-white py-20">
+      <section id="why-geolabs" className="bg-[#FFFFFF] py-20">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Image */}
@@ -183,7 +183,7 @@ export default function JobBoard() {
                 </div>
               </div>
               {/* Badge */}
-              <div className="absolute -top-6 -right-6 bg-yellow-400 text-[#0f172a] rounded-xl px-5 py-4 shadow-xl font-bold">
+              <div className="absolute -top-6 -right-6 bg-[#F5C400] text-[#171C26] rounded-xl px-5 py-4 shadow-xl font-bold">
                 <div className="text-2xl">100%</div>
                 <div className="text-xs font-bold">Employee Owned</div>
               </div>
@@ -191,10 +191,10 @@ export default function JobBoard() {
 
             {/* Text */}
             <div>
-              <span className="inline-block text-xs font-black uppercase tracking-widest text-yellow-600 mb-4 bg-yellow-400/10 px-3 py-1 rounded-lg">Why Join Geolabs</span>
-              <h2 className="text-4xl font-black text-[#0f172a] mb-6 leading-tight">
+              <span className="inline-block text-xs font-black uppercase tracking-widest text-[#EFB506] mb-4 bg-[#F5C400]/10 px-3 py-1 rounded-lg">Why Join Geolabs</span>
+              <h2 className="text-4xl font-black text-[#171C26] mb-6 leading-tight">
                 More than a job<br />
-                <span className="text-yellow-500">It's your company</span>
+                <span className="text-[#F5C400]">It's your company</span>
               </h2>
               <p className="text-gray-600 text-base leading-relaxed mb-8 font-light">
                 Founded in 1975 and employee-owned since 1991, Geolabs has spent nearly five decades delivering exceptional geotechnical engineering. When you join, you're not just an employee — you're an owner with real equity.
@@ -207,8 +207,8 @@ export default function JobBoard() {
                   'Real ownership through our Employee Stock Ownership Plan (ESOP)',
                 ].map((pt, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-yellow-400/20 flex items-center justify-center flex-shrink-0 mt-0.5 border border-yellow-400/40">
-                      <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                    <div className="w-6 h-6 rounded-full bg-[#F5C400]/20 flex items-center justify-center flex-shrink-0 mt-0.5 border border-[#F5C400]/40">
+                      <div className="w-2 h-2 rounded-full bg-[#F5C400]" />
                     </div>
                     <p className="text-sm text-gray-700 font-medium">{pt}</p>
                   </div>
@@ -220,10 +220,10 @@ export default function JobBoard() {
       </section>
 
       {/* Benefits */}
-      <section className="py-20 bg-[#1a2744]">
+      <section className="py-20 bg-[#1F3451]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-14">
-            <span className="inline-block text-xs font-black uppercase tracking-widest text-yellow-400 mb-4 bg-yellow-400/10 px-3 py-1 rounded-lg">Compensation & Benefits</span>
+            <span className="inline-block text-xs font-black uppercase tracking-widest text-[#F5C400] mb-4 bg-[#F5C400]/10 px-3 py-1 rounded-lg">Compensation & Benefits</span>
             <h2 className="text-4xl font-black text-white mb-2">Everything you need to thrive</h2>
             <p className="text-gray-300 font-light">Comprehensive benefits designed for your success and security</p>
           </div>
@@ -238,10 +238,10 @@ export default function JobBoard() {
                 className="group flex flex-col items-start gap-4 bg-[#0f172a] border border-gray-600 rounded-xl p-6 transition-all duration-300 hover:border-yellow-400/50 cursor-pointer"
               >
                 <motion.div
-                  className="w-12 h-12 rounded-lg bg-yellow-400/10 flex items-center justify-center flex-shrink-0 border border-yellow-400/20"
+                  className="w-12 h-12 rounded-lg bg-[#F5C400]/10 flex items-center justify-center flex-shrink-0 border border-[#F5C400]/20"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                 >
-                  <b.icon className="w-6 h-6 text-yellow-600" />
+                  <b.icon className="w-6 h-6 text-[#F5C400]" />
                 </motion.div>
                 <div>
                   <h3 className="text-sm font-bold text-white mb-2">{b.title}</h3>
@@ -254,7 +254,7 @@ export default function JobBoard() {
       </section>
 
       {/* EEO / Culture */}
-      <section className="py-12 bg-[#0f172a]">
+      <section className="py-12 bg-[#171C26]">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-8">
           <div className="flex-1 text-center md:text-left">
             <h3 className="text-lg font-bold text-white mb-2">Equal Opportunity Employer</h3>
@@ -263,7 +263,7 @@ export default function JobBoard() {
             </p>
           </div>
           <div className="flex-shrink-0 flex items-center gap-3 bg-white/10 border border-white/10 rounded-2xl px-6 py-4">
-            <Users className="w-6 h-6 text-bronze" />
+            <Users className="w-6 h-6 text-[#F5C400]" />
             <div>
               <div className="text-white text-sm font-semibold">Inclusive Workplace</div>
               <div className="text-gray-400 text-[11px]">Diversity is our strength</div>
@@ -273,11 +273,11 @@ export default function JobBoard() {
       </section>
 
       {/* Open Roles */}
-      <section id="open-roles" className="py-20 bg-white">
+      <section id="open-roles" className="py-20 bg-[#FFFFFF]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
-            <span className="inline-block text-xs font-black uppercase tracking-widest text-yellow-600 mb-4 bg-yellow-400/10 px-3 py-1 rounded-lg">Career Opportunities</span>
-            <h2 className="text-4xl font-black text-[#0f172a] mb-3">Find your next role</h2>
+            <span className="inline-block text-xs font-black uppercase tracking-widest text-[#EFB506] mb-4 bg-[#F5C400]/10 px-3 py-1 rounded-lg">Career Opportunities</span>
+            <h2 className="text-4xl font-black text-[#171C26] mb-3">Find your next role</h2>
             <p className="text-gray-600 font-light">
               {loading ? 'Loading positions…' : `${jobs.length} open position${jobs.length !== 1 ? 's' : ''} across our offices`}
             </p>
@@ -303,8 +303,8 @@ export default function JobBoard() {
                   onClick={() => setDeptFilter(d)}
                   className={`h-12 px-5 rounded-lg text-xs font-bold border transition-all whitespace-nowrap ${
                     deptFilter === d
-                      ? 'bg-[#0f172a] text-yellow-400 border-[#0f172a]'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-yellow-400 hover:text-yellow-600'
+                      ? 'bg-[#171C26] text-[#F5C400] border-[#171C26]'
+                      : 'bg-white text-[#21242C] border-gray-300 hover:border-[#F5C400] hover:text-[#F5C400]'
                   }`}
                 >
                   {d === 'all' ? 'All Departments' : d}
@@ -344,8 +344,8 @@ export default function JobBoard() {
                   className="group bg-white rounded-lg border border-gray-200 hover:border-yellow-400 hover:shadow-xl transition-all duration-300 p-6 flex items-start justify-between gap-6 hover:bg-yellow-50/30"
                 >
                   <div className="flex items-start gap-5 flex-1 min-w-0">
-                    <div className="w-12 h-12 rounded-lg bg-yellow-400/15 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-yellow-400/25 transition-colors border border-yellow-400/20">
-                      <Briefcase className="w-6 h-6 text-yellow-600" />
+                    <div className="w-12 h-12 rounded-lg bg-[#F5C400]/15 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-[#F5C400]/25 transition-colors border border-[#F5C400]/20">
+                      <Briefcase className="w-6 h-6 text-[#F5C400]" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-2">
