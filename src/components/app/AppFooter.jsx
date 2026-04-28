@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function AppFooter() {
   return (
-    <footer className="py-8 px-6 border-t border-gray-100 mt-4">
+    <footer className="py-8 px-6 border-t border-gray-100 mt-4 bg-white">
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <img
