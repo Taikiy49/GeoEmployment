@@ -35,10 +35,10 @@ export default function AdminLayout({ children }) {
       <Link
         to={item.to}
         onClick={() => setMobileOpen(false)}
-        className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+        className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
           active
-            ? 'bg-bronze text-white'
-            : 'text-[#374151] hover:bg-[#f3f4f6]'
+            ? 'bg-[#0f172a] text-yellow-400'
+            : 'text-gray-700 hover:bg-gray-100'
         }`}
       >
         <item.icon className="w-4 h-4 flex-shrink-0" />
@@ -50,22 +50,22 @@ export default function AdminLayout({ children }) {
   const Sidebar = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="px-4 py-4 border-b border-[#e5e7eb]">
-        <div className="flex items-center gap-2.5">
+      <div className="px-4 py-5 border-b border-gray-200 bg-gradient-to-r from-[#0f172a] to-[#1a2744]">
+        <div className="flex items-center gap-3">
           <img
             src="https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/e4e60e6f1_geolabs.png"
             alt="Geolabs"
             className="w-8 h-8 object-contain"
           />
           <div>
-            <div className="text-xs font-semibold text-navy leading-tight">Geolabs, Inc.</div>
-            <div className="text-[10px] text-[#9ca3af]">HR Admin Portal</div>
+            <div className="text-xs font-black text-white leading-tight">GEOLABS</div>
+            <div className="text-[10px] text-yellow-400 font-semibold">HR Admin Portal</div>
           </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
+      <nav className="flex-1 px-3 py-5 space-y-1">
         {nav.map(item => <NavItem key={item.to} item={item} />)}
       </nav>
 
