@@ -26,16 +26,16 @@ import EmailTemplates from './pages/admin/EmailTemplates';
 // Billing route — only accessible to taikiy49@gmail.com
 const BillingRoute = () => {
   const { user } = useAuth();
-  if (user?.email !== 'taikiy49@gmail.com') return <Navigate to="/admin" />;
+  if (user?.email !== 'taikiy49@gmail.com') return <Navigate to="/" />;
   return <Billing />;
 };
 
-// Protects /admin/* — only admin role can enter
+// Protects admin routes — only admin role can enter
 const AdminRoute = ({ children }) => {
   const { user, isAuthenticated, isLoadingAuth } = useAuth();
   if (isLoadingAuth) return null;
   if (!isAuthenticated || user?.role !== 'admin') {
-    base44.auth.redirectToLogin('/admin');
+    base44.auth.redirectToLogin('/');
     return null;
   }
   return children;
