@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { MapPin, Clock, Briefcase, ArrowRight, ChevronRight, Search, Users, Award, TrendingUp, Heart, Star, Shield } from 'lucide-react';
+import { MapPin, Clock, Briefcase, ArrowRight, ChevronRight, Search, Users, Award, TrendingUp, Heart, Star, Shield, Mail, Phone, Building2, CheckCircle } from 'lucide-react';
 
 import { motion } from 'framer-motion';
 import Header from '../components/app/Header';
@@ -298,6 +298,159 @@ export default function JobBoard() {
               </Link>
             </p>
           )}
+        </div>
+      </section>
+
+      {/* ── ABOUT ── */}
+      <section id="about" className="py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <span className="inline-block text-[11px] font-black uppercase tracking-widest text-[#b8910a] mb-4 bg-[#F5C400]/10 px-3 py-1.5 rounded-full border border-[#F5C400]/30">About Geolabs</span>
+              <h2 className="text-4xl font-black text-gray-900 mb-6 tracking-tight leading-tight">Hawaii's most trusted geotechnical firm for 50+ years</h2>
+              <p className="text-gray-500 leading-relaxed mb-6">
+                Founded in the 1970s, Geolabs, Inc. is a 100% employee-owned company headquartered in Waipahu, Hawaii. We specialize in geotechnical engineering, materials testing, and environmental services across the Pacific Basin.
+              </p>
+              <p className="text-gray-500 leading-relaxed mb-8">
+                Our ESOP structure means every employee is a true owner — with a direct stake in the success and quality of every project we deliver. That ownership mentality drives everything we do.
+              </p>
+              <div className="grid grid-cols-2 gap-5">
+                {[
+                  { stat: '50+', label: 'Years in Business' },
+                  { stat: '16', label: 'Engineering Awards' },
+                  { stat: '100%', label: 'Employee-Owned' },
+                  { stat: 'Pacific', label: 'Basin Reach' },
+                ].map((item, i) => (
+                  <div key={i} className="bg-gray-50 border border-gray-100 rounded-2xl p-5">
+                    <div className="text-3xl font-black text-[#F5C400] mb-1">{item.stat}</div>
+                    <div className="text-xs font-semibold text-gray-500">{item.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-4">
+              {[
+                { icon: Building2, title: 'Geotechnical Engineering', desc: 'Subsurface investigations, foundation analysis, slope stability, and seismic hazard assessments for major infrastructure projects.' },
+                { icon: CheckCircle, title: 'Materials Testing & Inspection', desc: 'Construction quality control, materials testing laboratories, and special inspections for public and private sector clients.' },
+                { icon: Award, title: 'Award-Winning Work', desc: 'Recognized with 16 engineering excellence awards for our contributions to Hawaii\'s built environment and infrastructure.' },
+                { icon: Users, title: 'Employee Ownership (ESOP)', desc: 'As an employee-owned company, every team member shares in our success, driving a culture of quality, accountability, and pride.' },
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  className="flex gap-4 p-5 bg-gray-50 border border-gray-100 rounded-2xl hover:border-[#F5C400]/40 transition-all"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-[#F5C400]/15 flex items-center justify-center flex-shrink-0">
+                    <item.icon className="w-5 h-5 text-[#b8910a]" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-900 mb-1">{item.title}</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CULTURE ── dark section */}
+      <section id="culture" className="py-24 bg-[#060e1a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <span className="inline-block text-[11px] font-black uppercase tracking-widest text-[#F5C400] mb-4 bg-[#F5C400]/10 px-3 py-1.5 rounded-full border border-[#F5C400]/20">Life at Geolabs</span>
+            <h2 className="text-4xl font-black text-white mb-3 tracking-tight">A culture built on ownership & excellence</h2>
+            <p className="text-gray-400 font-light max-w-xl mx-auto">We believe great work comes from people who feel valued, trusted, and part of something bigger than themselves.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { icon: '🤝', title: 'Collaborative Team', desc: 'Work alongside seasoned engineers and scientists who genuinely invest in your growth and development.' },
+              { icon: '🌺', title: 'Hawaii-Based', desc: 'Headquartered in Waipahu with projects across Oahu, Maui, Kauai, Hawaii Island, and the Pacific Basin.' },
+              { icon: '📈', title: 'Grow With Us', desc: 'Clear career paths, mentorship programs, and professional development support at every level.' },
+              { icon: '🏆', title: 'Award-Winning Projects', desc: 'Contribute to landmark infrastructure, environmental, and construction projects that shape the islands.' },
+              { icon: '🔬', title: 'Cutting-Edge Work', desc: 'Apply the latest geotechnical methods and technologies to challenging, meaningful real-world problems.' },
+              { icon: '❤️', title: 'Work-Life Balance', desc: 'Generous PTO, flexible schedules where possible, and a culture that respects time outside the office.' },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.07, duration: 0.5 }}
+                className="bg-[#0d1b2a] border border-[#1e2a3a] hover:border-[#F5C400]/30 rounded-2xl p-6 transition-all"
+              >
+                <div className="text-3xl mb-4">{item.icon}</div>
+                <h3 className="text-sm font-bold text-white mb-2">{item.title}</h3>
+                <p className="text-xs text-gray-400 leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CONTACT ── light section */}
+      <section id="contact" className="py-24 bg-[#f8f9fb]">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <div>
+              <span className="inline-block text-[11px] font-black uppercase tracking-widest text-[#b8910a] mb-4 bg-[#F5C400]/10 px-3 py-1.5 rounded-full border border-[#F5C400]/30">Get In Touch</span>
+              <h2 className="text-4xl font-black text-gray-900 mb-4 tracking-tight">Questions about working at Geolabs?</h2>
+              <p className="text-gray-500 leading-relaxed mb-10">Our HR team is happy to answer any questions about open positions, benefits, or the application process.</p>
+              <div className="space-y-5">
+                <div className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                  <div className="w-11 h-11 rounded-xl bg-[#F5C400]/15 flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5 text-[#b8910a]" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Email HR</div>
+                    <a href="mailto:hr@geolabs.com" className="text-sm font-semibold text-gray-800 hover:text-[#b8910a] transition-colors">hr@geolabs.com</a>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                  <div className="w-11 h-11 rounded-xl bg-[#F5C400]/15 flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 h-5 text-[#b8910a]" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Call Us</div>
+                    <a href="tel:+18086712000" className="text-sm font-semibold text-gray-800 hover:text-[#b8910a] transition-colors">(808) 671-2000</a>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 p-5 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                  <div className="w-11 h-11 rounded-xl bg-[#F5C400]/15 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-5 h-5 text-[#b8910a]" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Our Office</div>
+                    <div className="text-sm font-semibold text-gray-800">94-429 Koaki St, Suite 200<br />Waipahu, HI 96797</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Quick apply CTA */}
+            <div className="bg-[#060e1a] rounded-3xl p-10 flex flex-col items-center text-center shadow-2xl">
+              <div className="w-16 h-16 rounded-2xl bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center mb-6">
+                <Briefcase className="w-8 h-8 text-[#F5C400]" />
+              </div>
+              <h3 className="text-2xl font-black text-white mb-3 tracking-tight">Ready to join the team?</h3>
+              <p className="text-gray-400 text-sm leading-relaxed mb-8">Browse our open positions and submit your application online. Our team reviews every application personally.</p>
+              <a
+                href="#open-roles"
+                onClick={e => { e.preventDefault(); document.getElementById('open-roles')?.scrollIntoView({ behavior: 'smooth' }); }}
+                className="w-full inline-flex items-center justify-center gap-2 bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] font-bold px-7 py-4 rounded-xl text-sm transition-all shadow-lg shadow-[#F5C400]/20 mb-4"
+              >
+                View Open Roles <ArrowRight className="w-4 h-4" />
+              </a>
+              <a
+                href="/apply"
+                className="w-full inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 font-semibold px-7 py-4 rounded-xl text-sm transition-all border border-white/10"
+              >
+                Submit General Application
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
