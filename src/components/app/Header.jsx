@@ -21,7 +21,7 @@ export default function Header() {
       <div className="w-full flex items-stretch justify-between">
         {/* Logo block — overflows header */}
         <a href="/" className="flex items-stretch hover:opacity-90 transition-opacity flex-shrink-0">
-          <div className="bg-[#F5C400] flex items-end justify-center px-6 pb-2 pt-2" style={{ marginBottom: '-18px' }}>
+          <div className="bg-[#F5C400] flex items-end justify-center px-8 pb-4 pt-4" style={{ marginBottom: '-18px' }}>
             <img src={LOGO_URL} alt="Geolabs Logo" className="h-28 w-auto object-contain" />
           </div>
         </a>
@@ -37,7 +37,7 @@ export default function Header() {
                 const id = link.href.replace('#', '');
                 scrollTo(id);
               }}
-              className="px-4 py-2 text-base font-bold text-gray-200 hover:text-[#F5C400] hover:bg-white/5 rounded-lg transition-all tracking-wide"
+              className="px-4 py-2 text-sm font-semibold text-gray-300 hover:text-[#F5C400] hover:bg-white/5 rounded-lg transition-all"
             >
               {link.label}
             </a>
@@ -45,7 +45,7 @@ export default function Header() {
           <a
             href="#open-roles"
             onClick={e => { e.preventDefault(); scrollTo('open-roles'); }}
-            className="ml-3 px-5 py-2 bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] text-base font-bold rounded-lg transition-all shadow-md shadow-[#F5C400]/20 tracking-wide"
+            className="ml-3 px-5 py-2 bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] text-sm font-bold rounded-lg transition-all shadow-md shadow-[#F5C400]/20"
           >
             View Open Roles
           </a>
