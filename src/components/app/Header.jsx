@@ -4,10 +4,8 @@ import { Menu, X } from 'lucide-react';
 const LOGO_URL = 'https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/bdb109631_geolabs_trans.png';
 
 const NAV_LINKS = [
-  { label: 'Careers', href: '#open-roles' },
   { label: 'Benefits', href: '#benefits' },
   { label: 'About Us', href: '#about' },
-  { label: 'Culture', href: '#culture' },
   { label: 'Contact', href: '#contact' },
 ];
 

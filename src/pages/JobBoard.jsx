@@ -357,40 +357,6 @@ export default function JobBoard() {
         </div>
       </section>
 
-      {/* ── CULTURE ── dark section */}
-      <section id="culture" className="py-24 bg-[#060e1a]">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-14">
-            <span className="inline-block text-[11px] font-black uppercase tracking-widest text-[#F5C400] mb-4 bg-[#F5C400]/10 px-3 py-1.5 rounded-full border border-[#F5C400]/20">Life at Geolabs</span>
-            <h2 className="text-4xl font-black text-white mb-3 tracking-tight">A culture built on ownership & excellence</h2>
-            <p className="text-gray-400 font-light max-w-xl mx-auto">We believe great work comes from people who feel valued, trusted, and part of something bigger than themselves.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { icon: '🤝', title: 'Collaborative Team', desc: 'Work alongside seasoned engineers and scientists who genuinely invest in your growth and development.' },
-              { icon: '🌺', title: 'Hawaii-Based', desc: 'Headquartered in Waipahu with projects across Oahu, Maui, Kauai, Hawaii Island, and the Pacific Basin.' },
-              { icon: '📈', title: 'Grow With Us', desc: 'Clear career paths, mentorship programs, and professional development support at every level.' },
-              { icon: '🏆', title: 'Award-Winning Projects', desc: 'Contribute to landmark infrastructure, environmental, and construction projects that shape the islands.' },
-              { icon: '🔬', title: 'Cutting-Edge Work', desc: 'Apply the latest geotechnical methods and technologies to challenging, meaningful real-world problems.' },
-              { icon: '❤️', title: 'Work-Life Balance', desc: 'Generous PTO, flexible schedules where possible, and a culture that respects time outside the office.' },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.07, duration: 0.5 }}
-                className="bg-[#0d1b2a] border border-[#1e2a3a] hover:border-[#F5C400]/30 rounded-2xl p-6 transition-all"
-              >
-                <div className="text-3xl mb-4">{item.icon}</div>
-                <h3 className="text-sm font-bold text-white mb-2">{item.title}</h3>
-                <p className="text-xs text-gray-400 leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── CONTACT ── light section */}
       <section id="contact" className="py-24 bg-[#f8f9fb]">
         <div className="max-w-6xl mx-auto px-6">
