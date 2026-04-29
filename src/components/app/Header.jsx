@@ -7,7 +7,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm relative z-30">
+    <header className="bg-gray-50 border-b border-gray-200 shadow-sm relative z-30">
       <div className="w-full flex items-center justify-between px-6 h-28">
         {/* Logo */}
         <a href="/" className="flex items-center hover:opacity-90 transition-opacity flex-shrink-0">

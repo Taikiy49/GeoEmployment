@@ -3,7 +3,7 @@ import { Shield } from 'lucide-react';
 
 export default function AppFooter() {
   return (
-    <footer className="bg-white border-t border-gray-100">
+    <footer className="bg-gray-50 border-t border-gray-200">
 
       <div className="py-7 px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
