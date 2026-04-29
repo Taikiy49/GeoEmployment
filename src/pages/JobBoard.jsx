@@ -241,20 +241,7 @@ export default function JobBoard() {
               </motion.a>
             </motion.div>
 
-            {/* Inline stat strip */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-              className="flex flex-wrap gap-8 mt-8 pt-6 border-t border-white/10 justify-center"
-            >
-              {[['50+', 'Years Experience'], ['16', 'Awards Won'], ['100%', 'Employee-Owned']].map(([val, lbl], i) => (
-                <div key={i} className="text-left">
-                  <div className="text-2xl font-black text-[#F5C400]">{val}</div>
-                  <div className="text-xs text-gray-400 font-medium">{lbl}</div>
-                </div>
-              ))}
-            </motion.div>
+
           </div>
         </motion.div>
 
