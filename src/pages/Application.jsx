@@ -274,52 +274,58 @@ export default function Application() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-[#FFFFFF]">
+      <div className="min-h-screen bg-[#060e1a]">
         <Header />
         <main className="max-w-2xl mx-auto px-4 py-20 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="bg-gradient-to-br from-white to-[#F5F7FA] rounded-2xl border border-[#DAE0E7] shadow-lg p-10"
+            className="bg-[#0d1b2a] rounded-2xl border border-[#1e2a3a] shadow-2xl p-10"
           >
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5, type: 'spring', stiffness: 100 }}
-              className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-6"
+              className="w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center mx-auto mb-6"
             >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ delay: 0.3, duration: 0.6 }}
-              >
-                <CheckCircle2 className="w-9 h-9 text-emerald-600" />
-              </motion.div>
+              <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3, duration: 0.4 }}
+              className="inline-flex items-center gap-2 bg-[#F5C400]/10 border border-[#F5C400]/30 rounded-lg px-4 py-1.5 mb-4"
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-[#F5C400]" />
+              <span className="text-xs font-bold text-[#F5C400] tracking-widest uppercase">Application Received</span>
             </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.4 }}
-              className="text-2xl font-bold text-[#21242C] mb-2"
+              transition={{ delay: 0.35, duration: 0.4 }}
+              className="text-3xl font-black text-white mb-3 tracking-tight"
             >
-              Application Submitted!
+              You're in the pipeline!
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.4 }}
-              className="text-sm text-[#737B8C] leading-relaxed mb-5"
+              className="text-sm text-[#94a3b8] leading-relaxed mb-6"
             >
-              Thank you, <strong>{formData.firstName}</strong>. Your application for <strong>{requisition?.title || formData.positionAppliedFor || 'this position'}</strong> has been received and is being reviewed.
+              Thank you, <strong className="text-white">{formData.firstName}</strong>. Your application for <strong className="text-[#F5C400]">{requisition?.title || formData.positionAppliedFor || 'this position'}</strong> has been received and our team will review it shortly.
             </motion.p>
-            <motion.p
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.4 }}
-              className="text-xs text-[#737B8C] mb-8"
+              className="bg-[#060e1a] rounded-xl border border-[#1e2a3a] p-4 mb-8 text-left"
             >
-              Confirmation sent to <strong>{formData.email}</strong>. Your application ID: <code className="bg-[#F3F5F7] px-2 py-1 rounded text-[11px] font-mono">{submittedId}</code>
-            </motion.p>
+              <div className="text-[10px] text-[#64748b] uppercase tracking-widest mb-1">Confirmation details</div>
+              <div className="text-xs text-[#94a3b8]">Sent to <strong className="text-white">{formData.email}</strong></div>
+              <div className="text-xs text-[#64748b] mt-1">Application ID: <code className="font-mono text-[#F5C400] text-[11px]">{submittedId}</code></div>
+            </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -327,7 +333,7 @@ export default function Application() {
             >
               <Link
                 to="/"
-                className="inline-flex items-center justify-center gap-1.5 text-sm font-medium text-[#EFB506] hover:text-[#D99E04] transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] transition-colors shadow-lg shadow-[#F5C400]/20"
               >
                 <ExternalLink className="w-4 h-4" /> View All Open Positions
               </Link>
@@ -340,7 +346,7 @@ export default function Application() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF]">
+    <div className="min-h-screen bg-[#060e1a]">
       <Header />
       <main className="w-full px-4 sm:px-6 py-8">
         <div className="max-w-4xl mx-auto space-y-4">
@@ -352,7 +358,7 @@ export default function Application() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-5 py-3"
+              className="flex items-center gap-3 bg-blue-500/10 border border-blue-500/30 rounded-xl px-5 py-3"
             >
               <motion.div animate={{ rotate: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
                 <RotateCcw className="w-4 h-4 text-blue-600 flex-shrink-0" />
@@ -370,14 +376,14 @@ export default function Application() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex items-center gap-3 bg-white rounded-xl border border-[#DAE0E7] px-5 py-3 shadow-sm hover:shadow-md transition-shadow"
+              className="flex items-center gap-3 bg-[#0d1b2a] rounded-xl border border-[#1e2a3a] px-5 py-3 shadow-sm"
             >
-              <div className="w-8 h-8 rounded-lg bg-[#EFB506]/10 flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center flex-shrink-0">
                 <span className="text-sm">💼</span>
               </div>
               <div className="flex-1">
-                <div className="text-xs font-semibold text-[#21242C]">Applying for: {requisition.title}</div>
-                <div className="text-[11px] text-[#737B8C]">{requisition.department} · {requisition.office || 'Geolabs, Inc.'}</div>
+                <div className="text-xs font-bold text-white">Applying for: {requisition.title}</div>
+                <div className="text-[11px] text-[#64748b]">{requisition.department} · {requisition.office || 'Geolabs, Inc.'}</div>
               </div>
               {/* Auto-save indicator */}
               {currentStep > 0 && formData.email && (
@@ -387,8 +393,8 @@ export default function Application() {
                   className="flex items-center gap-1.5 text-[10px] text-[#737B8C]"
                 >
                   {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</>}
-                  {saveStatus === 'saved' && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-emerald-500" /> Saved</motion.div>}
-                  {saveStatus === 'idle' && draftId && <><Cloud className="w-3 h-3 text-[#DAE0E7]" /> Auto-saved</>}
+                  {saveStatus === 'saved' && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-emerald-400" /> Saved</motion.div>}
+                  {saveStatus === 'idle' && draftId && <><Cloud className="w-3 h-3 text-[#1e2a3a]" /> Auto-saved</>}
                 </motion.div>
               )}
             </motion.div>
@@ -413,11 +419,11 @@ export default function Application() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="rounded-2xl border border-[#DAE0E7] shadow-sm overflow-hidden bg-white hover:shadow-md transition-shadow"
+            className="rounded-2xl border border-[#1e2a3a] shadow-2xl overflow-hidden bg-[#0d1b2a]"
           >
             {currentStep > 0 && (
               <motion.div
-                className="px-6 sm:px-8 pt-6 pb-5 border-b border-[#DAE0E7]"
+                className="px-6 sm:px-8 pt-6 pb-5 border-b border-[#1e2a3a] bg-[#0a1628]"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}

@@ -16,25 +16,25 @@ export default function FormField({
 }) {
   const id = label?.toLowerCase().replace(/\s+/g, '-');
 
-  const inputClass = "w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-bronze/25 focus:border-bronze transition-all disabled:bg-gray-50 disabled:text-gray-400";
+  const inputClass = "w-full px-4 py-3 text-sm rounded-xl border border-[#1e2a3a] bg-[#0d1b2a] text-white placeholder-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400] transition-all disabled:opacity-50 disabled:cursor-not-allowed";
 
   return (
     <div className={className}>
       {label && (
-        <label htmlFor={id} className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+        <label htmlFor={id} className="block text-[11px] font-bold text-[#94a3b8] mb-2 uppercase tracking-widest">
           {label}
-          {required && <span className="text-red-400 ml-0.5 normal-case">*</span>}
+          {required && <span className="text-[#F5C400] ml-1">*</span>}
         </label>
       )}
 
       {type === 'select' ? (
         <Select value={value || ''} onValueChange={onChange} disabled={disabled}>
-          <SelectTrigger className="h-11 text-sm rounded-xl border-gray-200 bg-white focus:ring-2 focus:ring-bronze/25 focus:border-bronze">
+          <SelectTrigger className="h-11 text-sm rounded-xl border-[#1e2a3a] bg-[#0d1b2a] text-white focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400]">
             <SelectValue placeholder={placeholder || 'Select…'} />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-[#0d1b2a] border-[#1e2a3a] text-white">
             {options?.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
+              <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-[#1e2a3a] focus:bg-[#1e2a3a]">
                 {opt.label}
               </SelectItem>
             ))}
@@ -63,7 +63,7 @@ export default function FormField({
       )}
 
       {hint && (
-        <p className="text-[11px] text-gray-400 mt-1.5 leading-relaxed">{hint}</p>
+        <p className="text-[11px] text-[#4a5568] mt-1.5 leading-relaxed">{hint}</p>
       )}
     </div>
   );
