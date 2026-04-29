@@ -146,7 +146,7 @@ export default function JobBoard() {
       <Header />
 
       {/* ── OPEN ROLES ── */}
-      <section id="open-roles" className="py-8 bg-white relative">
+      <section id="open-roles" className="py-6 bg-white relative">
         <div className="max-w-6xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
