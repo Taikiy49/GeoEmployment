@@ -149,7 +149,7 @@ export default function JobBoard() {
       <Header />
 
       {/* ── HERO ── */}
-      <section ref={heroRef} className="relative overflow-hidden min-h-[90vh] flex items-center">
+      <section ref={heroRef} className="relative overflow-hidden min-h-screen flex items-center">
         <div className="absolute inset-0 bg-[#060e1a]" />
         <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover opacity-20">
           <source src="https://geolabs-s3-bucket.s3.us-west-1.amazonaws.com/geolabs-cover.mp4" type="video/mp4" />
@@ -173,7 +173,7 @@ export default function JobBoard() {
 
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
-          className="relative max-w-6xl mx-auto px-6 py-28 md:py-40 w-full"
+          className="relative max-w-6xl mx-auto px-6 py-16 md:py-20 w-full"
         >
           <div className="max-w-3xl">
             {/* Pill badge */}
