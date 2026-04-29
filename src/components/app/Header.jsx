@@ -11,7 +11,7 @@ export default function Header() {
       <div className="w-full flex items-center justify-between px-6 h-20">
         {/* Logo */}
         <a href="/" className="flex items-center hover:opacity-90 transition-opacity flex-shrink-0">
-          <img src={LOGO_URL} alt="Geolabs Logo" className="h-12 w-auto object-contain" />
+          <img src={LOGO_URL} alt="Geolabs Logo" className="h-20 w-auto object-contain" />
         </a>
 
         {/* Trust badge — Desktop */}
