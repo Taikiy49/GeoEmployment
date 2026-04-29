@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Users, Shield, Building, Plus, Bell, BellOff, Mail, ChevronRight, CheckCircle, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/admin/AdminLayout';
 
@@ -11,8 +10,6 @@ const STAGE_LABELS = {
   under_review: 'Under Review', phone_screen: 'Phone Screen', interview: 'Interview',
   offer: 'Offer Extended', hired: 'Hired', rejected: 'Not Selected', withdrawn: 'Withdrawn',
 };
-
-
 
 export default function AdminSettings() {
   const [user, setUser] = useState(null);
@@ -36,10 +33,7 @@ export default function AdminSettings() {
   useEffect(() => { load(); }, []);
 
   const handleInvite = async () => {
-    if (!inviteEmail.trim()) {
-      setInviteMessage('Please enter an email address');
-      return;
-    }
+    if (!inviteEmail.trim()) { setInviteMessage('Please enter an email address'); return; }
     setInviting(true);
     try {
       await base44.users.inviteUser(inviteEmail.trim(), 'admin');
@@ -61,84 +55,67 @@ export default function AdminSettings() {
     setTogglingNotif(null);
   };
 
-  const ROLE_LABELS = {
-    admin: 'HR Admin',
-  };
-
-  const ROLE_COLORS = {
-    admin: 'bg-blue-100 text-blue-800',
-  };
+  const SectionCard = ({ icon: Icon, title, children }) => (
+    <div className="bg-[#0d1b2a] rounded-2xl border border-[#1e2a3a] p-5">
+      <h2 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+        <Icon className="w-4 h-4 text-[#F5C400]" /> {title}
+      </h2>
+      {children}
+    </div>
+  );
 
   return (
     <AdminLayout>
       <div className="max-w-3xl mx-auto space-y-5">
         <div>
-          <h1 className="text-xl font-semibold text-navy">Settings</h1>
-          <p className="text-sm text-[#6b7280] mt-0.5">Manage users, roles, and system preferences</p>
+          <h1 className="text-2xl font-black text-white tracking-tight">Settings</h1>
+          <p className="text-sm text-[#64748b] mt-0.5">Manage users, roles, and system preferences</p>
         </div>
 
         {/* Role Reference */}
-        <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
-          <h2 className="text-sm font-semibold text-navy mb-4 flex items-center gap-2">
-            <Shield className="w-4 h-4 text-bronze" /> Role-Based Access Control
-          </h2>
-          <div className="space-y-2">
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-[#f9fafb] border border-[#f3f4f6]">
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap bg-blue-100 text-blue-800">
-                HR Admin
-              </span>
-              <span className="text-xs text-[#6b7280]">Full platform access — job requisitions, applications, settings, and management</span>
-            </div>
+        <SectionCard icon={Shield} title="Role-Based Access Control">
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-[#060e1a] border border-[#1e2a3a]">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 whitespace-nowrap">HR Admin</span>
+            <span className="text-xs text-[#94a3b8]">Full platform access — job requisitions, applications, settings, and management</span>
           </div>
-          <p className="text-[10px] text-[#9ca3af] mt-3">
-            Assign the HR Admin role to team members who need full platform access.
-          </p>
-        </div>
+        </SectionCard>
 
-        {/* Invite form - visible to all admins */}
+        {/* Invite */}
         {user?.role === 'admin' && (
-          <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
-            <h2 className="text-sm font-semibold text-navy mb-4 flex items-center gap-2">
-              <Plus className="w-4 h-4 text-bronze" /> Invite HR Admin
-            </h2>
+          <SectionCard icon={Plus} title="Invite HR Admin">
             <div className="flex gap-2">
-              <Input
+              <input
                 value={inviteEmail}
                 onChange={e => setInviteEmail(e.target.value)}
                 placeholder="Email address"
                 type="email"
-                className="h-9 text-sm flex-1"
+                className="flex-1 h-10 px-4 text-sm rounded-xl border border-[#1e2a3a] bg-[#060e1a] text-white placeholder-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#F5C400]/30 focus:border-[#F5C400]"
                 onKeyPress={e => e.key === 'Enter' && handleInvite()}
               />
               <Button
                 onClick={handleInvite}
                 disabled={inviting}
-                className="rounded-lg px-4 h-9 text-sm bg-bronze hover:bg-bronze-dark text-white"
+                className="rounded-xl px-5 h-10 text-sm bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] font-bold"
               >
                 {inviting ? 'Sending...' : 'Invite'}
               </Button>
             </div>
             {inviteMessage && (
-              <p className={`text-xs mt-2 ${inviteMessage.includes('successfully') ? 'text-green-600' : 'text-red-600'}`}>
+              <p className={`text-xs mt-2 ${inviteMessage.includes('successfully') ? 'text-emerald-400' : 'text-red-400'}`}>
                 {inviteMessage}
               </p>
             )}
-          </div>
+          </SectionCard>
         )}
 
         {/* Email Templates Quick View */}
-        <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
-          <div className="flex items-center justify-between mb-1">
-            <h2 className="text-sm font-semibold text-navy flex items-center gap-2">
-              <Mail className="w-4 h-4 text-bronze" /> Candidate Email Templates
-            </h2>
-            <Link to="/admin/email-templates" className="flex items-center gap-1 text-xs text-bronze hover:underline font-medium">
+        <SectionCard icon={Mail} title="Candidate Email Templates">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs text-[#64748b]">Emails auto-sent when candidates move through hiring stages.</p>
+            <Link to="/admin/email-templates" className="flex items-center gap-1 text-xs text-[#F5C400] hover:text-[#EFB506] font-semibold transition-colors">
               Manage All <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <p className="text-xs text-[#6b7280] mb-4">
-            Emails are sent automatically when candidates move through hiring stages. Stages without a custom template use a built-in default.
-          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {STAGE_KEYS.map(stageKey => {
               const stageTemplateMap = {};
@@ -148,101 +125,95 @@ export default function AdminSettings() {
                 <Link
                   key={stageKey}
                   to="/admin/email-templates"
-                  className="flex items-center gap-2.5 p-2.5 rounded-lg border border-[#f3f4f6] hover:border-bronze/30 hover:bg-[#fdf7f1] transition-all"
+                  className="flex items-center gap-2.5 p-2.5 rounded-xl border border-[#1e2a3a] hover:border-[#F5C400]/30 hover:bg-[#060e1a] transition-all"
                 >
                   {tmpl
-                    ? <CheckCircle className="w-3.5 h-3.5 text-bronze flex-shrink-0" />
-                    : <Circle className="w-3.5 h-3.5 text-[#d1d5db] flex-shrink-0" />
+                    ? <CheckCircle className="w-3.5 h-3.5 text-[#F5C400] flex-shrink-0" />
+                    : <Circle className="w-3.5 h-3.5 text-[#2d3f55] flex-shrink-0" />
                   }
-                  <span className="text-xs text-[#374151] font-medium flex-1">{STAGE_LABELS[stageKey]}</span>
-                  <span className={`text-[10px] font-medium ${tmpl ? 'text-bronze' : 'text-[#9ca3af] italic'}`}>
+                  <span className="text-xs text-[#94a3b8] font-medium flex-1">{STAGE_LABELS[stageKey]}</span>
+                  <span className={`text-[10px] font-bold ${tmpl ? 'text-[#F5C400]' : 'text-[#4a5568] italic'}`}>
                     {tmpl ? 'Custom' : 'Default'}
                   </span>
                 </Link>
               );
             })}
           </div>
-          <div className="mt-3 pt-3 border-t border-[#f3f4f6] flex items-center justify-between">
-            <p className="text-[11px] text-[#9ca3af]">
-              {templates.filter(t => t.stageKey).length} of {STAGE_KEYS.length} stages have custom templates
+          <div className="mt-3 pt-3 border-t border-[#1e2a3a] flex items-center justify-between">
+            <p className="text-[11px] text-[#4a5568]">
+              {templates.filter(t => t.stageKey).length} of {STAGE_KEYS.length} stages customized
             </p>
-            <Link to="/admin/email-templates" className="text-xs bg-bronze/10 text-bronze hover:bg-bronze/20 px-3 py-1.5 rounded-lg font-medium transition-colors">
+            <Link to="/admin/email-templates" className="text-xs bg-[#F5C400]/10 text-[#F5C400] hover:bg-[#F5C400]/20 px-3 py-1.5 rounded-lg font-bold transition-colors border border-[#F5C400]/20">
               Edit Templates →
             </Link>
           </div>
-        </div>
+        </SectionCard>
 
         {/* Notification Settings */}
-        <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
-          <h2 className="text-sm font-semibold text-navy mb-1 flex items-center gap-2">
-            <Bell className="w-4 h-4 text-bronze" /> Email Notification Settings
-          </h2>
-          <p className="text-xs text-[#6b7280] mb-4">Control which HR admins receive an email when a new application is submitted.</p>
+        <SectionCard icon={Bell} title="Email Notification Settings">
+          <p className="text-xs text-[#64748b] mb-4">Control which HR admins receive email alerts for new applications.</p>
           <div className="space-y-2">
             {users.filter(u => u.role === 'admin').map(u => {
               const enabled = u.notificationsEnabled !== false;
               const isToggling = togglingNotif === u.id;
               return (
-                <div key={u.id} className="flex items-center justify-between p-3 rounded-lg bg-[#f9fafb] border border-[#f3f4f6]">
+                <div key={u.id} className="flex items-center justify-between p-3 rounded-xl bg-[#060e1a] border border-[#1e2a3a]">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-bronze-soft flex items-center justify-center">
-                      <span className="text-[10px] font-bold text-bronze-dark">{(u.full_name || u.email)[0].toUpperCase()}</span>
+                    <div className="w-7 h-7 rounded-full bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center">
+                      <span className="text-[10px] font-bold text-[#F5C400]">{(u.full_name || u.email)[0].toUpperCase()}</span>
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-navy">{u.full_name || u.email}</p>
-                      <p className="text-[10px] text-[#9ca3af]">{u.email}</p>
+                      <p className="text-xs font-semibold text-white">{u.full_name || u.email}</p>
+                      <p className="text-[10px] text-[#4a5568]">{u.email}</p>
                     </div>
                   </div>
                   <button
                     onClick={() => handleToggleNotification(u)}
                     disabled={isToggling}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                       enabled
-                        ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
-                        : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
+                        : 'bg-[#1e2a3a] text-[#64748b] border-[#2d3f55] hover:bg-[#2d3f55]'
                     }`}
                   >
                     {enabled ? <Bell className="w-3.5 h-3.5" /> : <BellOff className="w-3.5 h-3.5" />}
-                    {isToggling ? 'Saving...' : enabled ? 'Notifications On' : 'Notifications Off'}
+                    {isToggling ? 'Saving...' : enabled ? 'On' : 'Off'}
                   </button>
                 </div>
               );
             })}
             {users.filter(u => u.role === 'admin').length === 0 && (
-              <p className="text-xs text-[#9ca3af] text-center py-4">No admin users found.</p>
+              <p className="text-xs text-[#4a5568] text-center py-6">No admin users found.</p>
             )}
           </div>
-        </div>
+        </SectionCard>
 
         {/* Users table */}
-        <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
-          <h2 className="text-sm font-semibold text-navy mb-4 flex items-center gap-2">
-            <Users className="w-4 h-4 text-bronze" /> Platform Users
-          </h2>
+        <SectionCard icon={Users} title="Platform Users">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#e5e7eb]">
-                  <th className="text-left py-2 text-[11px] font-semibold text-[#6b7280] uppercase tracking-wide">Name</th>
-                  <th className="text-left py-2 text-[11px] font-semibold text-[#6b7280] uppercase tracking-wide">Email</th>
-                  <th className="text-left py-2 text-[11px] font-semibold text-[#6b7280] uppercase tracking-wide">Role</th>
+                <tr className="border-b border-[#1e2a3a]">
+                  <th className="text-left py-2 text-[10px] font-bold text-[#4a5568] uppercase tracking-widest">Name</th>
+                  <th className="text-left py-2 text-[10px] font-bold text-[#4a5568] uppercase tracking-widest">Email</th>
+                  <th className="text-left py-2 text-[10px] font-bold text-[#4a5568] uppercase tracking-widest">Role</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f9fafb]">
+              <tbody className="divide-y divide-[#1e2a3a]/50">
                 {users.map(u => (
-                  <tr key={u.id} className="hover:bg-[#fafafa]">
-                    <td className="py-2.5 pr-4">
+                  <tr key={u.id} className="hover:bg-[#060e1a] transition-colors">
+                    <td className="py-3 pr-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-bronze-soft flex items-center justify-center">
-                          <span className="text-[9px] font-bold text-bronze-dark">{(u.full_name || u.email)[0].toUpperCase()}</span>
+                        <div className="w-6 h-6 rounded-full bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center">
+                          <span className="text-[9px] font-bold text-[#F5C400]">{(u.full_name || u.email)[0].toUpperCase()}</span>
                         </div>
-                        <span className="text-xs font-medium text-navy">{u.full_name || '—'}</span>
+                        <span className="text-xs font-semibold text-white">{u.full_name || '—'}</span>
                       </div>
                     </td>
-                    <td className="py-2.5 pr-4 text-xs text-[#6b7280]">{u.email}</td>
-                    <td className="py-2.5">
-                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${ROLE_COLORS[u.role] || ROLE_COLORS.user}`}>
-                        {ROLE_LABELS[u.role] || u.role || 'Standard User'}
+                    <td className="py-3 pr-4 text-xs text-[#64748b]">{u.email}</td>
+                    <td className="py-3">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        {u.role === 'admin' ? 'HR Admin' : u.role || 'User'}
                       </span>
                     </td>
                   </tr>
@@ -250,24 +221,25 @@ export default function AdminSettings() {
               </tbody>
             </table>
           </div>
-          <p className="text-[10px] text-[#9ca3af] mt-3">
-            All users should be assigned the HR Admin role for full platform access.
-          </p>
-        </div>
+        </SectionCard>
 
         {/* Compliance */}
-        <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5">
-          <h2 className="text-sm font-semibold text-navy mb-3 flex items-center gap-2">
-            <Building className="w-4 h-4 text-bronze" /> Compliance & Data Retention
-          </h2>
-          <div className="space-y-2 text-xs text-[#6b7280] leading-relaxed">
-            <p>• Application records are preserved with full audit trail even if email notifications are missed.</p>
-            <p>• EEO, disability, and veteran self-identification data is stored separately and access-restricted.</p>
-            <p>• All stage changes, note additions, and status updates are logged in the audit trail.</p>
-            <p>• Archived applications are retained for compliance record-keeping and are not permanently deleted.</p>
-            <p>• For secure deletion workflows, contact your system administrator.</p>
+        <SectionCard icon={Building} title="Compliance & Data Retention">
+          <div className="space-y-2 text-xs text-[#64748b] leading-relaxed">
+            {[
+              'Application records are preserved with full audit trail even if email notifications are missed.',
+              'EEO, disability, and veteran self-identification data is stored separately and access-restricted.',
+              'All stage changes, note additions, and status updates are logged in the audit trail.',
+              'Archived applications are retained for compliance record-keeping and are not permanently deleted.',
+              'For secure deletion workflows, contact your system administrator.',
+            ].map((t, i) => (
+              <div key={i} className="flex items-start gap-2.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#F5C400]/40 mt-1.5 flex-shrink-0" />
+                <p>{t}</p>
+              </div>
+            ))}
           </div>
-        </div>
+        </SectionCard>
       </div>
     </AdminLayout>
   );

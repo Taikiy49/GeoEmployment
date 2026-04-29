@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Briefcase, Users, TrendingUp, Clock, ChevronRight, AlertCircle } from 'lucide-react';
+import { Briefcase, Users, TrendingUp, Clock, ChevronRight, AlertCircle, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AdminLayout from '../../components/admin/AdminLayout';
 
@@ -9,6 +9,10 @@ const STAGE_ORDER = ['applied', 'under_review', 'phone_screen', 'interview', 'of
 const STAGE_LABELS = {
   applied: 'Applied', under_review: 'Under Review', phone_screen: 'Phone Screen',
   interview: 'Interview', offer: 'Offer', hired: 'Hired', rejected: 'Rejected', withdrawn: 'Withdrawn'
+};
+const STAGE_COLORS = {
+  applied: '#3b82f6', under_review: '#8b5cf6', phone_screen: '#f59e0b',
+  interview: '#f97316', offer: '#10b981', hired: '#22c55e',
 };
 
 export default function Dashboard() {
@@ -43,179 +47,204 @@ export default function Dashboard() {
     new Date(b.submittedAt || b.created_date) - new Date(a.submittedAt || a.created_date)
   ).slice(0, 8);
 
-  if (loading) return <AdminLayout><div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-bronze/30 border-t-bronze rounded-full animate-spin" /></div></AdminLayout>;
+  if (loading) return (
+    <AdminLayout>
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-[#1e2a3a] border-t-[#F5C400] rounded-full animate-spin" />
+      </div>
+    </AdminLayout>
+  );
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-xl font-semibold text-navy">Dashboard</h1>
-          <p className="text-sm text-[#6b7280] mt-0.5">Geolabs, Inc. — Applicant Tracking</p>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-2 h-2 rounded-full bg-[#F5C400] animate-pulse" />
+              <span className="text-[11px] font-bold text-[#F5C400] tracking-widest uppercase">Live Dashboard</span>
+            </div>
+            <h1 className="text-2xl font-black text-white tracking-tight">Hiring Overview</h1>
+            <p className="text-sm text-[#64748b] mt-0.5">Geolabs, Inc. — Applicant Tracking System</p>
+          </div>
         </div>
 
         {/* KPI cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: 'Total Active Applications', value: apps.length, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-            { label: 'Open Job Postings', value: activeReqs, icon: Briefcase, color: 'text-bronze', bg: 'bg-bronze-soft' },
-            { label: 'New This Week', value: thisWeek, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },
-            { label: 'Pending Approval', value: pendingApproval, icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-50' },
+            { label: 'Active Applications', value: apps.length, icon: Users, color: '#3b82f6', bg: 'rgba(59,130,246,0.08)' },
+            { label: 'Open Positions', value: activeReqs, icon: Briefcase, color: '#F5C400', bg: 'rgba(245,196,0,0.08)' },
+            { label: 'New This Week', value: thisWeek, icon: TrendingUp, color: '#22c55e', bg: 'rgba(34,197,94,0.08)' },
+            { label: 'Pending Approval', value: pendingApproval, icon: AlertCircle, color: '#f97316', bg: 'rgba(249,115,22,0.08)' },
           ].map((kpi, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1, duration: 0.4 }}
-              whileHover={{ y: -4, boxShadow: '0 12px 24px rgba(0,0,0,0.08)' }}
-              className="bg-white rounded-xl border border-[#e5e7eb] p-4 shadow-sm cursor-pointer"
+              transition={{ delay: i * 0.08, duration: 0.4 }}
+              className="bg-[#0d1b2a] rounded-2xl border border-[#1e2a3a] p-5 hover:border-[#2d3f55] transition-all group"
             >
-              <motion.div
-                className={`w-9 h-9 rounded-lg ${kpi.bg} flex items-center justify-center mb-3`}
-                whileHover={{ scale: 1.1, rotate: 5 }}
-              >
-                <kpi.icon className={`w-4 h-4 ${kpi.color}`} />
-              </motion.div>
-              <div className="text-2xl font-bold text-navy">{kpi.value}</div>
-              <div className="text-[11px] text-[#6b7280] mt-0.5">{kpi.label}</div>
+              <div className="flex items-start justify-between mb-4">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: kpi.bg, border: `1px solid ${kpi.color}20` }}
+                >
+                  <kpi.icon className="w-5 h-5" style={{ color: kpi.color }} />
+                </div>
+                <ChevronRight className="w-4 h-4 text-[#1e2a3a] group-hover:text-[#64748b] transition-colors" />
+              </div>
+              <div className="text-3xl font-black text-white mb-1">{kpi.value}</div>
+              <div className="text-[11px] text-[#64748b] font-medium">{kpi.label}</div>
             </motion.div>
           ))}
         </div>
 
-        {/* Pipeline funnel */}
+        {/* Pipeline */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.4 }}
-          className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5"
+          transition={{ delay: 0.35, duration: 0.4 }}
+          className="bg-[#0d1b2a] rounded-2xl border border-[#1e2a3a] p-6"
         >
-          <h2 className="text-sm font-semibold text-navy mb-4">Hiring Pipeline</h2>
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-            {STAGE_ORDER.map((stage, i) => (
-              <motion.div
-                key={stage}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 + i * 0.05, duration: 0.3 }}
-                className="text-center"
-              >
-                <motion.div className="text-2xl font-bold text-navy">
-                  {stageCounts[stage] || 0}
+          <div className="flex items-center gap-2 mb-6">
+            <Zap className="w-4 h-4 text-[#F5C400]" />
+            <h2 className="text-sm font-bold text-white">Hiring Pipeline</h2>
+            <span className="ml-auto text-[11px] text-[#64748b]">{apps.length} total candidates</span>
+          </div>
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
+            {STAGE_ORDER.map((stage, i) => {
+              const count = stageCounts[stage] || 0;
+              const pct = apps.length ? (count / apps.length) * 100 : 0;
+              return (
+                <motion.div
+                  key={stage}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 + i * 0.05 }}
+                  className="text-center"
+                >
+                  <div className="text-2xl font-black text-white mb-0.5">{count}</div>
+                  <div className="text-[10px] text-[#64748b] mb-2 font-medium">{STAGE_LABELS[stage]}</div>
+                  <div className="h-1.5 bg-[#1e2a3a] rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ delay: 0.6 + i * 0.1, duration: 0.8, ease: 'easeOut' }}
+                      className="h-full rounded-full"
+                      style={{ background: STAGE_COLORS[stage] }}
+                    />
+                  </div>
                 </motion.div>
-                <div className="text-[10px] text-[#6b7280] mt-0.5">{STAGE_LABELS[stage]}</div>
-                <div className="mt-1.5 h-1.5 bg-[#f3f4f6] rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: apps.length ? `${((stageCounts[stage] || 0) / apps.length) * 100}%` : '0%' }}
-                    transition={{ delay: 0.6 + i * 0.1, duration: 0.8, ease: 'easeOut' }}
-                    className="h-full rounded-full bg-bronze"
-                  />
-                </div>
-              </motion.div>
-            ))}
+              );
+            })}
           </div>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {/* Recent applications */}
+          {/* Recent Applications */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.4 }}
-            className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5"
+            className="bg-[#0d1b2a] rounded-2xl border border-[#1e2a3a] p-5"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-navy">Recent Applications</h2>
-              <Link to="/admin/applications" className="text-[11px] text-bronze hover:underline flex items-center gap-0.5">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-sm font-bold text-white">Recent Applications</h2>
+              <Link to="/admin/applications" className="text-[11px] text-[#F5C400] hover:text-[#EFB506] flex items-center gap-0.5 font-medium transition-colors">
                 View all <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1">
               {recentApps.map((app, idx) => (
-                <motion.div
+                <Link
                   key={app.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + idx * 0.05, duration: 0.3 }}
-                  asChild
+                  to={`/admin/applications/${app.id}`}
+                  className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-[#1e2a3a] transition-colors group"
                 >
-                  <Link
-                    to={`/admin/applications/${app.id}`}
-                    className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-[#f9fafb] transition-colors group"
-                  >
-                  <div>
-                    <div className="text-xs font-medium text-navy">{app.firstName} {app.lastName}</div>
-                    <div className="text-[10px] text-[#9ca3af]">{app.positionAppliedFor || app.requisitionTitle || '—'}</div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-full bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center flex-shrink-0">
+                      <span className="text-[10px] font-bold text-[#F5C400]">{app.firstName?.[0]?.toUpperCase()}</span>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-white">{app.firstName} {app.lastName}</div>
+                      <div className="text-[10px] text-[#64748b]">{app.positionAppliedFor || app.requisitionTitle || '—'}</div>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <StageBadge stage={app.stage} />
-                    <ChevronRight className="w-3 h-3 text-[#d1d5db] group-hover:text-bronze transition-colors" />
+                    <ChevronRight className="w-3 h-3 text-[#1e2a3a] group-hover:text-[#F5C400] transition-colors" />
                   </div>
-                  </Link>
-                  </motion.div>
-                  ))}
-                  {recentApps.length === 0 && <p className="text-xs text-[#9ca3af] text-center py-4">No applications yet.</p>}
-                  </div>
-                  </motion.div>
+                </Link>
+              ))}
+              {recentApps.length === 0 && <p className="text-xs text-[#64748b] text-center py-8">No applications yet.</p>}
+            </div>
+          </motion.div>
 
-                  {/* Active jobs */}
-                  <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5, duration: 0.4 }}
-                  className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5"
-                  >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-navy">Job Requisitions</h2>
-              <Link to="/admin/jobs" className="text-[11px] text-bronze hover:underline flex items-center gap-0.5">
+          {/* Job Requisitions */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, duration: 0.4 }}
+            className="bg-[#0d1b2a] rounded-2xl border border-[#1e2a3a] p-5"
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-sm font-bold text-white">Job Requisitions</h2>
+              <Link to="/admin/jobs" className="text-[11px] text-[#F5C400] hover:text-[#EFB506] flex items-center gap-0.5 font-medium transition-colors">
                 Manage <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1">
               {reqs.slice(0, 8).map(req => {
                 const count = apps.filter(a => a.requisitionId === req.id).length;
                 return (
                   <Link
                     key={req.id}
                     to={`/admin/jobs/${req.id}`}
-                    className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-[#f9fafb] transition-colors group"
+                    className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-[#1e2a3a] transition-colors group"
                   >
-                    <div>
-                      <div className="text-xs font-medium text-navy">{req.title}</div>
-                      <div className="text-[10px] text-[#9ca3af]">{req.department} · {req.office || '—'}</div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-[#1e2a3a] flex items-center justify-center flex-shrink-0">
+                        <Briefcase className="w-3.5 h-3.5 text-[#64748b]" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold text-white">{req.title}</div>
+                        <div className="text-[10px] text-[#64748b]">{req.department} · {req.office || '—'}</div>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-[#6b7280]">{count} applicant{count !== 1 ? 's' : ''}</span>
+                      <span className="text-[10px] text-[#64748b]">{count} applicant{count !== 1 ? 's' : ''}</span>
                       <ReqStatusBadge status={req.status} />
                     </div>
                   </Link>
                 );
               })}
-              {reqs.length === 0 && <p className="text-xs text-[#9ca3af] text-center py-4">No requisitions yet.</p>}
-              </div>
-              </motion.div>
-              </div>
-              </div>
+              {reqs.length === 0 && <p className="text-xs text-[#64748b] text-center py-8">No requisitions yet.</p>}
+            </div>
+          </motion.div>
+        </div>
+      </div>
     </AdminLayout>
   );
 }
 
 export function StageBadge({ stage }) {
   const map = {
-    applied: 'bg-blue-50 text-blue-700',
-    under_review: 'bg-purple-50 text-purple-700',
-    phone_screen: 'bg-amber-50 text-amber-700',
-    interview: 'bg-orange-50 text-orange-700',
-    offer: 'bg-emerald-50 text-emerald-700',
-    hired: 'bg-green-100 text-green-800',
-    rejected: 'bg-red-50 text-red-700',
-    withdrawn: 'bg-gray-100 text-gray-600',
+    applied: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    under_review: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+    phone_screen: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    interview: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+    offer: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    hired: 'bg-green-500/10 text-green-400 border-green-500/20',
+    rejected: 'bg-red-500/10 text-red-400 border-red-500/20',
+    withdrawn: 'bg-[#1e2a3a] text-[#64748b] border-[#2d3f55]',
   };
   const labels = {
     applied: 'Applied', under_review: 'Under Review', phone_screen: 'Phone Screen',
     interview: 'Interview', offer: 'Offer', hired: 'Hired', rejected: 'Rejected', withdrawn: 'Withdrawn'
   };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${map[stage] || 'bg-gray-100 text-gray-600'}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${map[stage] || 'bg-[#1e2a3a] text-[#64748b] border-[#2d3f55]'}`}>
       {labels[stage] || stage}
     </span>
   );
@@ -223,20 +252,20 @@ export function StageBadge({ stage }) {
 
 export function ReqStatusBadge({ status }) {
   const map = {
-    draft: 'bg-gray-100 text-gray-600',
-    pending_approval: 'bg-amber-50 text-amber-700',
-    approved: 'bg-blue-50 text-blue-700',
-    published: 'bg-green-100 text-green-800',
-    paused: 'bg-yellow-50 text-yellow-700',
-    closed: 'bg-red-50 text-red-700',
-    archived: 'bg-gray-100 text-gray-500',
+    draft: 'bg-[#1e2a3a] text-[#64748b] border-[#2d3f55]',
+    pending_approval: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    approved: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    published: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    paused: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+    closed: 'bg-red-500/10 text-red-400 border-red-500/20',
+    archived: 'bg-[#1e2a3a] text-[#4a5568] border-[#2d3f55]',
   };
   const labels = {
     draft: 'Draft', pending_approval: 'Pending', approved: 'Approved',
     published: 'Published', paused: 'Paused', closed: 'Closed', archived: 'Archived'
   };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${map[status] || 'bg-gray-100 text-gray-600'}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${map[status] || 'bg-[#1e2a3a] text-[#64748b] border-[#2d3f55]'}`}>
       {labels[status] || status}
     </span>
   );

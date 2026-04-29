@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { Search, ChevronRight, LayoutGrid, List } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { StageBadge } from './Dashboard';
 import KanbanBoard from '../../components/admin/KanbanBoard';
@@ -54,19 +53,19 @@ export default function ApplicationsList() {
       <div className="space-y-5">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-navy">Applications</h1>
-            <p className="text-sm text-[#6b7280] mt-0.5">{filtered.length} result{filtered.length !== 1 ? 's' : ''} of {apps.length} total</p>
+            <h1 className="text-2xl font-black text-white tracking-tight">Applications</h1>
+            <p className="text-sm text-[#64748b] mt-0.5">{filtered.length} result{filtered.length !== 1 ? 's' : ''} of {apps.length} total</p>
           </div>
-          <div className="flex items-center gap-1 bg-[#f3f4f6] rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-[#0d1b2a] border border-[#1e2a3a] rounded-xl p-1">
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm text-navy' : 'text-[#9ca3af] hover:text-navy'}`}
+              className={`p-1.5 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-[#1e2a3a] text-white shadow-sm' : 'text-[#4a5568] hover:text-white'}`}
             >
               <List className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode('kanban')}
-              className={`p-1.5 rounded-md transition-colors ${viewMode === 'kanban' ? 'bg-white shadow-sm text-navy' : 'text-[#9ca3af] hover:text-navy'}`}
+              className={`p-1.5 rounded-lg transition-colors ${viewMode === 'kanban' ? 'bg-[#1e2a3a] text-white shadow-sm' : 'text-[#4a5568] hover:text-white'}`}
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
@@ -77,18 +76,18 @@ export default function ApplicationsList() {
         <div className="flex flex-col gap-3">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af]" />
-              <Input
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4a5568]" />
+              <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search name, email, position..."
-                className="pl-9 h-9 text-sm"
+                className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-[#1e2a3a] bg-[#0d1b2a] text-white placeholder-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#F5C400]/30 focus:border-[#F5C400]"
               />
             </div>
             <select
               value={jobFilter}
               onChange={e => setJobFilter(e.target.value)}
-              className="h-9 px-3 text-sm rounded-lg border border-[#e5e7eb] bg-white min-w-[200px]"
+              className="h-10 px-3 text-sm rounded-xl border border-[#1e2a3a] bg-[#0d1b2a] text-white min-w-[200px] focus:outline-none focus:ring-2 focus:ring-[#F5C400]/30"
             >
               <option value="all">All Jobs</option>
               {reqs.map(r => <option key={r.id} value={r.id}>{r.title}</option>)}
@@ -99,10 +98,10 @@ export default function ApplicationsList() {
               <button
                 key={s}
                 onClick={() => setStageFilter(s)}
-                className={`px-3 py-1.5 rounded-full text-[11px] font-medium border transition-colors ${
+                className={`px-3 py-2 rounded-xl text-[11px] font-semibold border transition-all ${
                   stageFilter === s
-                    ? 'bg-navy text-white border-navy'
-                    : 'bg-white text-[#6b7280] border-[#e5e7eb] hover:border-[#9ca3af]'
+                    ? 'bg-[#F5C400]/10 text-[#F5C400] border-[#F5C400]/30'
+                    : 'bg-[#0d1b2a] text-[#64748b] border-[#1e2a3a] hover:border-[#2d3f55] hover:text-white'
                 }`}
               >
                 {s === 'all' ? 'All Stages' : s.replace('_', ' ')}
@@ -118,50 +117,57 @@ export default function ApplicationsList() {
         )}
 
         {/* Table */}
-        {viewMode === 'list' && <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm overflow-hidden">
+        {viewMode === 'list' && <div className="bg-[#0d1b2a] rounded-2xl border border-[#1e2a3a] overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center h-48">
-              <div className="w-7 h-7 border-4 border-bronze/30 border-t-bronze rounded-full animate-spin" />
+              <div className="w-7 h-7 border-2 border-[#1e2a3a] border-t-[#F5C400] rounded-full animate-spin" />
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-sm text-[#6b7280]">No applications match your filters.</p>
+              <p className="text-sm text-[#64748b]">No applications match your filters.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#e5e7eb] bg-[#f9fafb]">
-                    <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#6b7280] uppercase tracking-wide">Applicant</th>
-                    <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#6b7280] uppercase tracking-wide hidden sm:table-cell">Position</th>
-                    <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#6b7280] uppercase tracking-wide">Stage</th>
-                    <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#6b7280] uppercase tracking-wide hidden md:table-cell">Applied</th>
-                    <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#6b7280] uppercase tracking-wide hidden lg:table-cell">Recruiter</th>
-                    <th className="text-right px-4 py-3"></th>
+                  <tr className="border-b border-[#1e2a3a] bg-[#060e1a]">
+                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-[#4a5568] uppercase tracking-widest">Applicant</th>
+                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-[#4a5568] uppercase tracking-widest hidden sm:table-cell">Position</th>
+                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-[#4a5568] uppercase tracking-widest">Stage</th>
+                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-[#4a5568] uppercase tracking-widest hidden md:table-cell">Applied</th>
+                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-[#4a5568] uppercase tracking-widest hidden lg:table-cell">Recruiter</th>
+                    <th className="text-right px-5 py-3.5"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#f3f4f6]">
+                <tbody className="divide-y divide-[#1e2a3a]/50">
                   {filtered.map(app => (
-                    <tr key={app.id} className="hover:bg-[#fafafa] transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-navy text-sm">{app.firstName} {app.lastName}</div>
-                        <div className="text-[10px] text-[#9ca3af]">{app.email}</div>
+                    <tr key={app.id} className="hover:bg-[#1e2a3a]/30 transition-colors group">
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-7 h-7 rounded-full bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center flex-shrink-0">
+                            <span className="text-[10px] font-bold text-[#F5C400]">{app.firstName?.[0]?.toUpperCase()}</span>
+                          </div>
+                          <div>
+                            <div className="font-semibold text-white text-sm">{app.firstName} {app.lastName}</div>
+                            <div className="text-[10px] text-[#4a5568]">{app.email}</div>
+                          </div>
+                        </div>
                       </td>
-                      <td className="px-4 py-3 hidden sm:table-cell">
-                        <div className="text-sm text-[#374151]">{app.requisitionTitle || app.positionAppliedFor || '—'}</div>
-                        <div className="text-[10px] text-[#9ca3af]">{reqMap[app.requisitionId]?.department || ''}</div>
+                      <td className="px-5 py-4 hidden sm:table-cell">
+                        <div className="text-sm text-[#94a3b8]">{app.requisitionTitle || app.positionAppliedFor || '—'}</div>
+                        <div className="text-[10px] text-[#4a5568]">{reqMap[app.requisitionId]?.department || ''}</div>
                       </td>
-                      <td className="px-4 py-3"><StageBadge stage={app.stage} /></td>
-                      <td className="px-4 py-3 hidden md:table-cell text-xs text-[#6b7280]">
+                      <td className="px-5 py-4"><StageBadge stage={app.stage} /></td>
+                      <td className="px-5 py-4 hidden md:table-cell text-xs text-[#64748b]">
                         {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : new Date(app.created_date).toLocaleDateString()}
                       </td>
-                      <td className="px-4 py-3 hidden lg:table-cell text-xs text-[#6b7280]">
+                      <td className="px-5 py-4 hidden lg:table-cell text-xs text-[#64748b]">
                         {app.assignedRecruiterEmail || '—'}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-5 py-4">
                         <Link
                           to={`/admin/applications/${app.id}`}
-                          className="flex items-center gap-1 text-xs text-bronze hover:underline justify-end"
+                          className="flex items-center gap-1 text-xs text-[#F5C400] hover:text-[#EFB506] justify-end font-semibold transition-colors"
                         >
                           Review <ChevronRight className="w-3 h-3" />
                         </Link>
