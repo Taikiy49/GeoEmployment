@@ -267,53 +267,38 @@ export default function JobBoard() {
       </section>
 
       {/* ── BENEFITS ── */}
-      <section id="benefits" className="py-28 bg-white relative overflow-hidden">
-        <GlowOrb className="w-80 h-80 bg-[#F5C400]/5 -top-20 -right-20" />
+      <section id="benefits" className="py-20 bg-white relative overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 relative">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="text-center mb-16"
+            transition={{ duration: 0.6 }}
+            className="mb-12"
           >
-            <motion.span
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="inline-block text-[11px] font-black uppercase tracking-widest text-[#b8910a] mb-4 bg-[#F5C400]/10 px-4 py-2 rounded-full border border-[#F5C400]/30"
-            >
-              Compensation & Benefits
-            </motion.span>
-            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4 tracking-tight">Everything you need to thrive</h2>
-            <p className="text-gray-400 font-light text-lg max-w-xl mx-auto">Comprehensive benefits designed for your long-term well-being and financial success.</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2 tracking-tight">Why join Geolabs?</h2>
+            <p className="text-gray-600 text-base max-w-2xl">Competitive benefits and a culture where you truly own your future.</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {BENEFITS.map((b, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                className="group relative bg-white border border-gray-100 rounded-2xl p-7 shadow-sm hover:shadow-xl transition-all duration-400 overflow-hidden cursor-default"
+                transition={{ delay: i * 0.05, duration: 0.5 }}
+                className="group relative bg-gradient-to-br from-gray-50 to-white border border-gray-200 hover:border-[#F5C400] rounded-xl p-6 transition-all duration-300 shadow-sm hover:shadow-lg overflow-hidden"
               >
-                {/* Bottom color accent on hover */}
-                <div className="absolute inset-x-0 bottom-0 h-0.5 group-hover:h-1 transition-all duration-300" style={{ background: b.color }} />
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `radial-gradient(circle at 20% 80%, ${b.color}08, transparent 60%)` }} />
-
-                <motion.div
-                  whileHover={{ rotate: [0, -10, 10, 0], scale: 1.15 }}
-                  transition={{ duration: 0.4 }}
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300" style={{ background: b.color }} />
+                <div
+                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-all duration-300"
                   style={{ background: `${b.color}15`, border: `1px solid ${b.color}30` }}
                 >
-                  <b.icon className="w-6 h-6" style={{ color: b.color }} />
-                </motion.div>
-                <h3 className="text-sm font-bold text-gray-900 mb-2">{b.title}</h3>
-                <p className="text-xs text-gray-500 leading-relaxed">{b.desc}</p>
+                  <b.icon className="w-5 h-5" style={{ color: b.color }} />
+                </div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">{b.title}</h3>
+                <p className="text-xs text-gray-600 leading-relaxed">{b.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -327,22 +312,14 @@ export default function JobBoard() {
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#F5C400]/30 to-transparent" />
         <div className="max-w-6xl mx-auto px-6">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="mb-12"
+            transition={{ duration: 0.6 }}
+            className="mb-10"
           >
-            <motion.span
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="inline-block text-[11px] font-black uppercase tracking-widest text-[#F5C400] mb-4 bg-[#F5C400]/10 px-4 py-2 rounded-full border border-[#F5C400]/20"
-            >
-              Open Positions
-            </motion.span>
-            <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight">Find your next role</h2>
-            <p className="text-gray-300 font-light mt-2 text-sm">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">Open Positions</h2>
+            <p className="text-gray-400 text-base">
               {loading ? 'Loading positions…' : `${jobs.length} open position${jobs.length !== 1 ? 's' : ''} across our offices`}
             </p>
           </motion.div>
