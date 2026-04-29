@@ -21,7 +21,7 @@ export default function Header() {
       <div className="w-full flex items-stretch justify-between">
         {/* Logo block — overflows header */}
         <a href="/" className="flex items-stretch hover:opacity-90 transition-opacity flex-shrink-0">
-          <div className="bg-[#F5C400] flex items-end justify-center px-8 pb-0 pt-4" style={{ marginBottom: '-18px' }}>
+          <div className="bg-[#F5C400] flex items-end justify-center px-8 pb-4 pt-4" style={{ marginBottom: '-18px' }}>
             <img src={LOGO_URL} alt="Geolabs Logo" className="h-28 w-auto object-contain" />
           </div>
         </a>
