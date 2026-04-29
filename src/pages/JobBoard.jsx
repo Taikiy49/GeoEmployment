@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { MapPin, Clock, Briefcase, ArrowRight, ChevronRight, Search, Users, Award, TrendingUp, Heart, Star, Shield } from 'lucide-react';
+
 import { motion } from 'framer-motion';
 import Header from '../components/app/Header';
 import useSEO from '../hooks/useSEO';
@@ -21,12 +22,6 @@ const BENEFITS = [
   { icon: Award, title: '50+ Years of Excellence', desc: '16 engineering awards and a legacy of innovative, high-quality geotechnical work.' },
 ];
 
-const STATS = [
-  { stat: '50+', label: 'Years of Experience' },
-  { stat: '80+', label: 'Team Members' },
-  { stat: '100%', label: 'Employee-Owned' },
-  { stat: '16', label: 'Engineering Awards' },
-];
 
 export default function JobBoard() {
   useSEO(
@@ -115,98 +110,17 @@ export default function JobBoard() {
               >
                 View Open Roles <ArrowRight className="w-4 h-4" />
               </a>
-              <a
-                href="#why-geolabs"
-                onClick={e => { e.preventDefault(); document.getElementById('why-geolabs')?.scrollIntoView({ behavior: 'smooth' }); }}
-                className="inline-flex items-center gap-2 bg-white/8 hover:bg-white/12 text-white font-semibold px-7 py-3.5 rounded-xl text-sm border border-white/20 backdrop-blur-sm transition-all"
-              >
-                Our Story
-              </a>
             </motion.div>
           </div>
 
-          {/* right stats card */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="flex-shrink-0 hidden md:block"
-          >
-            <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-7 w-72 shadow-2xl">
-              <div className="grid grid-cols-2 gap-5">
-                {STATS.map((s, i) => (
-                  <div key={i} className="text-center p-4 rounded-xl bg-white/5 border border-white/8">
-                    <div className="text-2xl font-black text-[#F5C400] mb-1">{s.stat}</div>
-                    <div className="text-[10px] text-gray-400 font-medium leading-tight">{s.label}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-5 pt-4 border-t border-white/10 flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs text-gray-300">
-                  {loading ? 'Loading...' : `${jobs.length} open position${jobs.length !== 1 ? 's' : ''} available`}
-                </span>
-              </div>
-            </div>
-          </motion.div>
+
         </div>
 
         {/* bottom fade */}
-        <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-[#060e1a] to-transparent pointer-events-none" />
       </section>
 
-      {/* ── WHY GEOLABS ── */}
-      <section id="why-geolabs" className="py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            {/* Image */}
-            <div className="relative order-2 lg:order-1">
-              <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
-                <img
-                  src="https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/a3e1d3d0a_SWVTTestingatBlaisdellCenter1.jpg"
-                  alt="Geolabs field work"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              {/* floating badge */}
-              <div className="absolute -bottom-5 -right-5 bg-[#F5C400] text-[#0d1117] rounded-2xl px-5 py-4 shadow-xl font-black text-center">
-                <div className="text-2xl">100%</div>
-                <div className="text-[10px] font-bold tracking-wide uppercase">Employee Owned</div>
-              </div>
-              <div className="absolute -top-5 -left-5 bg-[#060e1a] text-white rounded-2xl px-4 py-3 shadow-xl text-xs font-semibold">
-                📍 Honolulu, Hawaii
-              </div>
-            </div>
 
-            {/* Text */}
-            <div className="order-1 lg:order-2">
-              <span className="inline-block text-[11px] font-black uppercase tracking-widest text-[#F5C400] mb-4 bg-[#F5C400]/10 px-3 py-1.5 rounded-full border border-[#F5C400]/20">Why Join Geolabs</span>
-              <h2 className="text-4xl font-black text-[#060e1a] mb-6 leading-tight tracking-tight">
-                More than a job.<br />
-                <span className="text-[#F5C400]">It's your company.</span>
-              </h2>
-              <p className="text-gray-500 text-base leading-relaxed mb-8 font-light">
-                Founded in 1975 and employee-owned since 1991, Geolabs has spent nearly five decades delivering exceptional geotechnical engineering. When you join, you're not just an employee — you're an owner.
-              </p>
-              <div className="space-y-3">
-                {[
-                  'Work on high-profile infrastructure projects across Hawaii and the Pacific',
-                  'Mentorship from licensed professional engineers and senior scientists',
-                  'Stability and growth with a 50-year award-winning track record',
-                  'Real ownership through our Employee Stock Ownership Plan (ESOP)',
-                ].map((pt, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-[#F5C400] flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm shadow-[#F5C400]/30">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#0d1117]" />
-                    </div>
-                    <p className="text-sm text-gray-600 leading-relaxed">{pt}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ── BENEFITS ── */}
       <section className="py-24 bg-[#060e1a]">
