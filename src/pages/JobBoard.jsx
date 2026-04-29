@@ -173,7 +173,7 @@ export default function JobBoard() {
 
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
-          className="relative max-w-6xl mx-auto px-6 py-12 w-full"
+          className="relative max-w-6xl mx-auto px-6 pt-6 pb-12 w-full"
         >
           <div className="max-w-3xl mx-auto text-center">
             {/* Pill badge */}
