@@ -349,58 +349,78 @@ export default function Application() {
     <div className="min-h-screen bg-white">
       <Header />
       <main className="w-full px-4 sm:px-6 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-          {/* LEFT SIDEBAR — visible only on lg+ screens */}
-          <div className="hidden lg:block lg:col-span-1 space-y-4 sticky top-6 h-fit">
-            {/* Draft restored banner */}
-            {draftRestored && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-                className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3"
-              >
-                <motion.div animate={{ rotate: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
-                  <RotateCcw className="w-4 h-4 text-blue-600 flex-shrink-0" />
+        <div className="max-w-4xl mx-auto space-y-4">
+
+          {/* Draft restored banner */}
+          {draftRestored && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg px-5 py-3"
+            >
+              <motion.div animate={{ rotate: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
+                <RotateCcw className="w-4 h-4 text-blue-600 flex-shrink-0" />
+              </motion.div>
+              <p className="text-xs text-blue-700 flex-1">
+                <strong>Your progress has been restored.</strong> Pick up right where you left off.
+              </p>
+              <button onClick={() => setDraftRestored(false)} className="text-blue-400 hover:text-blue-600 text-lg leading-none transition-colors">×</button>
+            </motion.div>
+          )}
+
+          {/* Job context banner */}
+          {requisition && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-center gap-3 bg-white rounded-lg border border-gray-200 px-5 py-3 shadow-sm"
+            >
+              <div className="flex-1">
+                <div className="text-xs font-bold text-gray-900">{requisition.title}</div>
+                <div className="text-[11px] text-gray-600">{requisition.department} · {requisition.office || 'Geolabs, Inc.'}</div>
+              </div>
+              {/* Auto-save indicator */}
+              {currentStep > 0 && formData.email && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-center gap-1.5 text-[10px] text-gray-500"
+                >
+                  {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</>}
+                  {saveStatus === 'saved' && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> Saved</motion.div>}
+                  {saveStatus === 'idle' && draftId && <><Cloud className="w-3 h-3 text-gray-300" /> Auto-saved</>}
                 </motion.div>
-                <p className="text-xs text-blue-700 flex-1">
-                  <strong>Progress restored.</strong>
-                </p>
-                <button onClick={() => setDraftRestored(false)} className="text-blue-400 hover:text-blue-600 text-lg leading-none transition-colors">×</button>
-              </motion.div>
-            )}
+              )}
+            </motion.div>
+          )}
 
-            {/* Job context card */}
-            {requisition && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-lg border border-gray-200 px-5 py-4 shadow-sm"
-              >
-                <div className="text-xs font-bold text-gray-900 mb-1">{requisition.title}</div>
-                <div className="text-[11px] text-gray-600 mb-3">{requisition.department} · {requisition.office || 'Geolabs, Inc.'}</div>
-                
-                {/* Auto-save indicator */}
-                {currentStep > 0 && formData.email && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex items-center gap-1.5 text-[10px] text-gray-500 pt-2 border-t border-gray-200"
-                  >
-                    {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</>}
-                    {saveStatus === 'saved' && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> Saved</motion.div>}
-                    {saveStatus === 'idle' && draftId && <><Cloud className="w-3 h-3 text-gray-300" /> Auto-saved</>}
-                  </motion.div>
-                )}
-              </motion.div>
-            )}
+          {/* Auto-save indicator when no requisition banner */}
+          {!requisition && currentStep > 0 && formData.email && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex justify-end"
+            >
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</>}
+                {saveStatus === 'saved' && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> Saved</motion.div>}
+                {saveStatus === 'idle' && draftId && <><Cloud className="w-3 h-3 text-gray-300" /> Auto-saved</>}
+              </div>
+            </motion.div>
+          )}
 
-            {/* Stepper on sidebar */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="rounded-lg border border-gray-200 shadow-md overflow-hidden bg-white"
+          >
             {currentStep > 0 && (
               <motion.div
-                className="bg-gray-50 rounded-lg border border-gray-200 px-5 py-6"
+                className="px-6 sm:px-8 pt-6 pb-5 border-b border-gray-200 bg-gray-50"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -408,94 +428,12 @@ export default function Application() {
                 <Stepper currentStep={currentStep} completedSteps={completedSteps} onStepClick={goToStep} />
               </motion.div>
             )}
-          </div>
-
-          {/* MAIN CONTENT — full width on mobile/tablet, col-span-2 on lg+ */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* Draft restored banner — mobile/tablet only */}
-            {draftRestored && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-                className="lg:hidden flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg px-5 py-3"
-              >
-                <motion.div animate={{ rotate: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
-                  <RotateCcw className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                </motion.div>
-                <p className="text-xs text-blue-700 flex-1">
-                  <strong>Your progress has been restored.</strong>
-                </p>
-                <button onClick={() => setDraftRestored(false)} className="text-blue-400 hover:text-blue-600 text-lg leading-none transition-colors">×</button>
-              </motion.div>
-            )}
-
-            {/* Job context banner — mobile/tablet only */}
-            {requisition && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="lg:hidden flex items-center gap-3 bg-white rounded-lg border border-gray-200 px-5 py-3 shadow-sm"
-              >
-                <div className="flex-1">
-                  <div className="text-xs font-bold text-gray-900">{requisition.title}</div>
-                  <div className="text-[11px] text-gray-600">{requisition.department} · {requisition.office || 'Geolabs, Inc.'}</div>
-                </div>
-                {/* Auto-save indicator */}
-                {currentStep > 0 && formData.email && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex items-center gap-1.5 text-[10px] text-gray-500"
-                  >
-                    {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</>}
-                    {saveStatus === 'saved' && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> Saved</motion.div>}
-                    {saveStatus === 'idle' && draftId && <><Cloud className="w-3 h-3 text-gray-300" /> Auto-saved</>}
-                  </motion.div>
-                )}
-              </motion.div>
-            )}
-
-            {/* Auto-save indicator when no requisition banner */}
-            {!requisition && currentStep > 0 && formData.email && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex justify-end"
-              >
-                <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
-                  {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</>}
-                  {saveStatus === 'saved' && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> Saved</motion.div>}
-                  {saveStatus === 'idle' && draftId && <><Cloud className="w-3 h-3 text-gray-300" /> Auto-saved</>}
-                </div>
-              </motion.div>
-            )}
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="rounded-lg border border-gray-200 shadow-md overflow-hidden bg-white"
-            >
-              {currentStep > 0 && (
-                <motion.div
-                  className="lg:hidden px-6 sm:px-8 pt-6 pb-5 border-b border-gray-200 bg-gray-50"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <Stepper currentStep={currentStep} completedSteps={completedSteps} onStepClick={goToStep} />
-                </motion.div>
-              )}
-              <div className="px-6 sm:px-8 py-8">
-                <StepShell stepKey={currentStep} direction={direction}>
-                  {renderStep()}
-                </StepShell>
-              </div>
-            </motion.div>
-          </div>
+            <div className="px-6 sm:px-8 py-8">
+              <StepShell stepKey={currentStep} direction={direction}>
+                {renderStep()}
+              </StepShell>
+            </div>
+          </motion.div>
         </div>
       </main>
       <AppFooter />
