@@ -378,9 +378,6 @@ export default function Application() {
               transition={{ duration: 0.3 }}
               className="flex items-center gap-3 bg-white rounded-lg border border-gray-200 px-5 py-3 shadow-sm"
             >
-              <div className="w-8 h-8 rounded-lg bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-sm">💼</span>
-              </div>
               <div className="flex-1">
                 <div className="text-xs font-bold text-gray-900">{requisition.title}</div>
                 <div className="text-[11px] text-gray-600">{requisition.department} · {requisition.office || 'Geolabs, Inc.'}</div>
