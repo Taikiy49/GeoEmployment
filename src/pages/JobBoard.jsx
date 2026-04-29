@@ -335,25 +335,26 @@ export default function JobBoard() {
 
 
       {/* ── OPEN ROLES ── */}
-      <section id="open-roles" className="py-32 bg-white relative overflow-hidden">
-        {/* Ghost watermark */}
-        <div className="absolute top-8 left-0 right-0 text-center pointer-events-none select-none overflow-hidden">
-          <span className="text-[10rem] md:text-[16rem] font-black text-gray-100 leading-none tracking-tighter">CAREERS</span>
-        </div>
-
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
-          {/* Section header */}
+      <section id="open-roles" className="py-28 bg-[#f8f9fb] relative overflow-hidden">
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#F5C400]/30 to-transparent" />
+        <div className="max-w-6xl mx-auto px-6">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-16"
+            transition={{ duration: 0.7 }}
+            className="mb-12"
           >
-            <p className="text-[#b8910a] font-black tracking-[0.4em] text-xs uppercase mb-3">Join Our Team</p>
-            <h2 className="text-gray-900 font-black text-5xl md:text-6xl tracking-tight uppercase">Open Positions</h2>
-            <div className="mt-4 w-16 h-1 bg-[#F5C400] rounded" />
-            <p className="text-gray-400 mt-4 text-sm font-light">
+            <motion.span
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="inline-block text-[11px] font-black uppercase tracking-widest text-[#F5C400] mb-4 bg-[#060e1a] px-4 py-2 rounded-full border border-[#F5C400]/20"
+            >
+              Open Positions
+            </motion.span>
+            <h2 className="text-4xl sm:text-5xl font-black text-[#060e1a] tracking-tight">Find your next role</h2>
+            <p className="text-gray-400 font-light mt-2 text-sm">
               {loading ? 'Loading positions…' : `${jobs.length} open position${jobs.length !== 1 ? 's' : ''} across our offices`}
             </p>
           </motion.div>
@@ -364,7 +365,7 @@ export default function JobBoard() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="flex flex-col sm:flex-row gap-3 mb-10"
+            className="flex flex-col sm:flex-row gap-3 mb-8"
           >
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -372,7 +373,7 @@ export default function JobBoard() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search positions, departments, locations…"
-                className="w-full pl-11 pr-4 py-3.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400] transition-all text-gray-800 placeholder-gray-400"
+                className="w-full h-13 pl-11 pr-4 py-3.5 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400] transition-all shadow-sm text-gray-800 placeholder-gray-400"
               />
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -384,7 +385,7 @@ export default function JobBoard() {
                   whileTap={{ scale: 0.97 }}
                   className={`px-4 py-3 rounded-xl text-xs font-bold border transition-all whitespace-nowrap ${
                     deptFilter === d
-                      ? 'bg-[#060e1a] text-[#F5C400] border-[#060e1a]'
+                      ? 'bg-[#060e1a] text-[#F5C400] border-[#060e1a] shadow-lg shadow-[#060e1a]/20'
                       : 'bg-white text-gray-600 border-gray-200 hover:border-[#060e1a] hover:text-[#060e1a]'
                   }`}
                 >
@@ -396,67 +397,82 @@ export default function JobBoard() {
 
           {/* Job cards */}
           {loading ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[1, 2, 3].map(i => (
-                <div key={i} className="bg-gray-50 rounded-2xl border border-gray-100 p-6 h-28 animate-pulse" />
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0.4, 0.7, 0.4] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                  className="bg-white rounded-2xl border border-gray-100 p-6 h-28"
+                />
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="bg-gray-50 rounded-2xl border border-gray-100 py-20 text-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl border border-gray-100 py-20 text-center shadow-sm"
+            >
               <Briefcase className="w-8 h-8 text-gray-200 mx-auto mb-3" />
               <p className="text-sm text-gray-400 font-medium">No open positions match your search.</p>
               <p className="text-xs text-gray-300 mt-1">Try adjusting your filters or check back soon.</p>
-            </div>
+            </motion.div>
           ) : (
             <AnimatePresence mode="popLayout">
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {filtered.map((job, idx) => (
                   <motion.div
                     key={job.id}
                     layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
+                    initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.98 }}
                     transition={{ delay: idx * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                     onHoverStart={() => setHoveredJob(job.id)}
                     onHoverEnd={() => setHoveredJob(null)}
                   >
                     <Link
                       to={`/apply/${job.id}`}
-                      className="group relative flex items-start justify-between gap-5 bg-white border border-gray-100 rounded-2xl p-6 transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-0.5 overflow-hidden block"
+                      className="group relative flex items-start justify-between gap-5 bg-white hover:bg-[#060e1a] border border-gray-100 hover:border-[#F5C400]/30 rounded-2xl p-6 transition-all duration-400 shadow-sm hover:shadow-2xl hover:-translate-y-1 overflow-hidden block"
                     >
-                      {/* Yellow bottom accent bar */}
-                      <div className="absolute bottom-0 left-0 h-0.5 w-0 group-hover:w-full bg-[#F5C400] transition-all duration-500" />
+                      {/* Shimmer effect on hover */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                        style={{ background: 'linear-gradient(135deg, transparent 30%, rgba(245,196,0,0.03) 50%, transparent 70%)' }} />
 
-                      <div className="flex items-start gap-5 flex-1 min-w-0">
-                        <div className="w-12 h-12 rounded-xl bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <Briefcase className="w-5 h-5 text-[#b8910a]" />
-                        </div>
+                      <div className="flex items-start gap-4 flex-1 min-w-0">
+                        <motion.div
+                          animate={hoveredJob === job.id ? { rotate: [0, -5, 5, 0], scale: 1.1 } : {}}
+                          transition={{ duration: 0.4 }}
+                          className="w-12 h-12 rounded-xl bg-[#F5C400]/10 group-hover:bg-[#F5C400]/15 border border-[#F5C400]/20 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5"
+                        >
+                          <Briefcase className="w-5 h-5 text-[#F5C400]" />
+                        </motion.div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2.5 flex-wrap mb-1.5">
-                            <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#b8910a] transition-colors">
+                          <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                            <h3 className="text-base font-bold text-gray-900 group-hover:text-white transition-colors">
                               {job.title}
                             </h3>
-                            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#F5C400]/10 text-[#b8910a] border border-[#F5C400]/20 uppercase tracking-wide">
+                            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#F5C400]/10 text-[#b8910a] border border-[#F5C400]/20">
                               {EMP_LABELS[job.employmentType] || job.employmentType}
                             </span>
                           </div>
                           <div className="flex items-center gap-4 text-xs text-gray-400 flex-wrap mb-2">
-                            <span className="font-semibold text-gray-500">{job.department}</span>
+                            <span className="font-medium text-gray-500 group-hover:text-gray-300">{job.department}</span>
                             {job.office && (
-                              <span className="flex items-center gap-1">
+                              <span className="flex items-center gap-1 group-hover:text-gray-400">
                                 <MapPin className="w-3 h-3" /> {job.office}
                               </span>
                             )}
                             {job.applicationDeadline && (
-                              <span className="flex items-center gap-1">
+                              <span className="flex items-center gap-1 group-hover:text-gray-400">
                                 <Clock className="w-3 h-3" />
                                 Closes {new Date(job.applicationDeadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                               </span>
                             )}
                           </div>
                           {job.description && (
-                            <p className="text-xs text-gray-400 leading-relaxed line-clamp-1 max-w-2xl">
+                            <p className="text-xs text-gray-400 group-hover:text-gray-500 leading-relaxed line-clamp-1 max-w-2xl">
                               {job.description}
                             </p>
                           )}
@@ -464,14 +480,18 @@ export default function JobBoard() {
                       </div>
                       <div className="flex flex-col items-end gap-2 flex-shrink-0 pt-1">
                         {job.salaryMin && job.salaryMax && (
-                          <div className="text-sm font-bold text-gray-700 group-hover:text-[#b8910a] transition-colors">
+                          <div className="text-sm font-bold text-gray-700 group-hover:text-[#F5C400] transition-colors">
                             ${Number(job.salaryMin).toLocaleString()}–${Number(job.salaryMax).toLocaleString()}
-                            <span className="text-xs font-normal text-gray-400">/yr</span>
+                            <span className="text-xs font-normal text-gray-400 group-hover:text-gray-500">/yr</span>
                           </div>
                         )}
-                        <div className="flex items-center gap-1 text-[#b8910a] text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                        <motion.div
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={hoveredJob === job.id ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+                          className="flex items-center gap-1 text-[#F5C400] text-xs font-bold"
+                        >
                           Apply now <ChevronRight className="w-3.5 h-3.5" />
-                        </div>
+                        </motion.div>
                       </div>
                     </Link>
                   </motion.div>
@@ -486,7 +506,7 @@ export default function JobBoard() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-4 px-6 py-5 bg-gray-50 border border-gray-100 rounded-2xl"
+            className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-4 px-6 py-5 bg-white border border-gray-100 rounded-2xl shadow-sm"
           >
             <div className="flex items-center gap-3 flex-shrink-0">
               <div className="w-9 h-9 rounded-xl bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center">
@@ -494,7 +514,7 @@ export default function JobBoard() {
               </div>
               <span className="text-xs font-black text-gray-800 uppercase tracking-widest whitespace-nowrap">Equal Opportunity Employer</span>
             </div>
-            <div className="w-px h-8 bg-gray-200 hidden sm:block flex-shrink-0" />
+            <div className="w-px h-8 bg-gray-100 hidden sm:block flex-shrink-0" />
             <p className="text-xs text-gray-400 leading-relaxed">
               Geolabs provides equal employment opportunities to all employees and applicants without regard to race, color, religion, gender, sexual orientation, national origin, age, disability, or veteran status. ADA-compliant and committed to reasonable accommodations.
             </p>
@@ -508,7 +528,7 @@ export default function JobBoard() {
               className="text-center text-xs text-gray-400 mt-10"
             >
               Don't see a perfect fit?{' '}
-              <Link to="/apply" className="text-[#b8910a] font-semibold hover:text-[#060e1a] transition-colors underline underline-offset-2">
+              <Link to="/apply" className="text-[#b8910a] font-semibold hover:text-[#F5C400] transition-colors underline underline-offset-2">
                 Submit a general application →
               </Link>
             </motion.p>
