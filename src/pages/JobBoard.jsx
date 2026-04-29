@@ -123,7 +123,7 @@ export default function JobBoard() {
 
 
       {/* ── BENEFITS ── white section */}
-      <section className="py-24 bg-white">
+      <section id="benefits" className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-14">
             <span className="inline-block text-[11px] font-black uppercase tracking-widest text-[#b8910a] mb-4 bg-[#F5C400]/10 px-3 py-1.5 rounded-full border border-[#F5C400]/30">Compensation & Benefits</span>
@@ -152,7 +152,7 @@ export default function JobBoard() {
       </section>
 
       {/* ── EEO strip ── dark section */}
-      <section className="bg-[#060e1a] py-8">
+      <section id="eeo" className="bg-[#060e1a] py-8">
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center gap-6">
           <div className="flex items-center gap-3 flex-shrink-0">
             <div className="w-10 h-10 rounded-xl bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center">
