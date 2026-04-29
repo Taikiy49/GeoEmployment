@@ -149,7 +149,7 @@ export default function JobBoard() {
       <Header />
 
       {/* ── HERO ── */}
-      <section ref={heroRef} className="relative overflow-hidden h-screen flex items-center justify-center">
+      <section ref={heroRef} className="relative overflow-hidden min-h-screen flex items-center">
         <div className="absolute inset-0 bg-[#060e1a]" />
         <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover opacity-20">
           <source src="https://geolabs-s3-bucket.s3.us-west-1.amazonaws.com/geolabs-cover.mp4" type="video/mp4" />
@@ -173,9 +173,9 @@ export default function JobBoard() {
 
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
-          className="relative max-w-6xl mx-auto px-6 w-full flex flex-col items-center text-center"
+          className="relative max-w-6xl mx-auto px-6 py-16 md:py-20 w-full"
         >
-          <div className="max-w-3xl w-full">
+          <div className="max-w-3xl">
             {/* Pill badge */}
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -210,7 +210,7 @@ export default function JobBoard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.45 }}
-              className="text-gray-300 text-lg leading-relaxed mb-8 font-light max-w-xl mx-auto"
+              className="text-gray-300 text-lg leading-relaxed mb-10 font-light max-w-xl"
             >
               Hawaii's premier 100% employee-owned geotechnical engineering firm. Work on landmark projects across the Pacific Basin alongside award-winning engineers.
             </motion.p>
@@ -219,7 +219,7 @@ export default function JobBoard() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.55 }}
-              className="flex flex-wrap gap-4 justify-center"
+              className="flex flex-wrap gap-4"
             >
               <motion.a
                 href="#open-roles"
@@ -241,7 +241,20 @@ export default function JobBoard() {
               </motion.a>
             </motion.div>
 
-
+            {/* Inline stat strip */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+              className="flex flex-wrap gap-8 mt-14 pt-8 border-t border-white/10"
+            >
+              {[['50+', 'Years Experience'], ['16', 'Awards Won'], ['100%', 'Employee-Owned']].map(([val, lbl], i) => (
+                <div key={i} className="text-left">
+                  <div className="text-2xl font-black text-[#F5C400]">{val}</div>
+                  <div className="text-xs text-gray-400 font-medium">{lbl}</div>
+                </div>
+              ))}
+            </motion.div>
           </div>
         </motion.div>
 
