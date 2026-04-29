@@ -142,22 +142,21 @@ export default function JobBoard() {
   });
 
   return (
-    <div className="min-h-screen bg-[#060e1a] font-inter overflow-x-hidden">
+    <div className="min-h-screen bg-white font-inter overflow-x-hidden">
       <Header />
 
       {/* ── OPEN ROLES ── */}
-      <section id="open-roles" className="py-28 bg-[#060e1a] relative overflow-hidden">
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#F5C400]/30 to-transparent" />
+      <section id="open-roles" className="py-16 bg-white relative">
         <div className="max-w-6xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="mb-10"
+            className="mb-8"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">Open Positions</h2>
-            <p className="text-gray-400 text-base">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight mb-1">Open Positions</h2>
+            <p className="text-gray-600 text-base">
               {loading ? 'Loading positions…' : `${jobs.length} open position${jobs.length !== 1 ? 's' : ''} across our offices`}
             </p>
           </motion.div>
@@ -168,7 +167,7 @@ export default function JobBoard() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="flex flex-col sm:flex-row gap-3 mb-8"
+            className="flex flex-col sm:flex-row gap-3 mb-6"
           >
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -176,7 +175,7 @@ export default function JobBoard() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search positions, departments, locations…"
-                className="w-full h-13 pl-11 pr-4 py-3.5 text-sm bg-[#0d1b2a] border border-[#1e2a3a] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400] transition-all shadow-sm text-white placeholder-gray-500"
+                className="w-full h-12 pl-11 pr-4 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400] transition-all text-gray-900 placeholder-gray-500"
               />
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -186,10 +185,10 @@ export default function JobBoard() {
                   onClick={() => setDeptFilter(d)}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
-                  className={`px-4 py-3 rounded-xl text-xs font-bold border transition-all whitespace-nowrap ${
+                  className={`px-4 py-2.5 rounded-lg text-xs font-bold border transition-all whitespace-nowrap ${
                     deptFilter === d
-                      ? 'bg-[#F5C400] text-[#060e1a] border-[#F5C400] shadow-lg shadow-[#F5C400]/20'
-                      : 'bg-[#0d1b2a] text-gray-300 border-[#1e2a3a] hover:border-[#F5C400] hover:text-[#F5C400]'
+                      ? 'bg-[#F5C400] text-gray-900 border-[#F5C400]'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-[#F5C400] hover:text-[#F5C400]'
                   }`}
                 >
                   {d === 'all' ? 'All Departments' : d}
@@ -212,15 +211,15 @@ export default function JobBoard() {
                ))}
             </div>
           ) : filtered.length === 0 ? (
-            <motion.div
-               initial={{ opacity: 0, scale: 0.95 }}
-               animate={{ opacity: 1, scale: 1 }}
-               className="bg-[#0d1b2a] rounded-2xl border border-[#1e2a3a] py-20 text-center shadow-sm"
-             >
-               <Briefcase className="w-8 h-8 text-gray-600 mx-auto mb-3" />
-               <p className="text-sm text-gray-400 font-medium">No open positions match your search.</p>
-               <p className="text-xs text-gray-500 mt-1">Try adjusting your filters or check back soon.</p>
-             </motion.div>
+           <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-gray-50 rounded-lg border border-gray-200 py-16 text-center"
+            >
+              <Briefcase className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+              <p className="text-sm text-gray-700 font-medium">No open positions match your search.</p>
+              <p className="text-xs text-gray-500 mt-1">Try adjusting your filters or check back soon.</p>
+            </motion.div>
           ) : (
             <AnimatePresence mode="popLayout">
               <div className="space-y-3">
@@ -237,45 +236,41 @@ export default function JobBoard() {
                   >
                     <Link
                       to={`/apply/${job.id}`}
-                      className="group relative flex items-start justify-between gap-5 bg-[#0d1b2a] hover:bg-[#0f2438] border border-[#1e2a3a] hover:border-[#F5C400]/30 rounded-2xl p-6 transition-all duration-400 shadow-sm hover:shadow-2xl hover:-translate-y-1 overflow-hidden block"
+                      className="group relative flex items-start justify-between gap-5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-[#F5C400] rounded-lg p-5 transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden block"
                     >
-                      {/* Shimmer effect on hover */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                        style={{ background: 'linear-gradient(135deg, transparent 30%, rgba(245,196,0,0.03) 50%, transparent 70%)' }} />
-
                       <div className="flex items-start gap-4 flex-1 min-w-0">
                         <motion.div
-                          animate={hoveredJob === job.id ? { rotate: [0, -5, 5, 0], scale: 1.1 } : {}}
+                          animate={hoveredJob === job.id ? { rotate: [0, -5, 5, 0], scale: 1.05 } : {}}
                           transition={{ duration: 0.4 }}
-                          className="w-12 h-12 rounded-xl bg-[#F5C400]/10 group-hover:bg-[#F5C400]/15 border border-[#F5C400]/20 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5"
+                          className="w-11 h-11 rounded-lg bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5"
                         >
                           <Briefcase className="w-5 h-5 text-[#F5C400]" />
                         </motion.div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                             <h3 className="text-base font-bold text-white group-hover:text-[#F5C400] transition-colors">
-                               {job.title}
+                             <h3 className="text-base font-bold text-gray-900 group-hover:text-[#F5C400] transition-colors">
+                              {job.title}
                              </h3>
-                            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#F5C400]/10 text-[#b8910a] border border-[#F5C400]/20">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F5C400]/10 text-[#b8910a] border border-[#F5C400]/20">
                               {EMP_LABELS[job.employmentType] || job.employmentType}
                             </span>
                           </div>
-                          <div className="flex items-center gap-4 text-xs text-gray-400 flex-wrap mb-2">
-                            <span className="font-medium text-gray-400 group-hover:text-gray-300">{job.department}</span>
+                          <div className="flex items-center gap-4 text-xs text-gray-600 flex-wrap mb-2">
+                            <span className="font-medium">{job.department}</span>
                             {job.office && (
-                              <span className="flex items-center gap-1 group-hover:text-gray-400">
+                              <span className="flex items-center gap-1">
                                 <MapPin className="w-3 h-3" /> {job.office}
                               </span>
                             )}
                             {job.applicationDeadline && (
-                              <span className="flex items-center gap-1 group-hover:text-gray-400">
+                              <span className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
                                 Closes {new Date(job.applicationDeadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                               </span>
                             )}
                           </div>
                           {job.description && (
-                            <p className="text-xs text-gray-500 group-hover:text-gray-400 leading-relaxed line-clamp-1 max-w-2xl">
+                            <p className="text-xs text-gray-600 leading-relaxed line-clamp-1 max-w-2xl">
                               {job.description}
                             </p>
                           )}
@@ -283,9 +278,9 @@ export default function JobBoard() {
                       </div>
                       <div className="flex flex-col items-end gap-2 flex-shrink-0 pt-1">
                         {job.salaryMin && job.salaryMax && (
-                           <div className="text-sm font-bold text-gray-300 group-hover:text-[#F5C400] transition-colors">
+                           <div className="text-sm font-bold text-gray-900">
                              ${Number(job.salaryMin).toLocaleString()}–${Number(job.salaryMax).toLocaleString()}
-                             <span className="text-xs font-normal text-gray-500 group-hover:text-gray-400">/yr</span>
+                             <span className="text-xs font-normal text-gray-500">/yr</span>
                            </div>
                          )}
                         <motion.div
@@ -293,7 +288,7 @@ export default function JobBoard() {
                           animate={hoveredJob === job.id ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
                           className="flex items-center gap-1 text-[#F5C400] text-xs font-bold"
                         >
-                          Apply now <ChevronRight className="w-3.5 h-3.5" />
+                          Apply <ChevronRight className="w-3.5 h-3.5" />
                         </motion.div>
                       </div>
                     </Link>
@@ -309,17 +304,17 @@ export default function JobBoard() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-4 px-6 py-5 bg-[#0d1b2a] border border-[#1e2a3a] rounded-2xl shadow-sm"
+            className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 px-5 py-4 bg-gray-50 border border-gray-200 rounded-lg"
           >
             <div className="flex items-center gap-3 flex-shrink-0">
-              <div className="w-9 h-9 rounded-xl bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center">
                 <Users className="w-4 h-4 text-[#F5C400]" />
               </div>
-              <span className="text-xs font-black text-white uppercase tracking-widest whitespace-nowrap">Equal Opportunity Employer</span>
+              <span className="text-xs font-bold text-gray-900 uppercase tracking-wider whitespace-nowrap">Equal Opportunity Employer</span>
             </div>
-            <div className="w-px h-8 bg-[#1e2a3a] hidden sm:block flex-shrink-0" />
-            <p className="text-xs text-gray-400 leading-relaxed">
-              Geolabs provides equal employment opportunities to all employees and applicants without regard to race, color, religion, gender, sexual orientation, national origin, age, disability, or veteran status. ADA-compliant and committed to reasonable accommodations.
+            <div className="w-px h-6 bg-gray-300 hidden sm:block flex-shrink-0" />
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Geolabs provides equal employment opportunities to all employees and applicants without regard to race, color, religion, gender, sexual orientation, national origin, age, disability, or veteran status.
             </p>
           </motion.div>
 
@@ -328,7 +323,7 @@ export default function JobBoard() {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="text-center text-xs text-gray-500 mt-10"
+              className="text-center text-xs text-gray-600 mt-8"
             >
               Don't see a perfect fit?{' '}
               <Link to="/apply" className="text-[#F5C400] font-semibold hover:text-[#EFB506] transition-colors underline underline-offset-2">

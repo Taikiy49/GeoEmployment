@@ -1,59 +1,28 @@
 import React, { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Lock } from 'lucide-react';
 
 const LOGO_URL = 'https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/bdb109631_geolabs_trans.png';
-
-const NAV_LINKS = [
-  { label: 'Benefits', href: '#benefits' },
-  { label: 'About Us', href: '#about' },
-  { label: 'Contact', href: '#contact' },
-];
-
-function scrollTo(id) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-}
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="bg-gradient-to-r from-[#171C26] to-[#1F3451] shadow-lg relative z-30">
-      <div className="w-full flex items-stretch justify-between">
-        {/* Logo block — overflows header */}
-        <a href="/" className="flex items-stretch hover:opacity-90 transition-opacity flex-shrink-0">
-          <div className="bg-[#F5C400] flex items-end justify-center px-6 pb-0 pt-2" style={{ marginBottom: '-14px' }}>
-            <img src={LOGO_URL} alt="Geolabs Logo" className="h-20 w-auto object-contain" />
-          </div>
+    <header className="bg-white border-b border-gray-200 shadow-sm relative z-30">
+      <div className="w-full flex items-center justify-between px-6 h-20">
+        {/* Logo */}
+        <a href="/" className="flex items-center hover:opacity-90 transition-opacity flex-shrink-0">
+          <img src={LOGO_URL} alt="Geolabs Logo" className="h-12 w-auto object-contain" />
         </a>
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1 px-6">
-          {NAV_LINKS.map(link => (
-            <a
-              key={link.label}
-              href={link.href}
-              onClick={e => {
-                e.preventDefault();
-                const id = link.href.replace('#', '');
-                scrollTo(id);
-              }}
-              className="px-4 py-2 text-sm font-semibold text-gray-300 hover:text-[#F5C400] hover:bg-white/5 rounded-lg transition-all"
-            >
-              {link.label}
-            </a>
-          ))}
-          <a
-            href="#open-roles"
-            onClick={e => { e.preventDefault(); scrollTo('open-roles'); }}
-            className="ml-3 px-5 py-2 bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] text-sm font-bold rounded-lg transition-all shadow-md shadow-[#F5C400]/20"
-          >
-            View Open Roles
-          </a>
-        </nav>
+        {/* Trust badge — Desktop */}
+        <div className="hidden md:flex items-center gap-2 ml-auto text-xs font-semibold text-gray-600">
+          <Lock className="w-3.5 h-3.5 text-[#F5C400]" />
+          Secure & Confidential
+        </div>
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden flex items-center px-5 text-gray-300 hover:text-white"
+          className="md:hidden flex items-center text-gray-700 hover:text-gray-900"
           onClick={() => setMobileOpen(o => !o)}
         >
           {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -62,28 +31,11 @@ export default function Header() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-[#0f1825] border-t border-white/10 px-4 py-3 space-y-1">
-          {NAV_LINKS.map(link => (
-            <a
-              key={link.label}
-              href={link.href}
-              onClick={e => {
-                e.preventDefault();
-                scrollTo(link.href.replace('#', ''));
-                setMobileOpen(false);
-              }}
-              className="block px-4 py-2.5 text-sm font-semibold text-gray-300 hover:text-[#F5C400] hover:bg-white/5 rounded-lg transition-all"
-            >
-              {link.label}
-            </a>
-          ))}
-          <a
-            href="#open-roles"
-            onClick={e => { e.preventDefault(); scrollTo('open-roles'); setMobileOpen(false); }}
-            className="block px-4 py-2.5 bg-[#F5C400] text-[#0d1117] text-sm font-bold rounded-lg text-center mt-2"
-          >
-            View Open Roles
-          </a>
+        <div className="md:hidden bg-gray-50 border-t border-gray-200 px-6 py-3">
+          <div className="flex items-center gap-2 text-xs font-semibold text-gray-600 pb-3 border-b border-gray-200">
+            <Lock className="w-3.5 h-3.5 text-[#F5C400]" />
+            Secure & Confidential
+          </div>
         </div>
       )}
     </header>
