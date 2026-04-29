@@ -332,31 +332,7 @@ export default function JobBoard() {
         </div>
       </section>
 
-      {/* ── EEO strip ── */}
-      <section className="bg-gradient-to-r from-[#0d1b2a] to-[#060e1a] py-8 border-y border-[#1e2a3a] relative overflow-hidden">
-        <Particles />
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center gap-6 relative">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="flex items-center gap-3 flex-shrink-0"
-          >
-            <div className="w-10 h-10 rounded-xl bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center">
-              <Users className="w-5 h-5 text-[#F5C400]" />
-            </div>
-            <span className="text-sm font-bold text-white whitespace-nowrap">Equal Opportunity Employer</span>
-          </motion.div>
-          <motion.p
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="text-xs text-gray-400 leading-relaxed"
-          >
-            Geolabs provides equal employment opportunities to all employees and applicants without regard to race, color, religion, gender, sexual orientation, national origin, age, disability, or veteran status. ADA-compliant and committed to reasonable accommodations.
-          </motion.p>
-        </div>
-      </section>
+
 
       {/* ── OPEN ROLES ── */}
       <section id="open-roles" className="py-28 bg-[#f8f9fb] relative overflow-hidden">
@@ -523,6 +499,26 @@ export default function JobBoard() {
               </div>
             </AnimatePresence>
           )}
+
+          {/* EEO notice */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-4 px-6 py-5 bg-white border border-gray-100 rounded-2xl shadow-sm"
+          >
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center">
+                <Users className="w-4 h-4 text-[#b8910a]" />
+              </div>
+              <span className="text-xs font-black text-gray-800 uppercase tracking-widest whitespace-nowrap">Equal Opportunity Employer</span>
+            </div>
+            <div className="w-px h-8 bg-gray-100 hidden sm:block flex-shrink-0" />
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Geolabs provides equal employment opportunities to all employees and applicants without regard to race, color, religion, gender, sexual orientation, national origin, age, disability, or veteran status. ADA-compliant and committed to reasonable accommodations.
+            </p>
+          </motion.div>
 
           {!search && filtered.length > 0 && (
             <motion.p
