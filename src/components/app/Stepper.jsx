@@ -24,10 +24,10 @@ export default function Stepper({ currentStep, completedSteps, onStepClick }) {
     <div className="space-y-4">
       {/* Progress */}
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-[#64748b] font-medium tracking-wide">Application Progress</span>
+        <span className="text-xs text-gray-500 font-medium tracking-wide">Application Progress</span>
         <span className="text-xs font-bold text-[#F5C400]">{progressPercent}%</span>
       </div>
-      <div className="h-1.5 bg-[#1e2a3a] rounded-full overflow-hidden">
+      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700 ease-out"
           style={{ width: `${progressPercent}%`, background: 'linear-gradient(90deg, #F5C400, #EFB506)' }}
@@ -46,16 +46,16 @@ export default function Stepper({ currentStep, completedSteps, onStepClick }) {
               className={`
                 flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 border
                 ${isActive
-                  ? 'bg-[#F5C400] text-[#0d1117] border-[#F5C400] shadow-md shadow-[#F5C400]/20'
-                  : isCompleted
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                    : 'bg-[#0d1b2a] text-[#64748b] border-[#1e2a3a] hover:border-[#2d3f55] hover:text-[#94a3b8]'
-                }
+                    ? 'bg-[#F5C400] text-gray-900 border-[#F5C400] shadow-md shadow-[#F5C400]/20'
+                    : isCompleted
+                      ? 'bg-green-50 text-green-600 border-green-200'
+                      : 'bg-white text-gray-600 border-gray-300 hover:border-gray-400 hover:text-gray-700'
+                  }
               `}
             >
               {isCompleted
-                ? <span className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0"><Check className="w-2.5 h-2.5 text-white" /></span>
-                : <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0 ${isActive ? 'bg-[#0d1117]/30 text-[#0d1117]' : 'bg-[#1e2a3a] text-[#64748b]'}`}>{bIdx + 1}</span>
+                ? <span className="w-4 h-4 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0"><Check className="w-2.5 h-2.5 text-white" /></span>
+                : <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0 ${isActive ? 'bg-gray-900/20 text-gray-900' : 'bg-gray-200 text-gray-600'}`}>{bIdx + 1}</span>
               }
               {branch.label}
             </button>
@@ -75,11 +75,11 @@ export default function Stepper({ currentStep, completedSteps, onStepClick }) {
               className={`
                 flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all border
                 ${isActive
-                  ? 'bg-[#F5C400]/20 text-[#F5C400] border-[#F5C400]/50'
-                  : isCompleted
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                    : 'bg-[#0d1b2a] text-[#4a5568] border-[#1e2a3a] hover:text-[#64748b] hover:border-[#2d3f55]'
-                }
+                   ? 'bg-[#F5C400]/10 text-[#b8910a] border-[#F5C400]/50'
+                   : isCompleted
+                     ? 'bg-green-50 text-green-600 border-green-200'
+                     : 'bg-white text-gray-600 border-gray-300 hover:text-gray-700 hover:border-gray-400'
+                 }
               `}
             >
               {isCompleted && !isActive && <Check className="w-2.5 h-2.5" />}

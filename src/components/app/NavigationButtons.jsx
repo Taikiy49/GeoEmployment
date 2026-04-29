@@ -11,13 +11,13 @@ export default function NavigationButtons({
   isLoading = false,
 }) {
   return (
-    <div className="flex items-center justify-between mt-8 pt-5 border-t border-[#1e2a3a]">
+    <div className="flex items-center justify-between mt-8 pt-5 border-t border-gray-200">
       <div>
         {showBack && (
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-2 px-5 py-2.5 text-sm text-[#94a3b8] hover:text-white rounded-xl hover:bg-[#1e2a3a] transition-all font-medium border border-[#1e2a3a] hover:border-[#2d3f55]"
+            className="flex items-center gap-2 px-5 py-2.5 text-sm text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-all font-medium border border-gray-300 hover:border-gray-400"
           >
             <ChevronLeft className="w-4 h-4" />
             Back
