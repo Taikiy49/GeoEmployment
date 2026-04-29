@@ -279,9 +279,9 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
         {file && status !== 'success' && !formData.resumeFileUrl && (
           <div className="mt-4 flex justify-center">
             <Button
-              onClick={handleUploadAndParse}
-              disabled={status === 'uploading' || status === 'parsing'}
-              className="rounded-full px-6 h-9 text-sm bg-bronze hover:bg-bronze-dark text-white"
+             onClick={handleUploadAndParse}
+             disabled={status === 'uploading' || status === 'parsing'}
+             className="rounded-lg px-6 h-9 text-sm bg-[#F5C400] hover:bg-[#EFB506] text-gray-900 font-medium"
             >
               {(status === 'uploading' || status === 'parsing') && (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />

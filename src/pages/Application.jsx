@@ -382,7 +382,7 @@ export default function Application() {
                 <span className="text-sm">💼</span>
               </div>
               <div className="flex-1">
-                <div className="text-xs font-bold text-gray-900">Applying for: {requisition.title}</div>
+                <div className="text-xs font-bold text-gray-900">{requisition.title}</div>
                 <div className="text-[11px] text-gray-600">{requisition.department} · {requisition.office || 'Geolabs, Inc.'}</div>
               </div>
               {/* Auto-save indicator */}
