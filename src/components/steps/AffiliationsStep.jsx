@@ -16,8 +16,8 @@ export default function AffiliationsStep({ formData, setFormData, onNext, onBack
         <div className="space-y-5">
 
           {/* Examples card */}
-          <div className="bg-bronze-softer border border-bronze-soft rounded-xl p-4">
-            <p className="text-xs font-semibold text-bronze-dark mb-2 uppercase tracking-wide">Helpful examples you can include</p>
+          <div className="bg-[#FEF8E7] border border-[#F5C400]/20 rounded-xl p-4">
+            <p className="text-xs font-semibold text-[#b8910a] mb-2 uppercase tracking-wide">Helpful examples you can include</p>
             <ul className="space-y-1">
               {[
                 'ASCE Member (since 2022)',
@@ -26,7 +26,7 @@ export default function AffiliationsStep({ formData, setFormData, onNext, onBack
                 'OSHA 30-Hour Construction Safety',
               ].map((ex, i) => (
                 <li key={i} className="flex items-center gap-2 text-xs text-[#374151]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-bronze flex-shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#F5C400] flex-shrink-0" />
                   {ex}
                 </li>
               ))}

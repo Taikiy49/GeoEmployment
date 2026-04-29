@@ -225,10 +225,10 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
           className={`
             border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer
             ${dragOver
-              ? 'border-bronze bg-bronze-soft'
+              ? 'border-[#F5C400] bg-[#FEF8E7]'
               : file
                 ? 'border-success bg-success-soft'
-                : 'border-[#cbd5e1] bg-[#fafafa] hover:border-bronze hover:bg-bronze-softer'
+                : 'border-[#cbd5e1] bg-[#fafafa] hover:border-[#F5C400] hover:bg-[#FFFAF0]'
             }
           `}
           onClick={() => document.getElementById('resume-input').click()}
@@ -242,7 +242,7 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
           />
           {file || formData.resumeFileUrl ? (
             <div className="flex items-center justify-center gap-3">
-              <FileText className={`w-8 h-8 ${status === 'success' ? 'text-success' : 'text-bronze'}`} />
+              <FileText className={`w-8 h-8 ${status === 'success' ? 'text-success' : 'text-[#F5C400]'}`} />
               <div className="text-left">
                 <p className="text-sm font-medium text-[#111827]">{file ? file.name : 'Resume uploaded'}</p>
                 <p className="text-[10px] text-[#6b7280]">
@@ -362,8 +362,8 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
 
 function PreviewCard({ title, items }) {
   return (
-    <div className="bg-bronze-softer border border-bronze-soft rounded-lg p-3">
-      <h4 className="text-[10px] font-semibold text-bronze-dark mb-2 uppercase tracking-wider">
+    <div className="bg-[#FEF8E7] border border-[#F5C400]/20 rounded-lg p-3">
+      <h4 className="text-[10px] font-semibold text-[#b8910a] mb-2 uppercase tracking-wider">
         {title}
       </h4>
       {items.length > 0 ? (

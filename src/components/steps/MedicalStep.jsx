@@ -49,7 +49,7 @@ export default function MedicalStep({ formData, setFormData, onNext, onBack }) {
                   value={formData.medInitials || ''}
                   onChange={e => update('medInitials', e.target.value)}
                   maxLength={4}
-                  className="w-24 h-9 px-3 text-sm border border-[#e5e7eb] rounded-lg focus:outline-none focus:ring-2 focus:ring-bronze/30 focus:border-bronze text-center font-semibold tracking-widest"
+                  className="w-24 h-9 px-3 text-sm border border-[#e5e7eb] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F5C400]/30 focus:border-[#F5C400] text-center font-semibold tracking-widest"
                 />
                 <p className="text-xs text-gray-400">Your initials confirm you have read and understood the above policy.</p>
               </div>
@@ -57,7 +57,7 @@ export default function MedicalStep({ formData, setFormData, onNext, onBack }) {
           </div>
 
           {/* ADA / Ability to Perform */}
-          <div className="bg-bronze-softer border border-bronze-soft rounded-xl p-5 space-y-4">
+          <div className="bg-[#FEF8E7] border border-[#F5C400]/20 rounded-xl p-5 space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-gray-900 mb-0.5">Ability to Perform Essential Job Functions</h3>
               <p className="text-xs text-gray-500">

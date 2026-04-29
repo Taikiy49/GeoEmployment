@@ -26,14 +26,14 @@ function RadioCard({ selected, onClick, children }) {
       onClick={onClick}
       className={`w-full text-left flex items-start gap-3 px-4 py-3 rounded-xl border transition-all ${
         selected
-          ? 'border-bronze bg-bronze/5 ring-1 ring-bronze'
+          ? 'border-[#F5C400] bg-[#F5C400]/5 ring-1 ring-[#F5C400]'
           : 'border-gray-200 bg-white hover:border-gray-300'
       }`}
     >
       <span className={`mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
-        selected ? 'border-bronze' : 'border-gray-300'
+        selected ? 'border-[#F5C400]' : 'border-gray-300'
       }`}>
-        {selected && <span className="w-2 h-2 rounded-full bg-bronze block" />}
+        {selected && <span className="w-2 h-2 rounded-full bg-[#F5C400] block" />}
       </span>
       {children}
     </button>

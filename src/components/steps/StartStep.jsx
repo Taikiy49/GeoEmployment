@@ -37,7 +37,7 @@ function JobPanel({ job }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className={`border rounded-xl overflow-hidden transition-all ${open ? 'border-bronze/40 shadow-sm' : 'border-gray-200'}`}>
+    <div className={`border rounded-xl overflow-hidden transition-all ${open ? 'border-[#F5C400]/40 shadow-sm' : 'border-gray-200'}`}>
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
@@ -57,7 +57,7 @@ function JobPanel({ job }) {
               </span>
             )}
             {job.employmentType && (
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-bronze/10 text-bronze border border-bronze/20">
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F5C400]/10 text-[#b8910a] border border-[#F5C400]/20">
                 {EMP_LABELS[job.employmentType] || job.employmentType}
               </span>
             )}
@@ -139,7 +139,7 @@ export default function StartStep({ onNext, requisition, onBack }) {
             Join a 100% employee-owned geotechnical engineering and drilling firm serving Hawaiʻi and California. Offices in Waipahu, HI and California.
           </p>
           <div className="flex flex-wrap gap-2 mt-3">
-            <span className="text-[11px] font-medium px-3 py-1 rounded-full bg-bronze/10 text-bronze border border-bronze/20">Employee-Owned (ESOP)</span>
+            <span className="text-[11px] font-medium px-3 py-1 rounded-full bg-[#F5C400]/10 text-[#b8910a] border border-[#F5C400]/20">Employee-Owned (ESOP)</span>
             <span className="text-[11px] font-medium px-3 py-1 rounded-full bg-gray-100 text-gray-600 border border-gray-200">Field &amp; Office Roles</span>
             <span className="text-[11px] font-medium px-3 py-1 rounded-full bg-gray-100 text-gray-600 border border-gray-200">Hawaiʻi · California</span>
           </div>
@@ -159,7 +159,7 @@ export default function StartStep({ onNext, requisition, onBack }) {
             <ul className="space-y-1.5">
               {['Hands-on field and lab experience', 'Opportunities to work with professional engineers', 'Competitive benefits and ESOP participation'].map((item, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
-                  <span className="w-1.5 h-1.5 rounded-full bg-bronze flex-shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#F5C400] flex-shrink-0" />
                   {item}
                 </li>
               ))}
@@ -175,8 +175,8 @@ export default function StartStep({ onNext, requisition, onBack }) {
                   </a>
                 )}
                 <button
-                  onClick={onNext}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-bronze hover:bg-bronze-dark text-white text-sm font-semibold rounded-xl transition-all shadow-sm"
+                 onClick={onNext}
+                 className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#F5C400] hover:bg-[#EFB506] text-gray-900 text-sm font-semibold rounded-xl transition-all shadow-sm"
                 >
                   {requisition ? `Apply for ${requisition.title}` : 'Apply Now'}
                   <ArrowRight className="w-4 h-4" />
@@ -234,7 +234,7 @@ export default function StartStep({ onNext, requisition, onBack }) {
                 'Flexible Spending Account (FSA)',
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-2 text-[11px] text-gray-600">
-                  <span className="w-1 h-1 rounded-full bg-bronze flex-shrink-0" />
+                  <span className="w-1 h-1 rounded-full bg-[#F5C400] flex-shrink-0" />
                   {item}
                 </li>
               ))}

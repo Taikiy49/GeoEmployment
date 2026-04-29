@@ -76,7 +76,7 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
           </div>
 
           {/* Work Eligibility */}
-          <div className="bg-bronze-softer border border-bronze-soft rounded-xl p-5">
+          <div className="bg-[#FEF8E7] border border-[#F5C400]/20 rounded-xl p-5">
             <h3 className="text-sm font-semibold text-gray-900 mb-2">Work Eligibility</h3>
             <p className="text-xs text-[#374151] leading-relaxed">
               It is the policy of Geolabs, Inc. to hire only U.S. citizens and aliens who are authorized to work in this country. As a condition of employment, you will be required to produce original documents establishing your identity and authorization to work, and to complete the U.S. Citizenship and Immigration Services' Form I-9.
@@ -119,7 +119,7 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
                   onChange={e => update('certificationSignature', e.target.value)}
                   placeholder="Type your full legal name"
                   autoComplete="name"
-                  className="w-full h-9 px-3 text-sm border border-[#e5e7eb] rounded-lg focus:outline-none focus:ring-2 focus:ring-bronze/30 focus:border-bronze"
+                  className="w-full h-9 px-3 text-sm border border-[#e5e7eb] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F5C400]/30 focus:border-[#F5C400]"
                 />
                 <p className="text-[10px] text-gray-400">
                   By typing your name, you acknowledge this as your electronic signature.
