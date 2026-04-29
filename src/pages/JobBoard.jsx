@@ -173,15 +173,15 @@ export default function JobBoard() {
 
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
-          className="relative max-w-6xl mx-auto px-6 pt-6 pb-12 w-full"
+          className="relative max-w-6xl mx-auto px-6 py-10 md:py-14 w-full flex flex-col items-center text-center"
         >
-          <div className="max-w-3xl mx-auto text-center">
+          <div className="max-w-3xl w-full">
             {/* Pill badge */}
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="inline-flex items-center gap-2.5 bg-[#F5C400]/10 border border-[#F5C400]/30 rounded-full px-5 py-2 mb-6"
+              className="inline-flex items-center gap-2.5 bg-[#F5C400]/10 border border-[#F5C400]/30 rounded-full px-5 py-2 mb-8"
             >
               <motion.span
                 className="w-2 h-2 rounded-full bg-[#F5C400]"
@@ -192,14 +192,14 @@ export default function JobBoard() {
             </motion.div>
 
             {/* Headline with staggered words */}
-            <div className="mb-5">
+            <div className="mb-7">
               {['Build a career', 'that moves', 'the earth.'].map((line, li) => (
                 <motion.div
                   key={li}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, x: -40 }}
+                  animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.7, delay: 0.1 + li * 0.12, ease: [0.22, 1, 0.36, 1] }}
-                  className={`text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight ${li === 1 ? 'text-[#F5C400]' : 'text-white'}`}
+                  className={`text-5xl sm:text-7xl font-black leading-[1.0] tracking-tight ${li === 1 ? 'text-[#F5C400]' : 'text-white'}`}
                 >
                   {line}
                 </motion.div>
@@ -210,7 +210,7 @@ export default function JobBoard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.45 }}
-              className="text-gray-300 text-base leading-relaxed mb-7 font-light max-w-xl mx-auto"
+              className="text-gray-300 text-lg leading-relaxed mb-8 font-light max-w-xl mx-auto"
             >
               Hawaii's premier 100% employee-owned geotechnical engineering firm. Work on landmark projects across the Pacific Basin alongside award-winning engineers.
             </motion.p>
@@ -226,7 +226,7 @@ export default function JobBoard() {
                 onClick={e => { e.preventDefault(); document.getElementById('open-roles')?.scrollIntoView({ behavior: 'smooth' }); }}
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center gap-2 bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] font-bold px-8 py-3.5 rounded-xl text-sm transition-colors shadow-2xl shadow-[#F5C400]/30"
+                className="inline-flex items-center gap-2 bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] font-bold px-8 py-4 rounded-xl text-sm transition-colors shadow-2xl shadow-[#F5C400]/30"
               >
                 View Open Roles <ArrowRight className="w-4 h-4" />
               </motion.a>
@@ -235,7 +235,7 @@ export default function JobBoard() {
                 onClick={e => { e.preventDefault(); document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }); }}
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/15 text-white font-semibold px-8 py-3.5 rounded-xl text-sm transition-all"
+                className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/15 text-white font-semibold px-8 py-4 rounded-xl text-sm transition-all"
               >
                 Learn About Us
               </motion.a>
@@ -249,7 +249,7 @@ export default function JobBoard() {
               className="flex flex-wrap gap-8 mt-8 pt-6 border-t border-white/10 justify-center"
             >
               {[['50+', 'Years Experience'], ['16', 'Awards Won'], ['100%', 'Employee-Owned']].map(([val, lbl], i) => (
-                <div key={i} className="text-center">
+                <div key={i} className="text-left">
                   <div className="text-2xl font-black text-[#F5C400]">{val}</div>
                   <div className="text-xs text-gray-400 font-medium">{lbl}</div>
                 </div>
