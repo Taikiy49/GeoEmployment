@@ -155,14 +155,14 @@ export default function JobBoard() {
 
 
       {/* ── BENEFITS ── */}
-      <section className="py-24 bg-[#060e1a]">
+      <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-14">
-            <span className="inline-block text-[11px] font-black uppercase tracking-widest text-[#F5C400] mb-4 bg-[#F5C400]/10 px-3 py-1.5 rounded-full border border-[#F5C400]/20">Compensation & Benefits</span>
-            <h2 className="text-4xl font-black text-white mb-3 tracking-tight">Everything you need to thrive</h2>
-            <p className="text-gray-400 font-light">Comprehensive benefits designed for your long-term success</p>
+          <div className="text-center mb-12">
+            <span className="inline-block text-[11px] font-black uppercase tracking-widest text-[#b8910a] mb-4 bg-[#F5C400]/10 px-3 py-1.5 rounded-full border border-[#F5C400]/30">Compensation & Benefits</span>
+            <h2 className="text-4xl font-black text-gray-900 mb-3 tracking-tight">Everything you need to thrive</h2>
+            <p className="text-gray-500 font-light">Comprehensive benefits designed for your long-term success</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {BENEFITS.map((b, i) => (
               <motion.div
                 key={i}
@@ -170,13 +170,13 @@ export default function JobBoard() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.07, duration: 0.5 }}
-                className="group bg-[#0d1b2a] border border-[#1e2a3a] hover:border-[#F5C400]/30 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1"
+                className="group bg-gray-50 border border-gray-200 hover:border-[#F5C400] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
               >
-                <div className="w-11 h-11 rounded-xl bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center mb-4 group-hover:bg-[#F5C400]/15 transition-colors">
-                  <b.icon className="w-5 h-5 text-[#F5C400]" />
+                <div className="w-11 h-11 rounded-xl bg-[#F5C400]/15 flex items-center justify-center mb-4">
+                  <b.icon className="w-5 h-5 text-[#b8910a]" />
                 </div>
-                <h3 className="text-sm font-bold text-white mb-2">{b.title}</h3>
-                <p className="text-xs text-gray-400 leading-relaxed">{b.desc}</p>
+                <h3 className="text-sm font-bold text-gray-900 mb-2">{b.title}</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">{b.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -184,15 +184,15 @@ export default function JobBoard() {
       </section>
 
       {/* ── EEO strip ── */}
-      <section className="bg-[#0d1b2a] border-y border-[#1e2a3a] py-8">
+      <section className="bg-gray-50 border-y border-gray-200 py-8">
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center gap-6">
           <div className="flex items-center gap-3 flex-shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center">
-              <Users className="w-5 h-5 text-[#F5C400]" />
+            <div className="w-10 h-10 rounded-xl bg-[#F5C400]/15 flex items-center justify-center">
+              <Users className="w-5 h-5 text-[#b8910a]" />
             </div>
-            <span className="text-sm font-bold text-white">Equal Opportunity Employer</span>
+            <span className="text-sm font-bold text-gray-800">Equal Opportunity Employer</span>
           </div>
-          <p className="text-xs text-gray-400 leading-relaxed">
+          <p className="text-xs text-gray-500 leading-relaxed">
             Geolabs provides equal employment opportunities to all employees and applicants without regard to race, color, religion, gender, sexual orientation, national origin, age, disability, or veteran status. ADA-compliant and committed to reasonable accommodations.
           </p>
         </div>
