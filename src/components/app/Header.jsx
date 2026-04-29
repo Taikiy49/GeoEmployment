@@ -17,27 +17,24 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="bg-gradient-to-r from-[#171C26] to-[#1F3451] shadow-lg relative z-30">
-      <div className="w-full flex items-stretch justify-between">
-        {/* Logo block — overflows header */}
-        <a href="/" className="flex items-stretch hover:opacity-90 transition-opacity flex-shrink-0">
-          <div className="bg-[#F5C400] flex items-end justify-center px-8 pb-4 pt-4" style={{ marginBottom: '-18px' }}>
-            <img src={LOGO_URL} alt="Geolabs Logo" className="h-28 w-auto object-contain" />
-          </div>
+    <header className="bg-white border-b border-gray-100 shadow-sm relative z-30">
+      <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-3">
+        {/* Logo */}
+        <a href="/" className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0">
+          <img src={LOGO_URL} alt="Geolabs Logo" className="h-16 w-auto object-contain" />
         </a>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1 px-6">
+        <nav className="hidden md:flex items-center gap-1">
           {NAV_LINKS.map(link => (
             <a
               key={link.label}
               href={link.href}
               onClick={e => {
                 e.preventDefault();
-                const id = link.href.replace('#', '');
-                scrollTo(id);
+                scrollTo(link.href.replace('#', ''));
               }}
-              className="px-4 py-2 text-sm font-semibold text-gray-300 hover:text-[#F5C400] hover:bg-white/5 rounded-lg transition-all"
+              className="px-4 py-2 text-sm font-semibold text-gray-600 hover:text-[#b87333] uppercase tracking-wide transition-colors"
             >
               {link.label}
             </a>
@@ -45,7 +42,7 @@ export default function Header() {
           <a
             href="#open-roles"
             onClick={e => { e.preventDefault(); scrollTo('open-roles'); }}
-            className="ml-3 px-5 py-2 bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] text-sm font-bold rounded-lg transition-all shadow-md shadow-[#F5C400]/20"
+            className="ml-4 px-5 py-2 bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] text-sm font-bold rounded uppercase tracking-wide transition-all"
           >
             View Open Roles
           </a>
@@ -53,7 +50,7 @@ export default function Header() {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden flex items-center px-5 text-gray-300 hover:text-white"
+          className="md:hidden flex items-center px-2 text-gray-600 hover:text-gray-900"
           onClick={() => setMobileOpen(o => !o)}
         >
           {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -62,7 +59,7 @@ export default function Header() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-[#0f1825] border-t border-white/10 px-4 py-3 space-y-1">
+        <div className="md:hidden bg-white border-t border-gray-100 px-4 py-3 space-y-1">
           {NAV_LINKS.map(link => (
             <a
               key={link.label}
@@ -72,7 +69,7 @@ export default function Header() {
                 scrollTo(link.href.replace('#', ''));
                 setMobileOpen(false);
               }}
-              className="block px-4 py-2.5 text-sm font-semibold text-gray-300 hover:text-[#F5C400] hover:bg-white/5 rounded-lg transition-all"
+              className="block px-4 py-2.5 text-sm font-semibold text-gray-600 hover:text-[#b87333] uppercase tracking-wide transition-colors"
             >
               {link.label}
             </a>
@@ -80,7 +77,7 @@ export default function Header() {
           <a
             href="#open-roles"
             onClick={e => { e.preventDefault(); scrollTo('open-roles'); setMobileOpen(false); }}
-            className="block px-4 py-2.5 bg-[#F5C400] text-[#0d1117] text-sm font-bold rounded-lg text-center mt-2"
+            className="block px-4 py-2.5 bg-[#F5C400] text-[#0d1117] text-sm font-bold rounded uppercase text-center mt-2"
           >
             View Open Roles
           </a>
