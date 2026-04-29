@@ -168,14 +168,15 @@ export default function JobBoard() {
         {/* Animated grid lines */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: `linear-gradient(#F5C400 1px, transparent 1px), linear-gradient(90deg, #F5C400 1px, transparent 1px)`,
-          backgroundSize: '80px 80px'
+          backgroundSize: '80px 80px',
+          backgroundAttachment: 'fixed'
         }} />
 
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
-          className="relative max-w-6xl mx-auto px-6 py-16 md:py-20 w-full"
+          className="relative max-w-6xl mx-auto px-6 py-12 md:py-14 w-full flex flex-col justify-center items-center"
         >
-          <div className="max-w-3xl">
+          <div className="max-w-3xl text-center">
             {/* Pill badge */}
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
