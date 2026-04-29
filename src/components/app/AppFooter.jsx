@@ -4,11 +4,7 @@ import { Shield } from 'lucide-react';
 export default function AppFooter() {
   return (
     <footer className="bg-white border-t border-gray-100">
-      <div className="py-5 text-center border-b border-gray-100">
-        <a href="/admin" className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-[#b8910a] transition-colors font-medium">
-          <Shield className="w-3.5 h-3.5" /> HR Admin Portal
-        </a>
-      </div>
+
       <div className="py-7 px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3">
