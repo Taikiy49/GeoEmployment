@@ -149,7 +149,7 @@ export default function JobBoard() {
       <Header />
 
       {/* ── HERO ── */}
-      <section ref={heroRef} className="relative overflow-hidden min-h-screen flex items-center">
+      <section ref={heroRef} className="relative overflow-hidden h-screen flex items-center justify-center">
         <div className="absolute inset-0 bg-[#060e1a]" />
         <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover opacity-20">
           <source src="https://geolabs-s3-bucket.s3.us-west-1.amazonaws.com/geolabs-cover.mp4" type="video/mp4" />
