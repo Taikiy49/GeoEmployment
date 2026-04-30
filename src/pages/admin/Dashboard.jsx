@@ -22,7 +22,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     Promise.all([
-      base44.entities.Application.filter({ status: 'active' }),
+      base44.entities.Application.filter({ status: 'active', isDraft: false }),
       base44.entities.JobRequisition.list('-created_date', 100),
     ]).then(([a, r]) => {
       setApps(a);

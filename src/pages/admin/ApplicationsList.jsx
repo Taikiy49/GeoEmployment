@@ -25,7 +25,7 @@ export default function ApplicationsList() {
     if (stageParam) setStageFilter(stageParam);
 
     Promise.all([
-      base44.entities.Application.filter({ status: 'active' }, '-created_date', 500),
+      base44.entities.Application.filter({ status: 'active', isDraft: false }, '-created_date', 500),
       base44.entities.JobRequisition.list('-created_date', 200),
     ]).then(([a, r]) => {
       setApps(a);

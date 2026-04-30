@@ -15,7 +15,7 @@ export default function JobDetail() {
   useEffect(() => {
     Promise.all([
       base44.entities.JobRequisition.filter({ id }),
-      base44.entities.Application.filter({ requisitionId: id }),
+      base44.entities.Application.filter({ requisitionId: id, isDraft: false }),
     ]).then(([reqs, applications]) => {
       setReq(reqs[0]);
       setApps(applications);
