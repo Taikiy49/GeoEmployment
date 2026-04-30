@@ -34,8 +34,8 @@ Deno.serve(async (req) => {
             ],
           },
           callbackUrls: {
-            postFlowUrl: `${origin}/admin/billing`,
-            thankYouPageUrl: `${origin}/admin/billing?payment=success`,
+            postFlowUrl: `${origin}/billing`,
+            thankYouPageUrl: `${origin}/billing?payment=success`,
           },
         }),
       }

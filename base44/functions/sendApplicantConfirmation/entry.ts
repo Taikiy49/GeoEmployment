@@ -125,7 +125,7 @@ Deno.serve(async (req) => {
   <!-- Footer -->
   <div style="text-align:center; padding:20px 0 4px; font-size:11px; color:#9ca3af; line-height:1.8;">
     Geolabs, Inc. · 94-429 Koaki St, Suite 200 · Waipahu, HI 96797<br>
-    Equal Opportunity Employer · <a href="https://geolabs-employment.base44.app" style="color:#9ca3af;">geolabs-employment.base44.app</a>
+    Equal Opportunity Employer · <a href="https://geolabs-employment.net" style="color:#9ca3af;">geolabs-employment.net</a>
   </div>
 
 </div>

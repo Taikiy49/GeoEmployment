@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
 
     <!-- CTA -->
     <div style="text-align:center; margin-top:8px;">
-      <a href="https://geolabs-employment.base44.app/admin/applications/${app.id}"
+      <a href="https://admin.geolabs-employment.net/applications/${app.id}"
          style="display:inline-block; background:#b87333; color:#ffffff; font-size:13px; font-weight:600; padding:12px 28px; border-radius:8px; text-decoration:none; letter-spacing:0.01em;">
         View Full Application →
       </a>
@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
   <!-- Footer -->
   <div style="text-align:center; padding:20px 0 4px; font-size:11px; color:#9ca3af; line-height:1.8;">
     This is an automated alert from the Geolabs ATS.<br>
-    Manage notification preferences in <a href="https://geolabs-employment.base44.app/admin/settings" style="color:#9ca3af;">Admin Settings</a>.
+    Manage notification preferences in <a href="https://admin.geolabs-employment.net/settings" style="color:#9ca3af;">Admin Settings</a>.
   </div>
 
 </div>
