@@ -53,19 +53,19 @@ export default function ApplicationsList() {
       <div className="space-y-5">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black text-white tracking-tight">Applications</h1>
-            <p className="text-sm text-[#64748b] mt-0.5">{filtered.length} result{filtered.length !== 1 ? 's' : ''} of {apps.length} total</p>
+            <h1 className="text-2xl font-black text-gray-900 tracking-tight">Applications</h1>
+            <p className="text-sm text-gray-500 mt-0.5">{filtered.length} result{filtered.length !== 1 ? 's' : ''} of {apps.length} total</p>
           </div>
-          <div className="flex items-center gap-1 bg-[#0d1b2a] border border-[#1e2a3a] rounded-xl p-1">
+          <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1">
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-[#1e2a3a] text-white shadow-sm' : 'text-[#4a5568] hover:text-white'}`}
+              className={`p-1.5 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-400 hover:text-gray-700'}`}
             >
               <List className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode('kanban')}
-              className={`p-1.5 rounded-lg transition-colors ${viewMode === 'kanban' ? 'bg-[#1e2a3a] text-white shadow-sm' : 'text-[#4a5568] hover:text-white'}`}
+              className={`p-1.5 rounded-lg transition-colors ${viewMode === 'kanban' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-400 hover:text-gray-700'}`}
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
@@ -76,18 +76,18 @@ export default function ApplicationsList() {
         <div className="flex flex-col gap-3">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4a5568]" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search name, email, position..."
-                className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-[#1e2a3a] bg-[#0d1b2a] text-white placeholder-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#F5C400]/30 focus:border-[#F5C400]"
+                className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F5C400]/30 focus:border-[#F5C400]"
               />
             </div>
             <select
               value={jobFilter}
               onChange={e => setJobFilter(e.target.value)}
-              className="h-10 px-3 text-sm rounded-xl border border-[#1e2a3a] bg-[#0d1b2a] text-white min-w-[200px] focus:outline-none focus:ring-2 focus:ring-[#F5C400]/30"
+              className="h-10 px-3 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-[#F5C400]/30"
             >
               <option value="all">All Jobs</option>
               {reqs.map(r => <option key={r.id} value={r.id}>{r.title}</option>)}
@@ -100,8 +100,8 @@ export default function ApplicationsList() {
                 onClick={() => setStageFilter(s)}
                 className={`px-3 py-2 rounded-xl text-[11px] font-semibold border transition-all ${
                   stageFilter === s
-                    ? 'bg-[#F5C400]/10 text-[#F5C400] border-[#F5C400]/30'
-                    : 'bg-[#0d1b2a] text-[#64748b] border-[#1e2a3a] hover:border-[#2d3f55] hover:text-white'
+                    ? 'bg-[#F5C400]/10 text-[#b8910a] border-[#F5C400]/30'
+                    : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-900'
                 }`}
               >
                 {s === 'all' ? 'All Stages' : s.replace('_', ' ')}
@@ -117,57 +117,57 @@ export default function ApplicationsList() {
         )}
 
         {/* Table */}
-        {viewMode === 'list' && <div className="bg-[#0d1b2a] rounded-2xl border border-[#1e2a3a] overflow-hidden">
+        {viewMode === 'list' && <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center h-48">
-              <div className="w-7 h-7 border-2 border-[#1e2a3a] border-t-[#F5C400] rounded-full animate-spin" />
+              <div className="w-7 h-7 border-2 border-gray-200 border-t-[#F5C400] rounded-full animate-spin" />
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-sm text-[#64748b]">No applications match your filters.</p>
+              <p className="text-sm text-gray-500">No applications match your filters.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#1e2a3a] bg-[#060e1a]">
-                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-[#4a5568] uppercase tracking-widest">Applicant</th>
-                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-[#4a5568] uppercase tracking-widest hidden sm:table-cell">Position</th>
-                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-[#4a5568] uppercase tracking-widest">Stage</th>
-                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-[#4a5568] uppercase tracking-widest hidden md:table-cell">Applied</th>
-                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-[#4a5568] uppercase tracking-widest hidden lg:table-cell">Recruiter</th>
+                  <tr className="border-b border-gray-200 bg-gray-50">
+                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Applicant</th>
+                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-gray-500 uppercase tracking-widest hidden sm:table-cell">Position</th>
+                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Stage</th>
+                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-gray-500 uppercase tracking-widest hidden md:table-cell">Applied</th>
+                    <th className="text-left px-5 py-3.5 text-[10px] font-bold text-gray-500 uppercase tracking-widest hidden lg:table-cell">Recruiter</th>
                     <th className="text-right px-5 py-3.5"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1e2a3a]/50">
+                <tbody className="divide-y divide-gray-100">
                   {filtered.map(app => (
-                    <tr key={app.id} className="hover:bg-[#1e2a3a]/30 transition-colors group">
+                    <tr key={app.id} className="hover:bg-gray-50 transition-colors group">
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-7 h-7 rounded-full bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center flex-shrink-0">
-                            <span className="text-[10px] font-bold text-[#F5C400]">{app.firstName?.[0]?.toUpperCase()}</span>
+                            <span className="text-[10px] font-bold text-[#b8910a]">{app.firstName?.[0]?.toUpperCase()}</span>
                           </div>
                           <div>
-                            <div className="font-semibold text-white text-sm">{app.firstName} {app.lastName}</div>
-                            <div className="text-[10px] text-[#4a5568]">{app.email}</div>
+                            <div className="font-semibold text-gray-900 text-sm">{app.firstName} {app.lastName}</div>
+                            <div className="text-[10px] text-gray-400">{app.email}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-5 py-4 hidden sm:table-cell">
-                        <div className="text-sm text-[#94a3b8]">{app.requisitionTitle || app.positionAppliedFor || '—'}</div>
-                        <div className="text-[10px] text-[#4a5568]">{reqMap[app.requisitionId]?.department || ''}</div>
+                        <div className="text-sm text-gray-700">{app.requisitionTitle || app.positionAppliedFor || '—'}</div>
+                        <div className="text-[10px] text-gray-400">{reqMap[app.requisitionId]?.department || ''}</div>
                       </td>
                       <td className="px-5 py-4"><StageBadge stage={app.stage} /></td>
-                      <td className="px-5 py-4 hidden md:table-cell text-xs text-[#64748b]">
+                      <td className="px-5 py-4 hidden md:table-cell text-xs text-gray-500">
                         {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : new Date(app.created_date).toLocaleDateString()}
                       </td>
-                      <td className="px-5 py-4 hidden lg:table-cell text-xs text-[#64748b]">
+                      <td className="px-5 py-4 hidden lg:table-cell text-xs text-gray-500">
                         {app.assignedRecruiterEmail || '—'}
                       </td>
                       <td className="px-5 py-4">
                         <Link
-                          to={`/admin/applications/${app.id}`}
-                          className="flex items-center gap-1 text-xs text-[#F5C400] hover:text-[#EFB506] justify-end font-semibold transition-colors"
+                          to={`/applications/${app.id}`}
+                          className="flex items-center gap-1 text-xs text-[#b8910a] hover:text-[#F5C400] justify-end font-semibold transition-colors"
                         >
                           Review <ChevronRight className="w-3 h-3" />
                         </Link>
