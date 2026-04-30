@@ -497,23 +497,180 @@ export async function generateFullPDF(app) {
     });
   }
 
-  // Certifications & Disclosures
+  // ── MEDICAL INFORMATION & AUTHORIZATION ─────────────────────────────────
+  doc.addPage();
+  y = header(doc, logoData, subtitle);
+  doc.setFillColor(254, 243, 199);
+  doc.setDrawColor(245, 158, 11);
+  doc.setLineWidth(0.3);
+  doc.rect(10, y, 190, 7, 'FD');
+  doc.setTextColor(146, 64, 14);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.text('MEDICAL INFORMATION & AUTHORIZATION — Confidential / Hiring Review Only', 105, y + 5, { align: 'center' });
+  y += 12;
+
+  y = sectionTitle(doc, y, 'Pre-Employment & Employment Physicals');
+
+  const medDisclosure = [
+    'After an offer of employment is made, but before employment duties begin, applicants are required to undergo a pre-employment physical examination, including drug and alcohol testing, at the Company\'s expense and by a Company-selected physician. The offer of employment is conditioned upon the results of such examination.',
+    'Employees may also be required, at any time during the course of their employment, to undergo an annual physical examination including drug and alcohol testing, conducted at the Company\'s expense by a Company-selected physician.',
+    'I authorize the physician conducting the examination, and any laboratory conducting related testing, to disclose the results of such examination and testing to Geolabs, Inc.',
+  ];
+  for (const para of medDisclosure) {
+    const lines = doc.splitTextToSize(para, 178);
+    y = checkPage(doc, y, lines.length * 4 + 6, logoData, subtitle);
+    doc.setTextColor(55, 65, 81);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(lines, 14, y);
+    y += lines.length * 4 + 5;
+  }
+  y += 2;
+
+  // Medical initials response
+  y = checkPage(doc, y, 20, logoData, subtitle);
+  doc.setFillColor(254, 243, 199);
+  doc.rect(10, y, 190, 14, 'F');
+  doc.setTextColor(146, 64, 14);
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.text('APPLICANT ACKNOWLEDGMENT', 14, y + 5);
+  doc.setTextColor(55, 65, 81);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Applicant's Initials: ${fd.medInitials || '—'}`, 14, y + 11);
+  y += 18;
+
   y = checkPage(doc, y, 30, logoData, subtitle);
-  y = sectionTitle(doc, y, 'Certifications & Legal Disclosures');
-  y = twoCol(doc, y, [
-    ['FCRA Initials', fd.fcrInitials || '—'],
-    ['Medical Disclosure Initials', fd.medInitials || '—'],
-    ['ADA / Can Perform Duties', fd.canPerformDuties ? 'Yes' : 'No'],
-    ['Accommodation Requested', fd.needsAccommodation ? 'Yes' : 'No'],
-    ['Known Geolabs Employee?', fd.knowEmployee || '—'],
-    ['Employee Name(s)', fd.knowEmployeeName || '—'],
-    ['Certification Agreed', fd.certificationAgreed ? 'Yes' : 'No'],
-    ['Electronic Signature', fd.certificationSignature || '—'],
-    ['Signature Date', fd.certificationDate || '—'],
-    ['Drug Test Agreed', fd.drugTestAgreed ? 'Yes' : 'No'],
-    ['Drug Test Signature', fd.drugTestSignature || '—'],
-    ['Drug Test Signed Date', fd.drugTestDate || '—'],
-  ]);
+  y = sectionTitle(doc, y, 'Ability to Perform Essential Job Functions (ADA)');
+
+  const adaDisclosure = [
+    'Geolabs, Inc. complies with all applicable provisions of the Americans with Disabilities Act (ADA) and will not discriminate against any qualified applicant with a disability. Reasonable accommodations will be made for known physical or mental limitations unless doing so would impose an undue hardship.',
+    'Checkbox 1 — "I am able to perform the essential functions of the position for which I am applying, with or without reasonable accommodation."',
+    'Checkbox 2 — "I may require a reasonable accommodation to perform the essential functions of the position for which I am applying. (If selected, HR may contact you to discuss specific accommodations.)"',
+    'Note: Applicants should not include medical diagnoses or detailed health history here. Specific accommodation needs may be discussed confidentially with HR after a conditional offer is made.',
+  ];
+  for (const para of adaDisclosure) {
+    const isBold = para.startsWith('Checkbox') || para.startsWith('Note:');
+    const lines = doc.splitTextToSize(para, 178);
+    y = checkPage(doc, y, lines.length * 4 + 6, logoData, subtitle);
+    doc.setTextColor(55, 65, 81);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+    doc.text(lines, 14, y);
+    y += lines.length * 4 + 5;
+  }
+  y += 2;
+
+  // ADA Response
+  y = checkPage(doc, y, 20, logoData, subtitle);
+  doc.setFillColor(254, 243, 199);
+  doc.rect(10, y, 190, 18, 'F');
+  doc.setTextColor(146, 64, 14);
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.text('APPLICANT RESPONSE', 14, y + 5);
+  doc.setTextColor(55, 65, 81);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Can Perform Essential Functions: ${fd.canPerformDuties ? 'YES — Checked' : 'Not checked'}`, 14, y + 11);
+  doc.text(`Accommodation Requested: ${fd.needsAccommodation ? 'YES — Checked' : 'Not checked'}`, 110, y + 11);
+  y += 22;
+
+  // ── FAIR CREDIT REPORTING ACT & CERTIFICATION ────────────────────────────
+  doc.addPage();
+  y = header(doc, logoData, subtitle);
+  doc.setFillColor(239, 246, 255);
+  doc.setDrawColor(147, 197, 253);
+  doc.setLineWidth(0.3);
+  doc.rect(10, y, 190, 7, 'FD');
+  doc.setTextColor(30, 64, 175);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.text('FAIR CREDIT REPORTING ACT DISCLOSURE & EMPLOYMENT CERTIFICATION', 105, y + 5, { align: 'center' });
+  y += 12;
+
+  y = sectionTitle(doc, y, 'Fair Credit Reporting Act (FCRA) Disclosure');
+
+  const fcraDisclosure = [
+    'By this document, the Company discloses to you that a consumer report, including an investigative consumer report containing information as to your character, general reputation, personal characteristics, and mode of living, may be obtained for employment purposes as part of the pre-employment background investigation and at any time during your employment. Should an investigative consumer report be requested, you will have the right to request a complete and accurate disclosure of the nature and scope of the investigation requested and a written summary of your rights under the Fair Credit Reporting Act.',
+    'I agree that Geolabs, Inc. is hereby authorized to inquire into my background, prior employment, and criminal records and may consider any criminal conviction record after a conditional offer of employment is made. The Company may withdraw a conditional employment offer if a criminal conviction record bears a rational relationship to the duties and responsibilities of the position applied for. Criminal conviction records more than five (5) years old for misdemeanors and seven (7) years for felonies (excluding periods of incarceration) will not be considered.',
+  ];
+  for (const para of fcraDisclosure) {
+    const lines = doc.splitTextToSize(para, 178);
+    y = checkPage(doc, y, lines.length * 4 + 6, logoData, subtitle);
+    doc.setTextColor(55, 65, 81);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(lines, 14, y);
+    y += lines.length * 4 + 5;
+  }
+  y += 2;
+
+  // FCRA Initials response
+  y = checkPage(doc, y, 16, logoData, subtitle);
+  doc.setFillColor(239, 246, 255);
+  doc.rect(10, y, 190, 12, 'F');
+  doc.setTextColor(30, 64, 175);
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.text('APPLICANT ACKNOWLEDGMENT', 14, y + 5);
+  doc.setTextColor(55, 65, 81);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Applicant's Initials: ${fd.fcrInitials || '—'}`, 14, y + 10);
+  y += 16;
+
+  // Work Eligibility
+  y = checkPage(doc, y, 20, logoData, subtitle);
+  y = sectionTitle(doc, y, 'Work Eligibility Statement');
+  const workEligLines = doc.splitTextToSize('It is the policy of Geolabs, Inc. to hire only U.S. citizens and aliens who are authorized to work in this country. As a condition of employment, you will be required to produce original documents establishing your identity and authorization to work, and to complete the U.S. Citizenship and Immigration Services\' Form I-9.', 178);
+  doc.setTextColor(55, 65, 81);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(workEligLines, 14, y);
+  y += workEligLines.length * 4 + 8;
+
+  // Certification & At-Will
+  y = checkPage(doc, y, 30, logoData, subtitle);
+  y = sectionTitle(doc, y, 'Certification & At-Will Employment Acknowledgment');
+
+  const certDisclosure = [
+    'I certify that all information provided on this application is complete and accurate. I understand that my application will not be considered if it is incomplete. Furthermore, I understand that false, misleading, or incomplete information could lead to a decision not to hire, or may be grounds for termination if already employed. I hereby authorize any investigation of the above or related work experience, education, or reputation information for the purposes of evaluating my application for employment.',
+    'This application is not a contract and cannot create a contract. I understand that if I am employed, my employment is "at will" and may be terminated at any time by either the Company or myself, with or without cause or notice.',
+    'Checkbox — "I have read and understand the above statements, and I certify that all information provided in this application is accurate and complete."',
+  ];
+  for (const para of certDisclosure) {
+    const isBold = para.startsWith('Checkbox');
+    const lines = doc.splitTextToSize(para, 178);
+    y = checkPage(doc, y, lines.length * 4 + 6, logoData, subtitle);
+    doc.setTextColor(55, 65, 81);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+    doc.text(lines, 14, y);
+    y += lines.length * 4 + 5;
+  }
+  y += 2;
+
+  // Certification Signature Response
+  y = checkPage(doc, y, 30, logoData, subtitle);
+  doc.setFillColor(239, 246, 255);
+  doc.rect(10, y, 190, 26, 'F');
+  doc.setTextColor(30, 64, 175);
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.text('APPLICANT CERTIFICATION & SIGNATURE', 14, y + 5);
+  doc.setTextColor(55, 65, 81);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Certification Agreed: ${fd.certificationAgreed ? 'YES — Checked' : 'Not checked'}`, 14, y + 11);
+  doc.text(`Known Geolabs Employee?: ${fd.knowEmployee || '—'}`, 110, y + 11);
+  if (fd.knowEmployeeName) doc.text(`Employee Name(s): ${fd.knowEmployeeName}`, 14, y + 17);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Electronic Signature: ${fd.certificationSignature || '—'}`, 14, y + 23);
+  doc.text(`Signature Date: ${fd.certificationDate || '—'}`, 110, y + 23);
+  y += 30;
 
   // ── EEO / Self-ID restricted banner ──────────────────────────────────────
   doc.addPage();
