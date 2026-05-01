@@ -43,7 +43,7 @@ const AdminRoute = ({ children }) => {
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
-  const isAdminDomain = typeof window !== 'undefined' && window.location.hostname.startsWith("admin.");
+  const isAdminDomain = typeof window !== 'undefined' && (window.location.hostname === 'admin.geolabs.net' || window.location.hostname.startsWith("admin."));
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
