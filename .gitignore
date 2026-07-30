@@ -33,3 +33,4 @@ dist-ssr
 
 # Private deployment keys must never be committed
 *.pem
+.admin-access.txt
