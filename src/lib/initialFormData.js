@@ -93,5 +93,7 @@ export const INITIAL_FORM_DATA = {
 
   // Resume
   resumeFileUrl: '',
+  resumeFileName: '',
+  resumeFileSize: 0,
   resumeAutoFillTimestamp: '',
 };

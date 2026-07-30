@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import { appClient } from '@/api/localClient';
 import { useParams, Link } from 'react-router-dom';
 import { CheckCircle2, ExternalLink, Cloud, Loader2, RotateCcw } from 'lucide-react';
@@ -10,6 +10,7 @@ import Stepper from '../components/app/Stepper';
 import StepShell from '../components/app/StepShell';
 import GroupedApplicationStep from '../components/app/GroupedApplicationStep';
 import { INITIAL_FORM_DATA } from '../lib/initialFormData';
+import { deleteResumeFile, getResumeFile, resumeRecordToAttachment } from '../lib/resumeStorage';
 
 import StartStep from '../components/steps/StartStep';
 import ResumeStep from '../components/steps/ResumeStep';
@@ -51,6 +52,13 @@ const restoreStep = (step, version) => (
 const restoreCompletedSteps = (steps, version) => (
   [...new Set((Array.isArray(steps) ? steps : []).map(step => restoreStep(step, version)))]
 );
+
+const readSavedFormData = (rawValue) => {
+  if (!rawValue) return { data: null, savedAt: 0 };
+  const parsed = JSON.parse(rawValue);
+  const { _localSavedAt = 0, ...data } = parsed;
+  return { data, savedAt: Number(_localSavedAt) || 0 };
+};
 
 const REQUIRED_FIELDS = [
   ['firstName', 'First name'],
@@ -96,8 +104,8 @@ export default function Application() {
   const [direction, setDirection] = useState(1);
   const [formData, setFormData] = useState(() => {
     try {
-      const saved = localStorage.getItem(storageKey);
-      return saved ? { ...INITIAL_FORM_DATA, ...JSON.parse(saved) } : INITIAL_FORM_DATA;
+      const { data } = readSavedFormData(localStorage.getItem(storageKey));
+      return data ? { ...INITIAL_FORM_DATA, ...data } : INITIAL_FORM_DATA;
     } catch { return INITIAL_FORM_DATA; }
   });
   const [submitted, setSubmitted] = useState(false);
@@ -110,7 +118,53 @@ export default function Application() {
   const [saveStatus, setSaveStatus] = useState('idle'); // idle | saving | saved
   const [draftRestored, setDraftRestored] = useState(false);
   const saveTimerRef = useRef(null);
+  const saveStatusTimerRef = useRef(null);
   const isFirstRender = useRef(true);
+  const applyingExternalUpdateRef = useRef(false);
+  const latestLocalSaveRef = useRef((() => {
+    try { return readSavedFormData(localStorage.getItem(storageKey)).savedAt; } catch { return 0; }
+  })());
+
+  const restoreSavedResume = useCallback(async (baseData = null) => {
+    try {
+      const record = await getResumeFile(storageKey);
+      if (!record) {
+        if (baseData?.resumeFileUrl) {
+          return {
+            ...baseData,
+            resumeFileUrl: '',
+            resumeFileName: '',
+            resumeFileSize: 0,
+            resumeAttachment: null,
+          };
+        }
+        return baseData;
+      }
+      const attachment = await resumeRecordToAttachment(record);
+      return {
+        ...(baseData || {}),
+        resumeFileUrl: `attached:${record.name}`,
+        resumeFileName: record.name,
+        resumeFileSize: record.size,
+        resumeAttachment: attachment,
+      };
+    } catch (error) {
+      console.error('Resume recovery failed:', error);
+      return baseData;
+    }
+  }, [storageKey]);
+
+  // Restore the actual resume file from IndexedDB on refresh or in a new tab.
+  useEffect(() => {
+    let active = true;
+    restoreSavedResume(formData).then((restored) => {
+      if (!active || !restored) return;
+      const changed = restored.resumeAttachment !== formData.resumeAttachment
+        || restored.resumeFileUrl !== formData.resumeFileUrl;
+      if (changed) setFormData(restored);
+    });
+    return () => { active = false; };
+  }, [storageKey]);
 
   // Load requisition
   useEffect(() => {
@@ -158,21 +212,59 @@ export default function Application() {
     }
   }, []);
 
-  // Persist to localStorage
-  useEffect(() => {
+  // Persist lightweight fields synchronously after every committed edit.
+  useLayoutEffect(() => {
+    if (applyingExternalUpdateRef.current) {
+      applyingExternalUpdateRef.current = false;
+      return;
+    }
     try {
       const { resumeAttachment, ...persistableFormData } = formData;
-      localStorage.setItem(storageKey, JSON.stringify(persistableFormData));
+      const savedAt = Date.now();
+      latestLocalSaveRef.current = savedAt;
+      localStorage.setItem(storageKey, JSON.stringify({ ...persistableFormData, _localSavedAt: savedAt }));
+      setSaveStatus('saved');
+      if (saveStatusTimerRef.current) clearTimeout(saveStatusTimerRef.current);
+      saveStatusTimerRef.current = setTimeout(() => setSaveStatus('idle'), 2500);
     } catch {}
   }, [formData, storageKey]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     try {
       localStorage.setItem(`${storageKey}_step`, String(currentStep));
       localStorage.setItem(`${storageKey}_completed`, JSON.stringify(completedSteps));
       localStorage.setItem(`${storageKey}_flowVersion`, FLOW_VERSION);
     } catch {}
   }, [currentStep, completedSteps, storageKey]);
+
+  // Keep multiple open tabs synchronized to the newest saved draft.
+  useEffect(() => {
+    const handleStorage = async (event) => {
+      if (event.storageArea !== localStorage) return;
+      if (event.key === storageKey && event.newValue) {
+        try {
+          const { data, savedAt } = readSavedFormData(event.newValue);
+          if (!data || savedAt <= latestLocalSaveRef.current) return;
+          latestLocalSaveRef.current = savedAt;
+          const restored = await restoreSavedResume({ ...INITIAL_FORM_DATA, ...data });
+          applyingExternalUpdateRef.current = true;
+          setFormData(restored || { ...INITIAL_FORM_DATA, ...data });
+          setSaveStatus('saved');
+          setDraftRestored(true);
+        } catch {}
+      }
+      if (event.key === `${storageKey}_step` && event.newValue !== null) {
+        setCurrentStep(restoreStep(event.newValue, FLOW_VERSION));
+      }
+      if (event.key === `${storageKey}_completed` && event.newValue) {
+        try {
+          setCompletedSteps(restoreCompletedSteps(JSON.parse(event.newValue), FLOW_VERSION));
+        } catch {}
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [restoreSavedResume, storageKey]);
 
   // Auto-save to DB (debounced) — only when email is present
   useEffect(() => {
@@ -243,6 +335,7 @@ export default function Application() {
       localStorage.removeItem(`${storageKey}_completed`);
       localStorage.removeItem(`${storageKey}_flowVersion`);
       localStorage.removeItem(`${storageKey}_draftId`);
+      deleteResumeFile(storageKey).catch(() => {});
     } catch {}
   };
 
@@ -272,6 +365,14 @@ export default function Application() {
   }, [goToStep]);
 
   const handleSubmit = async () => {
+    let submissionResumeAttachment = formData.resumeAttachment;
+    if (formData.resumeFileUrl && !submissionResumeAttachment) {
+      const storedResume = await getResumeFile(storageKey).catch(() => null);
+      if (!storedResume) {
+        throw new Error('Your saved resume could not be recovered. Please attach it again before submitting.');
+      }
+      submissionResumeAttachment = await resumeRecordToAttachment(storedResume);
+    }
     const missingFields = REQUIRED_FIELDS
       .filter(([key]) => !String(formData[key] || '').trim())
       .map(([, label]) => label);
@@ -332,7 +433,7 @@ export default function Application() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...finalPayload,
-        resumeAttachment,
+        resumeAttachment: submissionResumeAttachment,
       }),
     });
     const deliveryResult = await deliveryResponse.json().catch(() => ({}));
@@ -362,7 +463,7 @@ export default function Application() {
       case 0: return <StartStep onNext={goNext} requisition={requisition} />;
       case 1: return (
         <GroupedApplicationStep onBack={goBack} onNext={goNext}>
-          <ResumeStep {...stepProps} />
+          <ResumeStep {...stepProps} resumeStorageKey={storageKey} />
           <ApplicationInfoStep {...stepProps} requisition={requisition} />
           <GeneralInfoStep {...stepProps} />
         </GroupedApplicationStep>
@@ -509,7 +610,7 @@ export default function Application() {
                 <div className="text-[11px] text-gray-600">{requisition.department} · {requisition.office || 'Geolabs, Inc.'}</div>
               </div>
               {/* Auto-save indicator */}
-              {currentStep > 0 && formData.email && (
+              {currentStep > 0 && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -517,14 +618,14 @@ export default function Application() {
                 >
                   {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</>}
                   {saveStatus === 'saved' && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> Saved</motion.div>}
-                  {saveStatus === 'idle' && draftId && <><Cloud className="w-3 h-3 text-gray-300" /> Auto-saved</>}
+                  {saveStatus === 'idle' && <><Cloud className="w-3 h-3 text-green-600" /> Saved on this device</>}
                 </motion.div>
               )}
             </motion.div>
           )}
 
           {/* Auto-save indicator when no requisition banner */}
-          {!requisition && currentStep > 0 && formData.email && (
+          {!requisition && currentStep > 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -533,7 +634,7 @@ export default function Application() {
               <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
                 {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</>}
                 {saveStatus === 'saved' && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> Saved</motion.div>}
-                {saveStatus === 'idle' && draftId && <><Cloud className="w-3 h-3 text-gray-300" /> Auto-saved</>}
+                {saveStatus === 'idle' && <><Cloud className="w-3 h-3 text-green-600" /> Saved on this device</>}
               </div>
             </motion.div>
           )}

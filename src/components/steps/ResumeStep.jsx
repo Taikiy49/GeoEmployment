@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import FormSection from '../app/FormSection';
 import NavigationButtons from '../app/NavigationButtons';
+import { deleteResumeFile, saveResumeFile, blobToBase64 } from '@/lib/resumeStorage';
 
 const ACCEPTED_TYPES = [
   'application/pdf',
@@ -12,14 +12,22 @@ const ACCEPTED_TYPES = [
 ];
 const MAX_SIZE = 2.5 * 1024 * 1024;
 
-export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
+export default function ResumeStep({ formData, setFormData, onNext, onBack, resumeStorageKey }) {
   const [file, setFile] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   // If resume was already uploaded (persisted in formData), start in success state
   const [status, setStatus] = useState(formData.resumeFileUrl ? 'success' : 'idle');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleFile = useCallback((f) => {
+  useEffect(() => {
+    if (formData.resumeFileUrl && formData.resumeAttachment) {
+      setStatus('success');
+    } else if (!formData.resumeFileUrl && !file) {
+      setStatus('idle');
+    }
+  }, [file, formData.resumeAttachment, formData.resumeFileUrl]);
+
+  const handleFile = useCallback(async (f) => {
     if (!f) return;
     if (!ACCEPTED_TYPES.includes(f.type) && !f.name.match(/\.(pdf|doc|docx|txt)$/i)) {
       setErrorMsg('Unsupported file type. Please upload PDF, DOC, DOCX, or TXT.');
@@ -27,51 +35,40 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
       return;
     }
     if (f.size > MAX_SIZE) {
-      setErrorMsg('File exceeds 5 MB limit.');
+      setErrorMsg('File exceeds the 2.5 MB limit.');
       setStatus('error');
       return;
     }
     setFile(f);
-    setStatus('idle');
-    setErrorMsg('');
-  }, []);
-
-  const handleDrop = useCallback((e) => {
-    e.preventDefault();
-    setDragOver(false);
-    const f = e.dataTransfer.files[0];
-    handleFile(f);
-  }, [handleFile]);
-
-  const handleUploadAndParse = async () => {
-    if (!file) return;
     setStatus('uploading');
     setErrorMsg('');
 
     try {
-      const dataUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(new Error('We could not read this resume.'));
-        reader.readAsDataURL(file);
-      });
-      const content = String(dataUrl).split(',')[1];
+      await saveResumeFile(resumeStorageKey, f);
+      const content = await blobToBase64(f);
       setFormData(prev => ({
         ...prev,
-        resumeFileUrl: `attached:${file.name}`,
-        resumeFileName: file.name,
+        resumeFileUrl: `attached:${f.name}`,
+        resumeFileName: f.name,
+        resumeFileSize: f.size,
         resumeAttachment: {
-          filename: file.name,
+          filename: f.name,
           content,
-          type: file.type || 'application/octet-stream',
+          type: f.type || 'application/octet-stream',
         },
       }));
       setStatus('success');
-    } catch (err) {
-      setErrorMsg(err.message || 'Failed to attach resume.');
+    } catch (error) {
+      setErrorMsg(error.message || 'Failed to attach resume.');
       setStatus('error');
     }
-  };
+  }, [resumeStorageKey, setFormData]);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    setDragOver(false);
+    handleFile(e.dataTransfer.files[0]);
+  }, [handleFile]);
 
   return (
     <div>
@@ -100,7 +97,11 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
             type="file"
             accept=".pdf,.doc,.docx,.txt"
             className="hidden"
-            onChange={(e) => handleFile(e.target.files[0])}
+            onChange={(e) => {
+              const selectedFile = e.target.files[0];
+              e.target.value = '';
+              handleFile(selectedFile);
+            }}
           />
           {file || formData.resumeFileUrl ? (
             <div className="flex items-center justify-center gap-3">
@@ -108,7 +109,11 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
               <div className="text-left">
                 <p className="text-sm font-medium text-[#0f172a]">{file ? file.name : formData.resumeFileName || 'Resume uploaded'}</p>
                 <p className="text-[10px] text-[#64748b]">
-                  {file ? `${(file.size / 1024).toFixed(1)} KB` : status === 'success' ? 'Previously uploaded & analyzed' : 'Ready to analyze'}
+                  {file
+                    ? `${(file.size / 1024).toFixed(1)} KB`
+                    : formData.resumeFileSize
+                      ? `${(formData.resumeFileSize / 1024).toFixed(1)} KB · Saved with your draft`
+                      : 'Saved with your draft'}
                 </p>
               </div>
               <button
@@ -116,7 +121,14 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
                   e.stopPropagation();
                   setFile(null);
                   setStatus('idle');
-                  setFormData(prev => ({ ...prev, resumeFileUrl: '', resumeFileName: '', resumeAttachment: null }));
+                  deleteResumeFile(resumeStorageKey).catch(() => {});
+                  setFormData(prev => ({
+                    ...prev,
+                    resumeFileUrl: '',
+                    resumeFileName: '',
+                    resumeFileSize: 0,
+                    resumeAttachment: null,
+                  }));
                 }}
                 className="ml-2 p-1 rounded-full hover:bg-[#f1f5f9]"
               >
@@ -136,19 +148,10 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack }) {
           )}
         </div>
 
-        {/* Upload button */}
-        {file && status !== 'success' && !formData.resumeFileUrl && (
-          <div className="mt-4 flex justify-center">
-            <Button
-             onClick={handleUploadAndParse}
-             disabled={status === 'uploading'}
-             className="rounded-lg px-3 h-9 text-sm bg-[#A65F2A] hover:bg-[#8A4A22] text-white font-medium"
-            >
-              {status === 'uploading' && (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              )}
-              {status === 'uploading' ? 'Attaching...' : 'Attach Resume'}
-            </Button>
+        {status === 'uploading' && (
+          <div className="mt-4 flex items-center justify-center gap-2 text-xs font-medium text-[#8A4A22]">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Attaching and saving your resume…
           </div>
         )}
 
