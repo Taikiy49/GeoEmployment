@@ -10,7 +10,7 @@ export default function FloatingButton({
   className = ''
 }) {
   const variants = {
-    primary: 'bg-yellow-400 text-[#0f172a] hover:bg-yellow-300 shadow-lg hover:shadow-xl',
+    primary: 'bg-[#A65F2A] text-white hover:bg-[#8A4A22] shadow-lg hover:shadow-xl',
     secondary: 'bg-white text-navy border border-gray-200 hover:shadow-lg',
   };
 

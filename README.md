@@ -1,39 +1,29 @@
-**Welcome to your Base44 project** 
+# Geolabs Employment Portal
 
-**About**
+A Vite and React application for publishing job openings, accepting employment
+applications, and reviewing candidates.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+## Local development
 
-This project contains everything you need to run your app locally.
-
-**Edit the code in your local development environment**
-
-Any change pushed to the repo will also be reflected in the Base44 Builder.
-
-**Prerequisites:** 
-
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
-
-```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
-
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
+```bash
+npm install
+npm run dev
 ```
 
-Run the app: `npm run dev`
+No environment variables are required for the local demo. Jobs, drafts,
+applications, and administrative changes are stored in the browser's local
+storage. This makes the repository self-contained, but it is not a production
+database: data does not sync between browsers or devices.
 
-**Publish your changes**
+## Quality checks
 
-Open [Base44.com](http://Base44.com) and click on Publish.
+```bash
+npm run typecheck
+npm run lint
+npm run build
+```
 
-**Docs & Support**
+The public applicant experience is available on the normal host. Admin routes
+are shown when the site is served from an `admin.*` hostname.
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+Production applicant URL: `https://apply.geolabs.net`

@@ -13,14 +13,29 @@ export default function SkillsStep({ formData, setFormData, onNext, onBack }) {
         description="Describe your professional skills, tools, software proficiencies, certifications, and relevant experience."
       >
         <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField
+              label="Years of Relevant Experience"
+              value={formData.skillsYearsExperience}
+              onChange={(v) => update('skillsYearsExperience', v)}
+              placeholder="e.g., 0–1, 2–3, 4+"
+              hint="Include related roles, internships, and field experience."
+            />
+            <FormField
+              label="Primary Areas of Focus"
+              value={formData.skillsPrimaryFocus}
+              onChange={(v) => update('skillsPrimaryFocus', v)}
+              placeholder="e.g., Geotechnical, field testing, drafting"
+            />
+          </div>
           <FormField
-            label="Skills Summary"
+            label="Technical Skills & Field / Lab Tools"
             type="textarea"
-            value={formData.skillsSummary}
-            onChange={(v) => update('skillsSummary', v)}
+            value={formData.skillsTechnical}
+            onChange={(v) => update('skillsTechnical', v)}
             rows={4}
-            placeholder="e.g., Environmental monitoring, GIS analysis, AutoCAD, field sampling techniques..."
-            hint="Include software, tools, technical skills, and communication abilities"
+            placeholder="e.g., soil classification, compaction testing, drilling support, construction observation…"
+            hint="Include field procedures, laboratory tests, inspection tasks, and hands-on technical skills."
           />
           <FormField
             label="Certifications & Licenses"
@@ -47,7 +62,23 @@ export default function SkillsStep({ formData, setFormData, onNext, onBack }) {
               rows={3}
               placeholder="e.g., Microsoft Office, Python, ArcGIS, R..."
             />
+            <FormField
+              label="Communication & Team Skills"
+              type="textarea"
+              value={formData.skillsCommunication}
+              onChange={(v) => update('skillsCommunication', v)}
+              rows={3}
+              placeholder="e.g., report writing, contractor communication, teamwork, safety awareness…"
+            />
           </div>
+          <FormField
+            label="Additional Skills Summary"
+            type="textarea"
+            value={formData.skillsSummary}
+            onChange={(v) => update('skillsSummary', v)}
+            rows={3}
+            placeholder="Anything else that supports your application"
+          />
         </div>
       </FormSection>
 

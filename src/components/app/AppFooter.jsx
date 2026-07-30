@@ -1,18 +1,14 @@
 import React from 'react';
-import { Shield } from 'lucide-react';
+import { BRAND_LOGO_URL } from '@/lib/brand';
 
 export default function AppFooter() {
   return (
     <footer className="bg-gray-50 border-t border-gray-200">
 
-      <div className="py-7 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="py-7 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <img
-              src="https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/e4e60e6f1_geolabs.png"
-              alt="Geolabs"
-              className="h-6 w-6 object-contain opacity-50"
-            />
+            <img src={BRAND_LOGO_URL} alt="Geolabs, Inc." className="h-9 w-9 object-contain" />
             <p className="text-xs text-gray-600">
               © {new Date().getFullYear()} Geolabs, Inc. All rights reserved.
             </p>

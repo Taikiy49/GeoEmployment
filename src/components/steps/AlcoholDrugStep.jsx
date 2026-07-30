@@ -1,16 +1,8 @@
 import React, { useMemo } from 'react';
 import NavigationButtons from '../app/NavigationButtons';
+import { ALCOHOL_DRUG_PROGRAM_TEXT } from '@/lib/legalTexts';
 
-const POLICY_PARAGRAPHS = [
-  `Agreement to Comply with Geolabs, Inc. Alcohol & Drug Testing Program`,
-  `Geolabs, Inc. is committed to providing a safe, healthy, and productive work environment for all employees and clients. The use of alcohol or drugs on the job compromises the safety and productivity of all employees and is inconsistent with that commitment.`,
-  `Geolabs, Inc. maintains a Drug-Free Workplace policy. As a condition of employment, all employees and applicants are subject to drug and alcohol testing in accordance with applicable federal and state laws. Testing may occur as part of the pre-employment process, following a workplace accident, based on reasonable suspicion, or on a random basis as permitted by law.`,
-  `Employees are prohibited from: (a) using, possessing, manufacturing, distributing, or being under the influence of illegal drugs or controlled substances on company premises, in company vehicles, or while conducting company business; (b) reporting to work or performing any company-related duties while under the influence of alcohol or drugs; (c) consuming alcohol during work hours, except as expressly permitted by company policy.`,
-  `ANY APPLICANT OR EMPLOYEE WHO REFUSES TO SUBMIT TO TESTING, ADULTERATES OR TAMPERS WITH A SAMPLE, OR TESTS POSITIVE FOR PROHIBITED SUBSTANCES WILL BE SUBJECT TO DISQUALIFICATION FROM EMPLOYMENT OR IMMEDIATE TERMINATION, AS PERMITTED BY APPLICABLE LAW.`,
-  `Prescription medications: Employees using legally prescribed medications that may affect job performance or safety must disclose this to Human Resources prior to performing safety-sensitive duties. The company will make reasonable accommodations in accordance with applicable law.`,
-  `This policy is subject to modification and will be administered in conformance with all applicable state and federal laws, including the Americans with Disabilities Act (ADA) and the Family and Medical Leave Act (FMLA). Questions about this program should be directed to Human Resources.`,
-  `By signing below, I acknowledge that I have read and fully understand the above Alcohol & Drug Testing Program statement. I agree to comply with all policies and procedures related to drug and alcohol testing as a condition of my application for employment and, if hired, as a continuing condition of my employment with Geolabs, Inc.`,
-];
+const POLICY_PARAGRAPHS = ALCOHOL_DRUG_PROGRAM_TEXT.split('\n\n');
 
 export default function AlcoholDrugStep({ formData, setFormData, onNext, onBack }) {
   const update = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
@@ -33,14 +25,14 @@ export default function AlcoholDrugStep({ formData, setFormData, onNext, onBack 
 
       {/* Full policy text */}
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-5 py-4 bg-gray-50 border-b border-gray-200">
+        <div className="px-3 py-3 bg-gray-50 border-b border-gray-200">
           <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Policy Statement — Please read carefully</p>
         </div>
-        <div className="px-5 py-4 space-y-3 max-h-72 overflow-y-auto">
+        <div className="px-3 py-3 space-y-3 max-h-72 overflow-y-auto">
           {POLICY_PARAGRAPHS.map((para, i) => (
             <p key={i} className={`text-xs leading-relaxed ${
               i === 0 ? 'text-sm font-bold text-gray-900' :
-              para.startsWith('ANY APPLICANT') ? 'text-red-700 font-semibold bg-red-50 p-3 rounded-lg border border-red-200' :
+              para.startsWith('ANY APPLICANT') ? 'text-red-700 font-semibold bg-red-50 p-4 rounded-lg border border-red-200' :
               'text-gray-700'
             }`}>
               {para}
@@ -50,7 +42,7 @@ export default function AlcoholDrugStep({ formData, setFormData, onNext, onBack 
       </div>
 
       {/* Checkbox acknowledgment */}
-      <label className="flex items-start gap-3 cursor-pointer bg-white border border-gray-200 rounded-xl px-4 py-4 hover:border-bronze transition-colors">
+      <label className="flex items-start gap-3 cursor-pointer bg-white border border-gray-200 rounded-xl px-3 py-3 hover:border-bronze transition-colors">
         <input
           type="checkbox"
           checked={agreed}
@@ -63,7 +55,7 @@ export default function AlcoholDrugStep({ formData, setFormData, onNext, onBack 
       </label>
 
       {/* Signature block — disabled until agreed */}
-      <div className={`bg-white border rounded-xl p-5 space-y-4 transition-all ${agreed ? 'border-gray-200' : 'border-gray-100 opacity-50 pointer-events-none'}`}>
+      <div className={`bg-white border rounded-xl p-4 space-y-4 transition-all ${agreed ? 'border-gray-200' : 'border-gray-100 opacity-50 pointer-events-none'}`}>
         <h3 className="text-sm font-semibold text-gray-800">Electronic Signature</h3>
         {!agreed && (
           <p className="text-xs text-gray-400 italic">Please acknowledge the agreement above to enable the signature fields.</p>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/localClient';
 import { Link } from 'react-router-dom';
 import { Plus, Search, Copy, Archive, Eye, Pencil, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ export default function JobsList() {
   const [statusFilter, setStatusFilter] = useState('all');
 
   const load = () => {
-    base44.entities.JobRequisition.list('-created_date', 200).then(r => {
+    appClient.entities.JobRequisition.list('-created_date', 200).then(r => {
       setReqs(r);
       setLoading(false);
     });
@@ -32,7 +32,7 @@ export default function JobsList() {
 
   const handleDuplicate = async (req) => {
     const { id, created_date, updated_date, ...rest } = req;
-    await base44.entities.JobRequisition.create({
+    await appClient.entities.JobRequisition.create({
       ...rest, title: `${rest.title} (Copy)`, status: 'draft',
       statusHistory: [], publishedDate: null, approvedDate: null, approvedBy: null,
     });
@@ -40,7 +40,7 @@ export default function JobsList() {
   };
 
   const handleArchive = async (req) => {
-    await base44.entities.JobRequisition.update(req.id, { status: 'archived' });
+    await appClient.entities.JobRequisition.update(req.id, { status: 'archived' });
     load();
   };
 
@@ -50,7 +50,7 @@ export default function JobsList() {
     const updates = { status: newStatus, statusHistory: history };
     if (newStatus === 'published') updates.publishedDate = now;
     if (newStatus === 'closed') updates.closedDate = now;
-    await base44.entities.JobRequisition.update(req.id, updates);
+    await appClient.entities.JobRequisition.update(req.id, updates);
     load();
   };
 
@@ -63,7 +63,7 @@ export default function JobsList() {
             <p className="text-sm text-gray-500 mt-0.5">{reqs.length} total · {reqs.filter(r => r.status === 'published').length} published</p>
           </div>
           <Link to="/admin/jobs/new">
-            <Button className="rounded-xl px-5 h-10 text-sm bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] font-bold shadow-lg shadow-[#F5C400]/20">
+            <Button className="rounded-xl px-5 h-10 text-sm bg-[#A65F2A] hover:bg-[#8A4A22] text-white font-bold shadow-lg shadow-[#A65F2A]/20">
               <Plus className="w-4 h-4 mr-1.5" /> New Requisition
             </Button>
           </Link>
@@ -77,7 +77,7 @@ export default function JobsList() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search by title, department, office..."
-              className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F5C400]/30 focus:border-[#F5C400]"
+              className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]"
             />
           </div>
           <div className="flex gap-1.5 flex-wrap">
@@ -87,7 +87,7 @@ export default function JobsList() {
                 onClick={() => setStatusFilter(s)}
                 className={`px-3 py-2 rounded-xl text-[11px] font-semibold border transition-all ${
                   statusFilter === s
-                    ? 'bg-[#F5C400]/10 text-[#b8910a] border-[#F5C400]/30'
+                    ? 'bg-[#A65F2A]/10 text-[#8A4A22] border-[#A65F2A]/30'
                     : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-900'
                 }`}
               >
@@ -101,7 +101,7 @@ export default function JobsList() {
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center h-48">
-              <div className="w-7 h-7 border-2 border-gray-200 border-t-[#F5C400] rounded-full animate-spin" />
+              <div className="w-7 h-7 border-2 border-gray-200 border-t-[#A65F2A] rounded-full animate-spin" />
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
@@ -109,7 +109,7 @@ export default function JobsList() {
                 <Briefcase className="w-7 h-7 text-gray-400" />
               </div>
               <p className="text-sm text-gray-500">No requisitions found.</p>
-              <Link to="/jobs/new" className="mt-3 inline-block text-xs text-[#b8910a] hover:text-[#F5C400] font-medium">Create your first requisition →</Link>
+              <Link to="/jobs/new" className="mt-3 inline-block text-xs text-[#8A4A22] hover:text-[#A65F2A] font-medium">Create your first requisition →</Link>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -128,7 +128,7 @@ export default function JobsList() {
                   {filtered.map(req => (
                     <tr key={req.id} className="hover:bg-gray-50 transition-colors group">
                       <td className="px-5 py-4">
-                        <Link to={`/jobs/${req.id}`} className="font-semibold text-gray-900 hover:text-[#b8910a] transition-colors">
+                        <Link to={`/jobs/${req.id}`} className="font-semibold text-gray-900 hover:text-[#8A4A22] transition-colors">
                           {req.title}
                         </Link>
                         <div className="text-[10px] text-gray-400 mt-0.5">{req.office || '—'}</div>

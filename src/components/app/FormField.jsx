@@ -16,20 +16,20 @@ export default function FormField({
 }) {
   const id = label?.toLowerCase().replace(/\s+/g, '-');
 
-  const inputClass = "w-full px-4 py-3 text-sm rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400] transition-all disabled:opacity-50 disabled:cursor-not-allowed";
+  const inputClass = "w-full px-4 py-3 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A] transition-all disabled:opacity-50 disabled:cursor-not-allowed";
 
   return (
     <div className={className}>
       {label && (
         <label htmlFor={id} className="block text-[11px] font-bold text-gray-700 mb-2 uppercase tracking-widest">
           {label}
-          {required && <span className="text-[#F5C400] ml-1">*</span>}
+          {required && <span className="text-[#A65F2A] ml-1">*</span>}
         </label>
       )}
 
       {type === 'select' ? (
         <Select value={value || ''} onValueChange={onChange} disabled={disabled}>
-          <SelectTrigger className="h-11 text-sm rounded-lg border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400]">
+          <SelectTrigger className="h-12 text-sm rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]">
             <SelectValue placeholder={placeholder || 'Select…'} />
           </SelectTrigger>
           <SelectContent className="bg-white border-gray-300 text-gray-900">

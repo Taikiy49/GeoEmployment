@@ -51,7 +51,7 @@ function RadioCard({ selected, onClick, children }) {
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left flex items-start gap-3 px-4 py-3 rounded-xl border transition-all ${
+      className={`w-full text-left flex items-start gap-3 px-3 py-3 rounded-xl border transition-all ${
         selected
           ? 'border-bronze bg-bronze/5 ring-1 ring-bronze'
           : 'border-gray-200 bg-white hover:border-gray-300'
@@ -128,7 +128,7 @@ export default function EEOStep({ formData, setFormData, onNext, onBack }) {
       </div>
 
       {/* Gender */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
+      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-gray-800">Gender</h3>
@@ -148,7 +148,7 @@ export default function EEOStep({ formData, setFormData, onNext, onBack }) {
       </div>
 
       {/* Race / Ethnicity */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
+      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-gray-800">Race / Ethnicity</h3>

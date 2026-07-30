@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/localClient';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft, Pencil, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AdminLayout from '../../components/admin/AdminLayout';
-import { ReqStatusBadge, StageBadge } from './Dashboard';
+import { ReqStatusBadge } from './Dashboard';
 
 export default function JobDetail() {
   const { id } = useParams();
@@ -14,8 +14,8 @@ export default function JobDetail() {
 
   useEffect(() => {
     Promise.all([
-      base44.entities.JobRequisition.filter({ id }),
-      base44.entities.Application.filter({ requisitionId: id, isDraft: false }),
+      appClient.entities.JobRequisition.filter({ id }),
+      appClient.entities.Application.filter({ requisitionId: id, isDraft: false }),
     ]).then(([reqs, applications]) => {
       setReq(reqs[0]);
       setApps(applications);
@@ -29,11 +29,11 @@ export default function JobDetail() {
     const updates = { status: newStatus, statusHistory: history };
     if (newStatus === 'published') updates.publishedDate = now;
     if (newStatus === 'closed') updates.closedDate = now;
-    const updated = await base44.entities.JobRequisition.update(id, updates);
+    const updated = await appClient.entities.JobRequisition.update(id, updates);
     setReq(updated);
   };
 
-  if (loading) return <AdminLayout><div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#F5C400] rounded-full animate-spin" /></div></AdminLayout>;
+  if (loading) return <AdminLayout><div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#A65F2A] rounded-full animate-spin" /></div></AdminLayout>;
   if (!req) return <AdminLayout><p className="text-center py-16 text-gray-500">Requisition not found.</p></AdminLayout>;
 
   const stageGroups = ['applied', 'under_review', 'phone_screen', 'interview', 'offer', 'hired'].reduce((acc, s) => {
@@ -92,15 +92,15 @@ export default function JobDetail() {
         {/* Pipeline summary */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-bold text-gray-900">Application Pipeline — <span className="text-[#b8910a]">{apps.length}</span> total</h2>
-            <Link to={`/applications?requisitionId=${id}`} className="text-xs text-[#b8910a] hover:text-[#F5C400] flex items-center gap-1 font-medium transition-colors">
+            <h2 className="text-sm font-bold text-gray-900">Application Pipeline — <span className="text-[#8A4A22]">{apps.length}</span> total</h2>
+            <Link to={`/applications?requisitionId=${id}`} className="text-xs text-[#8A4A22] hover:text-[#A65F2A] flex items-center gap-1 font-medium transition-colors">
               <Users className="w-3.5 h-3.5" /> View All
             </Link>
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
             {Object.entries(stageGroups).map(([stage, count]) => (
               <Link key={stage} to={`/applications?requisitionId=${id}&stage=${stage}`} className="text-center p-2 rounded-xl hover:bg-gray-50 transition-colors group">
-                <div className="text-xl font-black text-gray-900 group-hover:text-[#b8910a] transition-colors">{count}</div>
+                <div className="text-xl font-black text-gray-900 group-hover:text-[#8A4A22] transition-colors">{count}</div>
                 <div className="text-[9px] text-gray-500 mt-0.5 capitalize font-medium">{stage.replace('_', ' ')}</div>
               </Link>
             ))}
@@ -134,7 +134,7 @@ export default function JobDetail() {
                 <ol className="space-y-2">
                   {req.screeningQuestions.map((q, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm">
-                      <span className="text-[10px] font-bold text-[#b8910a] mt-0.5">{i + 1}.</span>
+                      <span className="text-[10px] font-bold text-[#8A4A22] mt-0.5">{i + 1}.</span>
                       <span className="text-gray-600">{q.question} {q.required && <span className="text-red-500 text-[10px]">*</span>}</span>
                     </li>
                   ))}
@@ -169,7 +169,7 @@ export default function JobDetail() {
                 <div className="space-y-2">
                   {[...req.statusHistory].reverse().slice(0, 5).map((h, i) => (
                     <div key={i} className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#F5C400] mt-1.5 flex-shrink-0" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#A65F2A] mt-1.5 flex-shrink-0" />
                       <div>
                         <div className="text-[11px] font-semibold text-gray-700 capitalize">{h.status.replace('_', ' ')}</div>
                         <div className="text-[10px] text-gray-400">{new Date(h.changedAt).toLocaleDateString()}</div>

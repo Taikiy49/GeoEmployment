@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/localClient';
 import { Link } from 'react-router-dom';
 import { Search, ChevronRight, LayoutGrid, List } from 'lucide-react';
 import AdminLayout from '../../components/admin/AdminLayout';
@@ -25,8 +25,8 @@ export default function ApplicationsList() {
     if (stageParam) setStageFilter(stageParam);
 
     Promise.all([
-      base44.entities.Application.filter({ status: 'active', isDraft: false }, '-created_date', 500),
-      base44.entities.JobRequisition.list('-created_date', 200),
+      appClient.entities.Application.filter({ status: 'active', isDraft: false }, '-created_date', 500),
+      appClient.entities.JobRequisition.list('-created_date', 200),
     ]).then(([a, r]) => {
       setApps(a);
       setReqs(r);
@@ -81,13 +81,13 @@ export default function ApplicationsList() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search name, email, position..."
-                className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F5C400]/30 focus:border-[#F5C400]"
+                className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]"
               />
             </div>
             <select
               value={jobFilter}
               onChange={e => setJobFilter(e.target.value)}
-              className="h-10 px-3 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-[#F5C400]/30"
+              className="h-10 px-3 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30"
             >
               <option value="all">All Jobs</option>
               {reqs.map(r => <option key={r.id} value={r.id}>{r.title}</option>)}
@@ -100,7 +100,7 @@ export default function ApplicationsList() {
                 onClick={() => setStageFilter(s)}
                 className={`px-3 py-2 rounded-xl text-[11px] font-semibold border transition-all ${
                   stageFilter === s
-                    ? 'bg-[#F5C400]/10 text-[#b8910a] border-[#F5C400]/30'
+                    ? 'bg-[#A65F2A]/10 text-[#8A4A22] border-[#A65F2A]/30'
                     : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-900'
                 }`}
               >
@@ -120,7 +120,7 @@ export default function ApplicationsList() {
         {viewMode === 'list' && <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center h-48">
-              <div className="w-7 h-7 border-2 border-gray-200 border-t-[#F5C400] rounded-full animate-spin" />
+              <div className="w-7 h-7 border-2 border-gray-200 border-t-[#A65F2A] rounded-full animate-spin" />
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
@@ -144,8 +144,8 @@ export default function ApplicationsList() {
                     <tr key={app.id} className="hover:bg-gray-50 transition-colors group">
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-7 h-7 rounded-full bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center flex-shrink-0">
-                            <span className="text-[10px] font-bold text-[#b8910a]">{app.firstName?.[0]?.toUpperCase()}</span>
+                          <div className="w-7 h-7 rounded-full bg-[#A65F2A]/10 border border-[#A65F2A]/20 flex items-center justify-center flex-shrink-0">
+                            <span className="text-[10px] font-bold text-[#8A4A22]">{app.firstName?.[0]?.toUpperCase()}</span>
                           </div>
                           <div>
                             <div className="font-semibold text-gray-900 text-sm">{app.firstName} {app.lastName}</div>
@@ -167,7 +167,7 @@ export default function ApplicationsList() {
                       <td className="px-5 py-4">
                         <Link
                           to={`/applications/${app.id}`}
-                          className="flex items-center gap-1 text-xs text-[#b8910a] hover:text-[#F5C400] justify-end font-semibold transition-colors"
+                          className="flex items-center gap-1 text-xs text-[#8A4A22] hover:text-[#A65F2A] justify-end font-semibold transition-colors"
                         >
                           Review <ChevronRight className="w-3 h-3" />
                         </Link>

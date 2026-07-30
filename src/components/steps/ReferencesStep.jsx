@@ -21,10 +21,10 @@ export default function ReferencesStep({ formData, setFormData, onNext, onBack }
       >
         <div className="space-y-5">
           {formData.references.map((ref, i) => (
-            <div key={i} className="bg-[#fafafa] rounded-lg border border-[#e5e7eb] p-4 sm:p-5">
+            <div key={i} className="bg-[#f8fafc] rounded-lg border border-[#e2e8f0] p-4 sm:p-4">
               <div className="flex items-center gap-2 mb-4">
                 <Users className="w-4 h-4 text-bronze" />
-                <h4 className="text-xs font-semibold text-[#111827]">Reference {i + 1} of 3</h4>
+                <h4 className="text-xs font-semibold text-[#0f172a]">Reference {i + 1} of 3</h4>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <FormField
@@ -49,6 +49,20 @@ export default function ReferencesStep({ formData, setFormData, onNext, onBack }
               </div>
             </div>
           ))}
+        </div>
+        <div className="mt-5 rounded-xl border border-[#A65F2A]/20 bg-[#F8F0E9] p-4">
+          <p className="text-xs leading-relaxed text-slate-700">
+            By initialing below, you authorize Geolabs, Inc. to contact the references listed above regarding your employment history and qualifications.
+          </p>
+          <div className="mt-3 max-w-[12rem]">
+            <FormField
+              label="Applicant's Initials"
+              value={formData.certifyInitials}
+              onChange={(v) => setFormData(prev => ({ ...prev, certifyInitials: v.toUpperCase().slice(0, 4) }))}
+              placeholder="e.g., TY"
+              required
+            />
+          </div>
         </div>
       </FormSection>
 

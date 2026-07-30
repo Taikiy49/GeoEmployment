@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,39 +6,39 @@
   :root {
     --font-inter: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-    --background: 43 60% 95%;
-    --foreground: 220 13% 13%;
+    --background: 210 29% 97%;
+    --foreground: 215 35% 15%;
     --card: 0 0% 100%;
     --card-foreground: 220 13% 13%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 13% 13%;
-    --primary: 224 51% 12%;
+    --primary: 215 35% 11%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 45 100% 52%;
-    --secondary-foreground: 224 51% 12%;
+    --secondary: 25 59% 41%;
+    --secondary-foreground: 0 0% 100%;
     --muted: 220 13% 91%;
     --muted-foreground: 220 5% 46%;
-    --accent: 45 100% 52%;
-    --accent-foreground: 224 51% 12%;
+    --accent: 25 59% 41%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 45 100% 52%;
-    --chart-1: 45 100% 52%;
+    --ring: 25 59% 41%;
+    --chart-1: 25 59% 41%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
+    --radius: 0.75rem;
+    --sidebar-background: 215 35% 11%;
+    --sidebar-foreground: 210 20% 92%;
+    --sidebar-primary: 25 59% 41%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 215 29% 18%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 215 24% 24%;
+    --sidebar-ring: 25 59% 51%;
   }
 
   .dark {
@@ -87,6 +85,29 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-inter);
-    font-size: 87.5%;
+    font-size: 100%;
+    min-width: 320px;
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(166, 95, 42, 0.08), transparent 28rem),
+      linear-gradient(180deg, #f5f7f9 0%, #ffffff 28rem);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button, a, input, select, textarea {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A65F2A] focus-visible:ring-offset-2;
+  }
+
+  ::selection {
+    background: rgba(166, 95, 42, 0.24);
+  }
+}
+
+@layer components {
+  .portal-card {
+    @apply rounded-2xl border border-slate-200/90 bg-white shadow-sm;
+  }
+
+  .portal-input {
+    @apply rounded-xl border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 transition-colors;
   }
 }

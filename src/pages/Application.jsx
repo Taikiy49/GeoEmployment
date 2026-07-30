@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/localClient';
 import { useParams, Link } from 'react-router-dom';
 import { CheckCircle2, ExternalLink, Cloud, Loader2, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -28,13 +28,27 @@ import AlcoholDrugStep from '../components/steps/AlcoholDrugStep';
 import ReviewStep from '../components/steps/ReviewStep';
 
 const SAVE_DEBOUNCE_MS = 2500;
+const REQUIRED_FIELDS = [
+  ['firstName', 'First name'],
+  ['lastName', 'Last name'],
+  ['email', 'Email address'],
+  ['address', 'Street address'],
+  ['city', 'City'],
+  ['state', 'State'],
+  ['zip', 'ZIP code'],
+  ['positionAppliedFor', 'Position applied for'],
+  ['preferredLocation', 'Preferred office location'],
+  ['certifyInitials', 'Reference authorization initials'],
+  ['medInitials', 'Medical-policy acknowledgment initials'],
+  ['highestEducationLevel', 'Highest education level'],
+];
 
 export default function Application() {
   const { requisitionId } = useParams();
 
   useSEO(
     'Apply Now | Geolabs, Inc. Careers',
-    'Submit your application to join the Geolabs team. Complete our online employment application for geotechnical engineering and related positions in Hawaii.'
+    'Submit your application to join the Geolabs, Inc. team. Complete our online employment application for geotechnical engineering and related positions in Hawaii.'
   );
   const storageKey = `geolabs_application_${requisitionId || 'general'}`;
 
@@ -54,6 +68,7 @@ export default function Application() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [submittedId, setSubmittedId] = useState(null);
+  const [confirmationSent, setConfirmationSent] = useState(false);
 
   // Draft DB sync state
   const [draftId, setDraftId] = useState(null);
@@ -65,7 +80,7 @@ export default function Application() {
   // Load requisition
   useEffect(() => {
     if (requisitionId) {
-      base44.entities.JobRequisition.filter({ id: requisitionId }).then(([req]) => {
+      appClient.entities.JobRequisition.filter({ id: requisitionId }).then(([req]) => {
         if (req) {
           setRequisition(req);
           setFormData(prev => ({
@@ -85,7 +100,7 @@ export default function Application() {
 
     if (draftParam) {
       // Restore from DB draft ID in URL
-      base44.entities.Application.filter({ id: draftParam, isDraft: true }).then(([draft]) => {
+      appClient.entities.Application.filter({ id: draftParam, isDraft: true }).then(([draft]) => {
         if (draft?.applicationData) {
           setFormData({ ...INITIAL_FORM_DATA, ...draft.applicationData });
           setDraftId(draft.id);
@@ -98,7 +113,7 @@ export default function Application() {
       // Try to find existing draft by locally-stored draftId
       const storedDraftId = localStorage.getItem(`${storageKey}_draftId`);
       if (storedDraftId) {
-        base44.entities.Application.filter({ id: storedDraftId, isDraft: true }).then(([draft]) => {
+        appClient.entities.Application.filter({ id: storedDraftId, isDraft: true }).then(([draft]) => {
           if (draft) {
             setDraftId(storedDraftId);
             // Draft exists — local data is up to date (already loaded from localStorage above)
@@ -110,7 +125,10 @@ export default function Application() {
 
   // Persist to localStorage
   useEffect(() => {
-    try { localStorage.setItem(storageKey, JSON.stringify(formData)); } catch {}
+    try {
+      const { resumeAttachment, ...persistableFormData } = formData;
+      localStorage.setItem(storageKey, JSON.stringify(persistableFormData));
+    } catch {}
   }, [formData, storageKey]);
 
   useEffect(() => {
@@ -132,6 +150,7 @@ export default function Application() {
     setSaveStatus('saving');
 
     saveTimerRef.current = setTimeout(async () => {
+      const { resumeAttachment, ...persistableFormData } = formData;
       const payload = {
         requisitionId: requisitionId || null,
         requisitionTitle: requisition?.title || formData.positionAppliedFor || '',
@@ -143,25 +162,25 @@ export default function Application() {
         resumeFileUrl: formData.resumeFileUrl || '',
         isDraft: true,
         draftSavedAt: new Date().toISOString(),
-        applicationData: { ...formData, _step: currentStep, _completedSteps: completedSteps },
+        applicationData: { ...persistableFormData, _step: currentStep, _completedSteps: completedSteps },
       };
 
       try {
         if (draftId) {
-          await base44.entities.Application.update(draftId, payload);
+          await appClient.entities.Application.update(draftId, payload);
         } else {
           // Check if a draft already exists for this email + requisition
-          const existing = await base44.entities.Application.filter({
+          const existing = await appClient.entities.Application.filter({
             email: formData.email,
             requisitionId: requisitionId || null,
             isDraft: true,
           });
           if (existing[0]) {
-            await base44.entities.Application.update(existing[0].id, payload);
+            await appClient.entities.Application.update(existing[0].id, payload);
             setDraftId(existing[0].id);
             localStorage.setItem(`${storageKey}_draftId`, existing[0].id);
           } else {
-            const created = await base44.entities.Application.create(payload);
+            const created = await appClient.entities.Application.create(payload);
             setDraftId(created.id);
             localStorage.setItem(`${storageKey}_draftId`, created.id);
           }
@@ -201,6 +220,22 @@ export default function Application() {
   }, [currentStep, goToStep]);
 
   const handleSubmit = async () => {
+    const missingFields = REQUIRED_FIELDS
+      .filter(([key]) => !String(formData[key] || '').trim())
+      .map(([, label]) => label);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email || '')) {
+      throw new Error('Enter a valid email address before submitting.');
+    }
+    if (missingFields.length) {
+      throw new Error(`Complete the following required fields: ${missingFields.join(', ')}.`);
+    }
+    if (!formData.certificationAgreed || !formData.certificationSignature?.trim()) {
+      throw new Error('Complete and sign the Employment Certification before submitting.');
+    }
+    if (!formData.drugTestAgreed || !formData.drugTestSignature?.trim()) {
+      throw new Error('Complete and sign the Alcohol & Drug Testing acknowledgment before submitting.');
+    }
+
     const now = new Date().toISOString();
     setCompletedSteps(prev => prev.includes(currentStep) ? prev : [...prev, currentStep]);
 
@@ -211,9 +246,15 @@ export default function Application() {
       veteranStatus: formData.veteranStatus,
     };
 
-    const { eeoGender, eeoRace, disabilityStatus, veteranStatus, ...appDataClean } = formData;
+    const {
+      eeoGender, eeoRace, disabilityStatus, veteranStatus,
+      resumeAttachment, resumeParsedPreview, ...appDataClean
+    } = formData;
+
+    const applicationId = draftId || crypto.randomUUID();
 
     const finalPayload = {
+      id: applicationId,
       requisitionId: requisitionId || null,
       requisitionTitle: requisition?.title || formData.positionAppliedFor || '',
       stage: 'applied',
@@ -234,16 +275,30 @@ export default function Application() {
       source: 'applicant_portal',
     };
 
+    const deliveryResponse = await fetch('/api/submit-application', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...finalPayload,
+        resumeAttachment,
+      }),
+    });
+    const deliveryResult = await deliveryResponse.json().catch(() => ({}));
+    if (!deliveryResponse.ok) {
+      throw new Error(deliveryResult.error || 'We could not deliver your application to HR. Please try again.');
+    }
+
     let record;
     if (draftId) {
       // Convert draft to final submission
-      record = await base44.entities.Application.update(draftId, finalPayload);
+      record = await appClient.entities.Application.update(draftId, finalPayload);
     } else {
-      record = await base44.entities.Application.create(finalPayload);
+      record = await appClient.entities.Application.create(finalPayload);
     }
 
     clearDraft();
-    setSubmittedId(record.id);
+    setSubmittedId(applicationId);
+    setConfirmationSent(Boolean(deliveryResult.confirmationSent));
     setSubmitted(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -267,21 +322,21 @@ export default function Application() {
       case 12: return <DisabilityStep {...stepProps} />;
       case 13: return <VeteranStep {...stepProps} />;
       case 14: return <AlcoholDrugStep {...stepProps} />;
-      case 15: return <ReviewStep formData={formData} onBack={goBack} onSubmit={handleSubmit} />;
+      case 15: return <ReviewStep formData={formData} onBack={goBack} onSubmit={handleSubmit} requiredFields={REQUIRED_FIELDS} />;
       default: return null;
     }
   };
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-slate-50">
         <Header />
-        <main className="max-w-2xl mx-auto px-4 py-20 text-center">
+        <main className="max-w-2xl mx-auto px-2 py-8 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="bg-white rounded-2xl border border-gray-200 shadow-md p-10"
+            className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-900/5 p-4 sm:p-5"
           >
             <motion.div
               initial={{ scale: 0 }}
@@ -295,10 +350,10 @@ export default function Application() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3, duration: 0.4 }}
-              className="inline-flex items-center gap-2 bg-[#F5C400]/10 border border-[#F5C400]/20 rounded-lg px-4 py-1.5 mb-4"
+              className="inline-flex items-center gap-2 bg-[#A65F2A]/10 border border-[#A65F2A]/20 rounded-lg px-4 py-1.5 mb-4"
             >
-              <div className="w-1.5 h-1.5 rounded-full bg-[#F5C400]" />
-              <span className="text-xs font-bold text-[#b8910a] tracking-widest uppercase">Application Received</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-[#A65F2A]" />
+              <span className="text-xs font-bold text-[#8A4A22] tracking-widest uppercase">Application Received</span>
             </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 10 }}
@@ -314,7 +369,7 @@ export default function Application() {
               transition={{ delay: 0.4, duration: 0.4 }}
               className="text-sm text-gray-600 leading-relaxed mb-6"
             >
-              Thank you, <strong className="text-gray-900">{formData.firstName}</strong>. Your application for <strong className="text-[#F5C400]">{requisition?.title || formData.positionAppliedFor || 'this position'}</strong> has been received and our team will review it shortly.
+              Thank you, <strong className="text-gray-900">{formData.firstName}</strong>. Your application for <strong className="text-[#A65F2A]">{requisition?.title || formData.positionAppliedFor || 'this position'}</strong> has been received and our team will review it shortly.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -323,8 +378,11 @@ export default function Application() {
               className="bg-gray-50 rounded-xl border border-gray-200 p-4 mb-8 text-left"
             >
               <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Confirmation details</div>
-              <div className="text-xs text-gray-600">Sent to <strong className="text-gray-900">{formData.email}</strong></div>
-              <div className="text-xs text-gray-500 mt-1">Application ID: <code className="font-mono text-[#F5C400] text-[11px]">{submittedId}</code></div>
+              <div className="text-xs text-gray-600">
+                {confirmationSent ? 'Confirmation sent to:' : 'Applicant email:'}{' '}
+                <strong className="text-gray-900">{formData.email}</strong>
+              </div>
+              <div className="text-xs text-gray-500 mt-1">Application ID: <code className="font-mono text-[#A65F2A] text-[11px]">{submittedId}</code></div>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -333,7 +391,7 @@ export default function Application() {
             >
               <Link
                 to="/"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold bg-[#F5C400] hover:bg-[#EFB506] text-gray-900 transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold bg-[#A65F2A] hover:bg-[#8A4A22] text-white transition-colors"
               >
                 <ExternalLink className="w-4 h-4" /> View All Open Positions
               </Link>
@@ -346,10 +404,10 @@ export default function Application() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-slate-50">
       <Header />
-      <main className="w-full px-4 sm:px-6 py-6">
-        <div className="max-w-4xl mx-auto space-y-4">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-6xl mx-auto space-y-5">
 
           {/* Draft restored banner */}
           {draftRestored && (
@@ -371,7 +429,7 @@ export default function Application() {
           )}
 
           {/* Job context banner */}
-          {requisition && (
+          {requisition && currentStep > 0 && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -416,11 +474,11 @@ export default function Application() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="rounded-lg border border-gray-200 shadow-md overflow-hidden bg-white"
+            className="rounded-2xl border border-slate-200 shadow-xl shadow-slate-900/5 overflow-hidden bg-white"
           >
             {currentStep > 0 && (
               <motion.div
-                className="px-6 sm:px-8 pt-6 pb-5 border-b border-gray-200 bg-gray-50"
+                className="px-4 sm:px-6 pt-5 pb-4 border-b border-slate-200 bg-slate-50/90"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -428,7 +486,7 @@ export default function Application() {
                 <Stepper currentStep={currentStep} completedSteps={completedSteps} onStepClick={goToStep} />
               </motion.div>
             )}
-            <div className="px-6 sm:px-8 py-8">
+            <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
               <StepShell stepKey={currentStep} direction={direction}>
                 {renderStep()}
               </StepShell>

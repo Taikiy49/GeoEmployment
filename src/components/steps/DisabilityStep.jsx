@@ -37,16 +37,16 @@ function RadioCard({ selected, onClick, children }) {
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left flex items-start gap-3 px-4 py-3 rounded-xl border transition-all ${
+      className={`w-full text-left flex items-start gap-3 px-3 py-3 rounded-xl border transition-all ${
         selected
-          ? 'border-[#F5C400] bg-[#F5C400]/5 ring-1 ring-[#F5C400]'
+          ? 'border-[#A65F2A] bg-[#A65F2A]/5 ring-1 ring-[#A65F2A]'
           : 'border-gray-200 bg-white hover:border-gray-300'
       }`}
     >
       <span className={`mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
-        selected ? 'border-[#F5C400]' : 'border-gray-300'
+        selected ? 'border-[#A65F2A]' : 'border-gray-300'
       }`}>
-        {selected && <span className="w-2 h-2 rounded-full bg-[#F5C400] block" />}
+        {selected && <span className="w-2 h-2 rounded-full bg-[#A65F2A] block" />}
       </span>
       {children}
     </button>
@@ -65,7 +65,7 @@ export default function DisabilityStep({ formData, setFormData, onNext, onBack }
           <h2 className="text-lg font-bold text-gray-900">Voluntary Self-Identification of Disability</h2>
           <p className="text-sm text-gray-500 mt-1">Form CC-305 · OMB Control Number 1250-0005 · Expires 04/30/2026</p>
         </div>
-        <span className="inline-block text-[11px] font-medium text-[#b8910a] bg-[#F5C400]/10 border border-[#F5C400]/20 px-3 py-1 rounded-full whitespace-nowrap self-start">
+        <span className="inline-block text-[11px] font-medium text-[#8A4A22] bg-[#A65F2A]/10 border border-[#A65F2A]/20 px-3 py-1 rounded-full whitespace-nowrap self-start">
           Voluntary &amp; Confidential
         </span>
       </div>
@@ -112,7 +112,7 @@ export default function DisabilityStep({ formData, setFormData, onNext, onBack }
         <p className="text-xs text-gray-600 leading-relaxed">
           A disability is a condition that substantially limits one or more of your "major life activities." If you have or have ever had such a condition, you are a person with a disability. Disabilities include, but are not limited to:
         </p>
-        <div className="bg-gray-50 rounded-lg border border-gray-100 p-3">
+        <div className="bg-gray-50 rounded-lg border border-gray-100 p-4">
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
             {DISABILITY_EXAMPLES.map((ex, i) => (
               <li key={i} className="text-[11px] text-gray-500 flex items-start gap-1.5">
@@ -125,7 +125,7 @@ export default function DisabilityStep({ formData, setFormData, onNext, onBack }
       </div>
 
       {/* Status choice */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
+      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-gray-800">Voluntary Response</h3>
@@ -149,7 +149,7 @@ export default function DisabilityStep({ formData, setFormData, onNext, onBack }
       </p>
 
       {/* Signature */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
         <h3 className="text-sm font-semibold text-gray-800">Electronic Signature</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>

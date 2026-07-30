@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/localClient';
 import { Users, Shield, Building, Plus, Bell, BellOff, Mail, ChevronRight, CheckCircle, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -21,13 +21,13 @@ export default function AdminSettings() {
   const [togglingNotif, setTogglingNotif] = useState(null);
 
   const load = () => {
-    base44.auth.me().then(u => {
+    appClient.auth.me().then(u => {
       setUser(u);
       if (u?.role === 'admin') {
-        base44.entities.User.list().then(us => setUsers(us)).catch(() => {});
+        appClient.entities.User.list().then(us => setUsers(us)).catch(() => {});
       }
     });
-    base44.entities.EmailTemplate.list('-created_date', 100).then(t => setTemplates(t)).catch(() => {});
+    appClient.entities.EmailTemplate.list('-created_date', 100).then(t => setTemplates(t)).catch(() => {});
   };
 
   useEffect(() => { load(); }, []);
@@ -36,7 +36,7 @@ export default function AdminSettings() {
     if (!inviteEmail.trim()) { setInviteMessage('Please enter an email address'); return; }
     setInviting(true);
     try {
-      await base44.users.inviteUser(inviteEmail.trim(), 'admin');
+      await appClient.users.inviteUser(inviteEmail.trim(), 'admin');
       setInviteMessage('Invitation sent successfully!');
       setInviteEmail('');
       setTimeout(() => setInviteMessage(''), 3000);
@@ -50,7 +50,7 @@ export default function AdminSettings() {
   const handleToggleNotification = async (u) => {
     setTogglingNotif(u.id);
     const newVal = u.notificationsEnabled === false ? true : false;
-    await base44.entities.User.update(u.id, { notificationsEnabled: newVal });
+    await appClient.entities.User.update(u.id, { notificationsEnabled: newVal });
     setUsers(prev => prev.map(x => x.id === u.id ? { ...x, notificationsEnabled: newVal } : x));
     setTogglingNotif(null);
   };
@@ -58,7 +58,7 @@ export default function AdminSettings() {
   const SectionCard = ({ icon: Icon, title, children }) => (
     <div className="bg-white rounded-2xl border border-gray-200 p-5">
       <h2 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <Icon className="w-4 h-4 text-[#b8910a]" /> {title}
+        <Icon className="w-4 h-4 text-[#8A4A22]" /> {title}
       </h2>
       {children}
     </div>
@@ -89,13 +89,13 @@ export default function AdminSettings() {
                 onChange={e => setInviteEmail(e.target.value)}
                 placeholder="Email address"
                 type="email"
-                className="flex-1 h-10 px-4 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F5C400]/30 focus:border-[#F5C400]"
+                className="flex-1 h-10 px-4 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]"
                 onKeyPress={e => e.key === 'Enter' && handleInvite()}
               />
               <Button
                 onClick={handleInvite}
                 disabled={inviting}
-                className="rounded-xl px-5 h-10 text-sm bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] font-bold"
+                className="rounded-xl px-5 h-10 text-sm bg-[#A65F2A] hover:bg-[#8A4A22] text-white font-bold"
               >
                 {inviting ? 'Sending...' : 'Invite'}
               </Button>
@@ -112,7 +112,7 @@ export default function AdminSettings() {
         <SectionCard icon={Mail} title="Candidate Email Templates">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs text-[#64748b]">Emails auto-sent when candidates move through hiring stages.</p>
-            <Link to="/email-templates" className="flex items-center gap-1 text-xs text-[#b8910a] hover:text-[#F5C400] font-semibold transition-colors">
+            <Link to="/email-templates" className="flex items-center gap-1 text-xs text-[#8A4A22] hover:text-[#A65F2A] font-semibold transition-colors">
               Manage All <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -125,14 +125,14 @@ export default function AdminSettings() {
                 <Link
                   key={stageKey}
                   to="/email-templates"
-                  className="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-200 hover:border-[#F5C400]/40 hover:bg-gray-50 transition-all"
+                  className="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-200 hover:border-[#A65F2A]/40 hover:bg-gray-50 transition-all"
                 >
                   {tmpl
-                    ? <CheckCircle className="w-3.5 h-3.5 text-[#b8910a] flex-shrink-0" />
+                    ? <CheckCircle className="w-3.5 h-3.5 text-[#8A4A22] flex-shrink-0" />
                     : <Circle className="w-3.5 h-3.5 text-gray-300 flex-shrink-0" />
                   }
                   <span className="text-xs text-gray-600 font-medium flex-1">{STAGE_LABELS[stageKey]}</span>
-                  <span className={`text-[10px] font-bold ${tmpl ? 'text-[#b8910a]' : 'text-gray-400 italic'}`}>
+                  <span className={`text-[10px] font-bold ${tmpl ? 'text-[#8A4A22]' : 'text-gray-400 italic'}`}>
                     {tmpl ? 'Custom' : 'Default'}
                   </span>
                 </Link>
@@ -143,7 +143,7 @@ export default function AdminSettings() {
             <p className="text-[11px] text-gray-400">
               {templates.filter(t => t.stageKey).length} of {STAGE_KEYS.length} stages customized
             </p>
-            <Link to="/email-templates" className="text-xs bg-[#F5C400]/10 text-[#b8910a] hover:bg-[#F5C400]/20 px-3 py-1.5 rounded-lg font-bold transition-colors border border-[#F5C400]/20">
+            <Link to="/email-templates" className="text-xs bg-[#A65F2A]/10 text-[#8A4A22] hover:bg-[#A65F2A]/20 px-3 py-1.5 rounded-lg font-bold transition-colors border border-[#A65F2A]/20">
               Edit Templates →
             </Link>
           </div>
@@ -159,8 +159,8 @@ export default function AdminSettings() {
             return (
               <div key={u.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-200">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-[#b8910a]">{(u.full_name || u.email)[0].toUpperCase()}</span>
+                  <div className="w-7 h-7 rounded-full bg-[#A65F2A]/10 border border-[#A65F2A]/20 flex items-center justify-center">
+                    <span className="text-[10px] font-bold text-[#8A4A22]">{(u.full_name || u.email)[0].toUpperCase()}</span>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-gray-900">{u.full_name || u.email}</p>
@@ -204,8 +204,8 @@ export default function AdminSettings() {
                   <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                     <td className="py-3 pr-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center">
-                          <span className="text-[9px] font-bold text-[#b8910a]">{(u.full_name || u.email)[0].toUpperCase()}</span>
+                        <div className="w-6 h-6 rounded-full bg-[#A65F2A]/10 border border-[#A65F2A]/20 flex items-center justify-center">
+                          <span className="text-[9px] font-bold text-[#8A4A22]">{(u.full_name || u.email)[0].toUpperCase()}</span>
                         </div>
                         <span className="text-xs font-semibold text-gray-900">{u.full_name || '—'}</span>
                       </div>
@@ -234,7 +234,7 @@ export default function AdminSettings() {
               'For secure deletion workflows, contact your system administrator.',
             ].map((t, i) => (
               <div key={i} className="flex items-start gap-2.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#F5C400]/60 mt-1.5 flex-shrink-0" />
+                <div className="w-1.5 h-1.5 rounded-full bg-[#A65F2A]/60 mt-1.5 flex-shrink-0" />
                 <p>{t}</p>
               </div>
             ))}

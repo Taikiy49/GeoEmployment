@@ -24,16 +24,16 @@ function RadioCard({ selected, onClick, children }) {
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left flex items-start gap-3 px-4 py-3 rounded-xl border transition-all ${
+      className={`w-full text-left flex items-start gap-3 px-3 py-3 rounded-xl border transition-all ${
         selected
-          ? 'border-[#F5C400] bg-[#F5C400]/5 ring-1 ring-[#F5C400]'
+          ? 'border-[#A65F2A] bg-[#A65F2A]/5 ring-1 ring-[#A65F2A]'
           : 'border-gray-200 bg-white hover:border-gray-300'
       }`}
     >
       <span className={`mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
-        selected ? 'border-[#F5C400]' : 'border-gray-300'
+        selected ? 'border-[#A65F2A]' : 'border-gray-300'
       }`}>
-        {selected && <span className="w-2 h-2 rounded-full bg-[#F5C400] block" />}
+        {selected && <span className="w-2 h-2 rounded-full bg-[#A65F2A] block" />}
       </span>
       {children}
     </button>
@@ -72,7 +72,7 @@ export default function VeteranStep({ formData, setFormData, onNext, onBack }) {
       </div>
 
       {/* Status choice */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
+      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-gray-800">Veteran Status</h3>
@@ -97,13 +97,13 @@ export default function VeteranStep({ formData, setFormData, onNext, onBack }) {
           <button
             type="button"
             onClick={() => setShowDefinitions(v => !v)}
-            className="w-full text-left px-4 py-3 text-xs font-semibold text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+            className="w-full text-left px-3 py-3 text-xs font-semibold text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
           >
             Definitions of protected veteran categories
             <span className="text-gray-400">{showDefinitions ? '▲' : '▼'}</span>
           </button>
           {showDefinitions && (
-            <div className="px-4 py-3 space-y-3 bg-white">
+            <div className="px-3 py-3 space-y-3 bg-white">
               {[
                 { title: 'Disabled Veteran', text: 'A veteran of the U.S. military, ground, naval or air service who is entitled to compensation (or who but for the receipt of military retired pay would be entitled to compensation) under laws administered by the Secretary of Veterans Affairs, or a person who was discharged or released from active duty because of a service-connected disability.' },
                 { title: 'Recently Separated Veteran', text: 'Any veteran during the three-year period beginning on the date of such veteran\'s discharge or release from active duty in the U.S. military, ground, naval or air service.' },
@@ -121,7 +121,7 @@ export default function VeteranStep({ formData, setFormData, onNext, onBack }) {
       </div>
 
       {/* Signature */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
         <h3 className="text-sm font-semibold text-gray-800">Electronic Signature</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>

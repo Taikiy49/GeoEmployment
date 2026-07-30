@@ -1,27 +1,11 @@
 import { jsPDF } from 'jspdf';
+import { getBrandLogoDataUrl } from '@/lib/brand';
 
-const LOGO_URL = 'https://media.base44.com/images/public/69ea7ba8b51b3834e92174e7/e4e60e6f1_geolabs.png';
 const BRONZE = [184, 115, 51];
 const NAVY = [15, 23, 42];
 const GRAY = [107, 114, 128];
 const LIGHT = [249, 250, 251];
 const BORDER = [229, 231, 235];
-
-function loadImage(url) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      canvas.getContext('2d').drawImage(img, 0, 0);
-      resolve(canvas.toDataURL('image/png'));
-    };
-    img.onerror = () => resolve(null);
-    img.src = url;
-  });
-}
 
 function header(doc, logoData, subtitle) {
   // Navy bar
@@ -112,7 +96,7 @@ function checkPage(doc, y, needed = 20, logoData, subtitle) {
 // ─── INTERVIEW PACKET (no sensitive data) ───────────────────────────────────
 export async function generateInterviewPDF(app) {
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const logoData = await loadImage(LOGO_URL);
+  const logoData = await getBrandLogoDataUrl();
   const subtitle = 'Interview Packet — Confidential';
   const fd = app.applicationData || {};
   const position = app.requisitionTitle || app.positionAppliedFor || 'Position';
@@ -303,7 +287,7 @@ export async function generateInterviewPDF(app) {
 // ─── FULL COMPLIANCE PACKET (everything) ────────────────────────────────────
 export async function generateFullPDF(app) {
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const logoData = await loadImage(LOGO_URL);
+  const logoData = await getBrandLogoDataUrl();
   const subtitle = 'Full Application Record — HR & Compliance Use Only';
   const fd = app.applicationData || {};
   const eeo = app.eeoData || {};
@@ -665,7 +649,7 @@ export async function generateFullPDF(app) {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   doc.text(`Certification Agreed: ${fd.certificationAgreed ? 'YES — Checked' : 'Not checked'}`, 14, y + 11);
-  doc.text(`Known Geolabs Employee?: ${fd.knowEmployee || '—'}`, 110, y + 11);
+  doc.text(`Known Geolabs, Inc. Employee?: ${fd.knowEmployee || '—'}`, 110, y + 11);
   if (fd.knowEmployeeName) doc.text(`Employee Name(s): ${fd.knowEmployeeName}`, 14, y + 17);
   doc.setFont('helvetica', 'bold');
   doc.text(`Electronic Signature: ${fd.certificationSignature || '—'}`, 14, y + 23);

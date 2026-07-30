@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/localClient';
 import { CreditCard, CheckCircle2, ExternalLink, XCircle, AlertTriangle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AdminLayout from '../../components/admin/AdminLayout';
@@ -28,7 +28,7 @@ export default function Billing() {
   }, []);
 
   useEffect(() => {
-    base44.entities.Subscription.list().then(subs => {
+    appClient.entities.Subscription.list().then(subs => {
       setSub(subs[0] || null);
       setLoading(false);
     });
@@ -36,7 +36,7 @@ export default function Billing() {
 
   const handleSubscribe = async () => {
     setCheckoutLoading(true);
-    const response = await base44.functions.invoke('createCheckout', {});
+    const response = await appClient.functions.invoke('createCheckout', {});
     if (response.data?.redirectUrl) {
       window.location.href = response.data.redirectUrl;
     } else {
@@ -48,7 +48,7 @@ export default function Billing() {
   const handleCancel = async () => {
     setCancelLoading(true);
     setShowCancelConfirm(false);
-    const response = await base44.functions.invoke('cancelSubscription', {});
+    const response = await appClient.functions.invoke('cancelSubscription', {});
     if (response.data?.success) {
       setSub(prev => ({ ...prev, status: 'cancelled' }));
     } else {
@@ -60,7 +60,7 @@ export default function Billing() {
   if (loading) return (
     <AdminLayout>
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#F5C400] rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#A65F2A] rounded-full animate-spin" />
       </div>
     </AdminLayout>
   );
@@ -73,7 +73,7 @@ export default function Billing() {
       <div className="max-w-2xl mx-auto space-y-5">
         <div>
           <h1 className="text-2xl font-black text-gray-900 tracking-tight">Billing & Subscription</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Geolabs ATS — subscription management</p>
+          <p className="text-sm text-gray-500 mt-0.5">Geolabs, Inc. ATS — subscription management</p>
         </div>
 
         {paymentSuccess && (
@@ -89,7 +89,7 @@ export default function Billing() {
         {/* Plan card */}
         <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border border-gray-700 p-7 shadow-xl">
           {/* Decorative glow */}
-          <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-[#F5C400]/10 blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-[#A65F2A]/10 blur-3xl pointer-events-none" />
 
           <div className="flex items-start justify-between mb-6 relative">
             <div>
@@ -101,13 +101,13 @@ export default function Billing() {
                 </span>
               </div>
               <div className="flex items-end gap-1">
-                <span className="text-4xl font-black text-[#F5C400]">${sub?.monthlyRate ?? 50}</span>
+                <span className="text-4xl font-black text-[#A65F2A]">${sub?.monthlyRate ?? 50}</span>
                 <span className="text-sm text-[#64748b] mb-1.5">/month</span>
               </div>
               <div className="text-xs text-[#4a5568] mt-1">{sub?.tenantName || 'Geolabs, Inc.'}</div>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center">
-              <CreditCard className="w-7 h-7 text-[#F5C400]" />
+            <div className="w-14 h-14 rounded-2xl bg-[#A65F2A]/10 border border-[#A65F2A]/20 flex items-center justify-center">
+              <CreditCard className="w-7 h-7 text-[#A65F2A]" />
             </div>
           </div>
 
@@ -129,7 +129,7 @@ export default function Billing() {
               <Button
                 onClick={handleSubscribe}
                 disabled={checkoutLoading}
-                className="bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] font-bold text-sm px-6 h-11 rounded-xl flex items-center gap-2 shadow-lg shadow-[#F5C400]/20"
+                className="bg-[#A65F2A] hover:bg-[#8A4A22] text-white font-bold text-sm px-6 h-11 rounded-xl flex items-center gap-2 shadow-lg shadow-[#A65F2A]/20"
               >
                 {checkoutLoading
                   ? <div className="w-4 h-4 border-2 border-[#0d1117]/30 border-t-[#0d1117] rounded-full animate-spin" />
@@ -158,7 +158,7 @@ export default function Billing() {
         {/* Plan features */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Zap className="w-4 h-4 text-[#b8910a]" />
+            <Zap className="w-4 h-4 text-[#8A4A22]" />
             <h2 className="text-sm font-bold text-gray-900">What's Included</h2>
           </div>
           <div className="grid grid-cols-2 gap-3">

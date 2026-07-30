@@ -6,6 +6,7 @@ export const INITIAL_FORM_DATA = {
   referredBy: '',
   desiredSalary: '',
   availableStartDate: '',
+  driverLicense: '',
 
   // General info
   firstName: '',
@@ -28,13 +29,19 @@ export const INITIAL_FORM_DATA = {
 
   // Education (3 entries)
   education: [
-    { institution: '', degree: '', field: '', yearCompleted: '' },
-    { institution: '', degree: '', field: '', yearCompleted: '' },
-    { institution: '', degree: '', field: '', yearCompleted: '' },
+    { institution: '', location: '', degree: '', field: '', yearCompleted: '' },
+    { institution: '', location: '', degree: '', field: '', yearCompleted: '' },
+    { institution: '', location: '', degree: '', field: '', yearCompleted: '' },
   ],
+  highestEducationLevel: '',
+  educationAdditional: '',
 
   // Skills
   skillsSummary: '',
+  skillsYearsExperience: '',
+  skillsPrimaryFocus: '',
+  skillsTechnical: '',
+  skillsCommunication: '',
   certifications: '',
   fieldLabExperience: '',
   computerSkills: '',
@@ -45,6 +52,7 @@ export const INITIAL_FORM_DATA = {
     { name: '', company: '', phone: '' },
     { name: '', company: '', phone: '' },
   ],
+  certifyInitials: '',
 
   // Medical
   canPerformDuties: false,

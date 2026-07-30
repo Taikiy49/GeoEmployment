@@ -4,9 +4,8 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { Navigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/localClient';
 
 // Public pages
 import JobBoard from './pages/JobBoard';
@@ -35,7 +34,7 @@ const AdminRoute = ({ children }) => {
   const { user, isAuthenticated, isLoadingAuth } = useAuth();
   if (isLoadingAuth) return null;
   if (!isAuthenticated || user?.role !== 'admin') {
-    base44.auth.redirectToLogin('/');
+    appClient.auth.redirectToLogin('/');
     return null;
   }
   return children;
@@ -54,9 +53,7 @@ const AuthenticatedApp = () => {
   }
 
   if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
+    if (authError.type === 'auth_required') {
       navigateToLogin();
       return null;
     }

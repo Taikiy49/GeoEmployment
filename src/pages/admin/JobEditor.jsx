@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/localClient';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,7 +36,7 @@ export default function JobEditor() {
 
   useEffect(() => {
     if (!isNew) {
-      base44.entities.JobRequisition.filter({ id }).then(([req]) => {
+      appClient.entities.JobRequisition.filter({ id }).then(([req]) => {
         if (req) setForm({ ...EMPTY_FORM, ...req });
         setLoading(false);
       });
@@ -79,10 +79,10 @@ export default function JobEditor() {
     }
 
     if (isNew) {
-      const created = await base44.entities.JobRequisition.create(data);
+      const created = await appClient.entities.JobRequisition.create(data);
       navigate(`/admin/jobs/${created.id}`);
     } else {
-      await base44.entities.JobRequisition.update(id, data);
+      await appClient.entities.JobRequisition.update(id, data);
       navigate(`/admin/jobs/${id}`);
     }
     setSaving(false);
@@ -92,11 +92,11 @@ export default function JobEditor() {
 
   const Field = ({ label, required, children, hint }) => (
     <div>
-      <label className="block text-[11px] font-medium text-[#374151] mb-1.5">
+      <label className="block text-[11px] font-medium text-[#334155] mb-1.5">
         {label}{required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {children}
-      {hint && <p className="text-[10px] text-[#9ca3af] mt-1">{hint}</p>}
+      {hint && <p className="text-[10px] text-[#94a3b8] mt-1">{hint}</p>}
     </div>
   );
 
@@ -104,7 +104,7 @@ export default function JobEditor() {
     <select
       value={value}
       onChange={e => onChange(e.target.value)}
-      className="w-full h-9 px-3 text-sm rounded-lg border border-[#e5e7eb] bg-white focus:outline-none focus:ring-1 focus:ring-bronze focus:border-bronze"
+      className="w-full h-9 px-3 text-sm rounded-lg border border-[#e2e8f0] bg-white focus:outline-none focus:ring-1 focus:ring-bronze focus:border-bronze"
     >
       {placeholder && <option value="">{placeholder}</option>}
       {options.map(o => <option key={o.value || o} value={o.value || o}>{o.label || o}</option>)}
@@ -115,15 +115,15 @@ export default function JobEditor() {
     <AdminLayout>
       <div className="max-w-3xl mx-auto space-y-5">
         <div className="flex items-center gap-3">
-          <Link to="/admin/jobs" className="p-1.5 rounded-lg hover:bg-[#f3f4f6] text-[#6b7280]">
+          <Link to="/admin/jobs" className="p-1.5 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]">
             <ChevronLeft className="w-4 h-4" />
           </Link>
           <h1 className="text-xl font-semibold text-navy">{isNew ? 'New Requisition' : 'Edit Requisition'}</h1>
         </div>
 
         {/* Basic Info */}
-        <section className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-navy border-b border-[#f3f4f6] pb-3">Basic Information</h2>
+        <section className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-navy border-b border-[#f1f5f9] pb-3">Basic Information</h2>
           <Field label="Job Title" required>
             <Input value={form.title} onChange={e => update('title', e.target.value)} placeholder="e.g., Environmental Scientist II" className="h-9 text-sm" />
           </Field>
@@ -153,8 +153,8 @@ export default function JobEditor() {
         </section>
 
         {/* Assignments */}
-        <section className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-navy border-b border-[#f3f4f6] pb-3">Team Assignments</h2>
+        <section className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-navy border-b border-[#f1f5f9] pb-3">Team Assignments</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Hiring Manager Email">
               <Input type="email" value={form.hiringManagerEmail} onChange={e => update('hiringManagerEmail', e.target.value)} placeholder="manager@geolabs.net" className="h-9 text-sm" />
@@ -166,8 +166,8 @@ export default function JobEditor() {
         </section>
 
         {/* Description */}
-        <section className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-navy border-b border-[#f3f4f6] pb-3">Job Description</h2>
+        <section className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-navy border-b border-[#f1f5f9] pb-3">Job Description</h2>
           <Field label="Job Description" required>
             <Textarea value={form.description} onChange={e => update('description', e.target.value)} rows={6} placeholder="Describe the role, responsibilities, and team..." className="text-sm" />
           </Field>
@@ -180,19 +180,19 @@ export default function JobEditor() {
         </section>
 
         {/* Screening Questions */}
-        <section className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#f3f4f6] pb-3">
+        <section className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5 space-y-4">
+          <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-3">
             <h2 className="text-sm font-semibold text-navy">Screening Questions</h2>
             <Button onClick={addQuestion} variant="outline" size="sm" className="h-7 text-xs rounded-full px-3">
               <Plus className="w-3 h-3 mr-1" /> Add Question
             </Button>
           </div>
           {(form.screeningQuestions || []).length === 0 && (
-            <p className="text-xs text-[#9ca3af] text-center py-3">No screening questions. Add questions to pre-qualify applicants.</p>
+            <p className="text-xs text-[#94a3b8] text-center py-3">No screening questions. Add questions to pre-qualify applicants.</p>
           )}
           <div className="space-y-3">
             {(form.screeningQuestions || []).map((q, idx) => (
-              <div key={idx} className="bg-[#f9fafb] rounded-lg border border-[#e5e7eb] p-4 space-y-3">
+              <div key={idx} className="bg-[#f9fafb] rounded-lg border border-[#e2e8f0] p-4 space-y-3">
                 <div className="flex items-start gap-3">
                   <div className="flex-1 space-y-2">
                     <Input
@@ -205,13 +205,13 @@ export default function JobEditor() {
                       <select
                         value={q.type}
                         onChange={e => updateQuestion(idx, 'type', e.target.value)}
-                        className="h-7 px-2 text-xs rounded border border-[#e5e7eb] bg-white"
+                        className="h-7 px-2 text-xs rounded border border-[#e2e8f0] bg-white"
                       >
                         <option value="text">Text Answer</option>
                         <option value="yes_no">Yes / No</option>
                         <option value="multiple_choice">Multiple Choice</option>
                       </select>
-                      <label className="flex items-center gap-1.5 text-xs text-[#6b7280]">
+                      <label className="flex items-center gap-1.5 text-xs text-[#64748b]">
                         <input
                           type="checkbox"
                           checked={q.required || false}
@@ -230,7 +230,7 @@ export default function JobEditor() {
                       />
                     )}
                   </div>
-                  <button onClick={() => removeQuestion(idx)} className="p-1.5 rounded hover:bg-red-50 text-[#9ca3af] hover:text-red-500 transition-colors">
+                  <button onClick={() => removeQuestion(idx)} className="p-1.5 rounded hover:bg-red-50 text-[#94a3b8] hover:text-red-500 transition-colors">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -240,8 +240,8 @@ export default function JobEditor() {
         </section>
 
         {/* Internal Notes */}
-        <section className="bg-white rounded-xl border border-[#e5e7eb] shadow-sm p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-navy border-b border-[#f3f4f6] pb-3">Internal Notes</h2>
+        <section className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-navy border-b border-[#f1f5f9] pb-3">Internal Notes</h2>
           <Field label="Notes (not visible to applicants)" hint="Budget notes, hiring context, sourcing strategy, etc.">
             <Textarea value={form.internalNotes} onChange={e => update('internalNotes', e.target.value)} rows={3} className="text-sm" />
           </Field>

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/localClient';
 import { Link } from 'react-router-dom';
-import { MapPin, Clock, Briefcase, ArrowRight, ChevronRight, Search, Users, Award, TrendingUp, Heart, Star, Shield, Mail, Phone, Building2, CheckCircle, Zap, Globe } from 'lucide-react';
-import { motion, useScroll, useTransform, useInView, AnimatePresence, useSpring } from 'framer-motion';
+import { MapPin, Clock, Briefcase, ChevronRight, Search, Users, Award, TrendingUp, Heart, Star, Shield } from 'lucide-react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import Header from '../components/app/Header';
 import useSEO from '../hooks/useSEO';
 import AppFooter from '../components/app/AppFooter';
+import geolabsCoverVideo from '../geolabs-cover.mp4';
 
 const EMP_LABELS = {
   full_time: 'Full-time', part_time: 'Part-time', contract: 'Contract',
@@ -13,11 +14,11 @@ const EMP_LABELS = {
 };
 
 const BENEFITS = [
-  { icon: Heart, title: 'Full Family Medical', desc: 'Medical, dental, drug & vision — Geolabs covers family coverage after 12 months.', color: '#ef4444' },
+  { icon: Heart, title: 'Full Family Medical', desc: 'Medical, dental, drug & vision — Geolabs, Inc. covers family coverage after 12 months.', color: '#ef4444' },
   { icon: TrendingUp, title: 'ESOP Ownership', desc: 'Be a true owner. Our Employee Stock Ownership Plan gives you a real stake in the company.', color: '#22c55e' },
   { icon: Clock, title: 'Generous PTO', desc: '14 days your first year, scaling up to 28 days at 20+ years — plus 10 holidays.', color: '#3b82f6' },
   { icon: Shield, title: '401K + Life Insurance', desc: 'Company-supported retirement savings and group term life insurance for peace of mind.', color: '#8b5cf6' },
-  { icon: Star, title: 'FSA Savings', desc: 'Flexible Spending Account to reduce taxes on healthcare and dependent care expenses.', color: '#F5C400' },
+  { icon: Star, title: 'FSA Savings', desc: 'Flexible Spending Account to reduce taxes on healthcare and dependent care expenses.', color: '#A65F2A' },
   { icon: Award, title: '50+ Years of Excellence', desc: '16 engineering awards and a legacy of innovative, high-quality geotechnical work.', color: '#f97316' },
 ];
 
@@ -58,11 +59,11 @@ function StatCard({ value, suffix, label, delay }) {
       viewport={{ once: true }}
       transition={{ delay, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ scale: 1.05, y: -4 }}
-      className="relative bg-gradient-to-br from-[#0d1b2a] to-[#060e1a] border border-[#1e2a3a] hover:border-[#F5C400]/50 rounded-2xl p-6 text-center overflow-hidden group cursor-default transition-all duration-300"
+      className="relative bg-gradient-to-br from-[#0d1b2a] to-[#060e1a] border border-[#1e2a3a] hover:border-[#A65F2A]/50 rounded-2xl p-6 text-center overflow-hidden group cursor-default transition-all duration-300"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-[#F5C400]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#A65F2A]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <div className="relative">
-        <div className="text-4xl font-black text-[#F5C400] mb-1 tabular-nums">
+        <div className="text-4xl font-black text-[#A65F2A] mb-1 tabular-nums">
           {count}{suffix}
         </div>
         <div className="text-xs font-semibold text-gray-400 tracking-wide">{label}</div>
@@ -78,7 +79,7 @@ function Particles() {
       {[...Array(20)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute w-1 h-1 rounded-full bg-[#F5C400]"
+          className="absolute w-1 h-1 rounded-full bg-[#A65F2A]"
           style={{
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
@@ -115,7 +116,7 @@ function GlowOrb({ className }) {
 export default function JobBoard() {
   useSEO(
     'Careers at Geolabs, Inc. | Geotechnical Engineering Jobs in Hawaii',
-    "Join Geolabs — Hawaii's premier 100% employee-owned geotechnical engineering firm. Explore open positions across the Pacific Basin."
+    "Join Geolabs, Inc. — Hawaii's premier 100% employee-owned geotechnical engineering firm. Explore open positions across the Pacific Basin."
   );
 
   const [jobs, setJobs] = useState([]);
@@ -127,7 +128,7 @@ export default function JobBoard() {
 
 
   useEffect(() => {
-    base44.entities.JobRequisition.filter({ status: 'published' }, '-publishedDate', 100).then(j => {
+    appClient.entities.JobRequisition.filter({ status: 'published' }, '-publishedDate', 100).then(j => {
       setJobs(j);
       setLoading(false);
     });
@@ -142,21 +143,74 @@ export default function JobBoard() {
   });
 
   return (
-    <div className="min-h-screen bg-white font-inter overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 font-inter overflow-x-clip">
       <Header />
 
+      <section className="relative min-h-[34rem] overflow-hidden bg-slate-950 text-white flex items-center">
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          src={geolabsCoverVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#111923]/75 via-[#111923]/40 to-[#111923]/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#111923]/45 via-transparent to-[#111923]/10" />
+        <div className="relative w-full max-w-6xl mx-auto px-6 py-16 sm:py-20">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55 }}
+              className="max-w-3xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]"
+          >
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#A65F2A]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#A65F2A]" />
+              Build what matters
+            </div>
+            <h1 className="mt-6 text-4xl sm:text-6xl font-extrabold tracking-[-0.045em] leading-[1.05]">
+              Shape Hawaiʻi from
+              <span className="block text-[#A65F2A]">the ground up.</span>
+            </h1>
+            <p className="mt-5 max-w-2xl text-base sm:text-lg text-slate-300 leading-relaxed">
+              Join an employee-owned geotechnical engineering and drilling team serving Hawaiʻi and California with technical rigor and lasting community impact.
+            </p>
+            <a
+              href="#open-roles"
+              className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#A65F2A] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#A65F2A]/15 hover:bg-[#B87333] transition-colors"
+            >
+              Explore open roles <ChevronRight className="w-4 h-4" />
+            </a>
+          </motion.div>
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10">
+            {[
+              ['100%', 'Employee-owned'],
+              ['50+', 'Years serving Hawaiʻi'],
+              ['Equal', 'Opportunity employer'],
+            ].map(([value, label]) => (
+              <div key={label} className="bg-[#111923]/55 backdrop-blur-sm px-5 py-4">
+                <div className="text-lg font-extrabold text-white">{value}</div>
+                <div className="mt-0.5 text-xs text-slate-400">{label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── OPEN ROLES ── */}
-      <section id="open-roles" className="py-6 bg-white relative">
+      <section id="open-roles" className="py-14 sm:py-20 bg-white relative scroll-mt-20">
         <div className="max-w-6xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="mb-8"
+            className="mb-8 max-w-2xl"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight mb-1">Open Positions</h2>
-            <p className="text-gray-600 text-base">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#9a7800] mb-2">Current opportunities</p>
+            <p className="text-slate-600 text-base">
               {loading ? 'Loading positions…' : `${jobs.length} open position${jobs.length !== 1 ? 's' : ''} across our offices`}
             </p>
           </motion.div>
@@ -175,7 +229,7 @@ export default function JobBoard() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search positions, departments, locations…"
-                className="w-full h-12 pl-11 pr-4 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400] transition-all text-gray-900 placeholder-gray-500"
+                className="w-full h-12 pl-11 pr-4 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/40 focus:border-[#A65F2A] transition-all text-gray-900 placeholder-gray-500"
               />
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -187,8 +241,8 @@ export default function JobBoard() {
                   whileTap={{ scale: 0.97 }}
                   className={`px-4 py-2.5 rounded-lg text-xs font-bold border transition-all whitespace-nowrap ${
                     deptFilter === d
-                      ? 'bg-[#F5C400] text-gray-900 border-[#F5C400]'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-[#F5C400] hover:text-[#F5C400]'
+                      ? 'bg-[#A65F2A] text-white border-[#A65F2A]'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-[#A65F2A] hover:text-[#A65F2A]'
                   }`}
                 >
                   {d === 'all' ? 'All Departments' : d}
@@ -236,22 +290,22 @@ export default function JobBoard() {
                   >
                     <Link
                       to={`/apply/${job.id}`}
-                      className="group relative flex items-start justify-between gap-5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-[#F5C400] rounded-lg p-5 transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden block"
+                      className="group relative flex items-start justify-between gap-5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-[#A65F2A] rounded-lg p-5 transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden block"
                     >
                       <div className="flex items-start gap-4 flex-1 min-w-0">
                         <motion.div
                           animate={hoveredJob === job.id ? { rotate: [0, -5, 5, 0], scale: 1.05 } : {}}
                           transition={{ duration: 0.4 }}
-                          className="w-11 h-11 rounded-lg bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5"
+                          className="w-11 h-11 rounded-lg bg-[#A65F2A]/10 border border-[#A65F2A]/20 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5"
                         >
-                          <Briefcase className="w-5 h-5 text-[#F5C400]" />
+                          <Briefcase className="w-5 h-5 text-[#A65F2A]" />
                         </motion.div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                             <h3 className="text-base font-bold text-gray-900 group-hover:text-[#F5C400] transition-colors">
+                             <h3 className="text-base font-bold text-gray-900 group-hover:text-[#A65F2A] transition-colors">
                               {job.title}
                              </h3>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F5C400]/10 text-[#b8910a] border border-[#F5C400]/20">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#A65F2A]/10 text-[#8A4A22] border border-[#A65F2A]/20">
                               {EMP_LABELS[job.employmentType] || job.employmentType}
                             </span>
                           </div>
@@ -286,7 +340,7 @@ export default function JobBoard() {
                         <motion.div
                           initial={{ opacity: 0, x: -10 }}
                           animate={hoveredJob === job.id ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
-                          className="flex items-center gap-1 text-[#F5C400] text-xs font-bold"
+                          className="flex items-center gap-1 text-[#A65F2A] text-xs font-bold"
                         >
                           Apply <ChevronRight className="w-3.5 h-3.5" />
                         </motion.div>
@@ -307,14 +361,14 @@ export default function JobBoard() {
             className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 px-5 py-4 bg-gray-50 border border-gray-200 rounded-lg"
           >
             <div className="flex items-center gap-3 flex-shrink-0">
-              <div className="w-8 h-8 rounded-lg bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center">
-                <Users className="w-4 h-4 text-[#F5C400]" />
+              <div className="w-8 h-8 rounded-lg bg-[#A65F2A]/10 border border-[#A65F2A]/20 flex items-center justify-center">
+                <Users className="w-4 h-4 text-[#A65F2A]" />
               </div>
               <span className="text-xs font-bold text-gray-900 uppercase tracking-wider whitespace-nowrap">Equal Opportunity Employer</span>
             </div>
             <div className="w-px h-6 bg-gray-300 hidden sm:block flex-shrink-0" />
             <p className="text-xs text-gray-600 leading-relaxed">
-              Geolabs provides equal employment opportunities to all employees and applicants without regard to race, color, religion, gender, sexual orientation, national origin, age, disability, or veteran status.
+              Geolabs, Inc. provides equal employment opportunities without regard to race, color, religion, gender or gender identity, sexual orientation, national origin, age, disability, genetic information, marital status, amnesty, covered-veteran status, lactation, or any other status protected by applicable law.
             </p>
           </motion.div>
 
@@ -326,7 +380,7 @@ export default function JobBoard() {
               className="text-center text-xs text-gray-600 mt-8"
             >
               Don't see a perfect fit?{' '}
-              <Link to="/apply" className="text-[#F5C400] font-semibold hover:text-[#EFB506] transition-colors underline underline-offset-2">
+              <Link to="/apply" className="text-[#A65F2A] font-semibold hover:text-[#8A4A22] transition-colors underline underline-offset-2">
                 Submit a general application →
               </Link>
             </motion.p>

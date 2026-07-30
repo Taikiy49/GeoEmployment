@@ -1,0 +1,17 @@
+{
+  "name": "Geolabs, Inc. Careers",
+  "short_name": "Geolabs Careers",
+  "description": "Employment opportunities and online applications for Geolabs, Inc.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8A4A22",
+  "icons": [
+    {
+      "src": "/geolabs-logo.png?v=2",
+      "sizes": "160x160",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

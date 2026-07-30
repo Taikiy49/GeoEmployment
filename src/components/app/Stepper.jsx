@@ -19,23 +19,34 @@ export default function Stepper({ currentStep, completedSteps, onStepClick }) {
   const activeBranch = BRANCHES.findIndex(b => b.steps.includes(currentStep));
   const totalSteps = STEP_LABELS.length;
   const progressPercent = Math.round((completedSteps.length / totalSteps) * 100);
+  const activeBranchData = BRANCHES[activeBranch >= 0 ? activeBranch : 0];
 
   return (
-    <div className="space-y-4">
-      {/* Progress */}
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-[#64748b] font-medium tracking-wide">Application Progress</span>
-        <span className="text-xs font-bold text-[#F5C400]">{progressPercent}%</span>
-      </div>
-      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-700 ease-out"
-          style={{ width: `${progressPercent}%`, background: 'linear-gradient(90deg, #F5C400, #EFB506)' }}
-        />
+    <div className="space-y-5">
+      <div>
+        <div className="flex items-end justify-between gap-4 mb-2.5">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
+              Application progress
+            </p>
+            <p className="mt-1 text-sm font-semibold text-slate-900">
+              Step {currentStep + 1} of {totalSteps}
+              <span className="mx-2 text-slate-300">/</span>
+              <span className="text-[#8A4A22]">{STEP_LABELS[currentStep]}</span>
+            </p>
+          </div>
+          <span className="text-xs font-semibold tabular-nums text-slate-500">{progressPercent}% complete</span>
+        </div>
+        <div className="h-1 bg-slate-200/80 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full bg-[#A65F2A] transition-all duration-700 ease-out"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
       </div>
 
-      {/* Phase tabs */}
-      <div className="flex gap-2 mt-3 flex-wrap">
+      {/* Quiet phase navigation */}
+      <div className="flex items-center gap-0 overflow-x-auto border-b border-slate-200">
         {BRANCHES.map((branch, bIdx) => {
           const isActive = bIdx === activeBranch;
           const isCompleted = branch.steps.every(s => completedSteps.includes(s));
@@ -43,46 +54,54 @@ export default function Stepper({ currentStep, completedSteps, onStepClick }) {
             <button
               key={bIdx}
               onClick={() => onStepClick(branch.steps[0])}
-              className={`
-                flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 border
-                ${isActive
-                   ? 'bg-[#F5C400] text-gray-900 border-[#F5C400] shadow-md shadow-[#F5C400]/20'
-                   : isCompleted
-                     ? 'bg-emerald-500/10 text-emerald-600 border-emerald-300'
-                     : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:text-gray-900'
-                 }
-              `}
+              className={`relative flex flex-none items-center gap-2 px-3 sm:px-4 pb-3 pt-1 text-xs font-semibold transition-colors ${
+                isActive
+                  ? 'text-slate-950'
+                  : isCompleted
+                    ? 'text-emerald-700 hover:text-emerald-800'
+                    : 'text-slate-400 hover:text-slate-700'
+              }`}
             >
-              {isCompleted
-                 ? <span className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0"><Check className="w-2.5 h-2.5 text-white" /></span>
-                 : <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0 ${isActive ? 'bg-gray-900/20 text-gray-900' : 'bg-gray-200 text-gray-600'}`}>{bIdx + 1}</span>
-               }
+              {isCompleted ? (
+                <Check className="w-3.5 h-3.5" />
+              ) : (
+                <span className={`text-[10px] tabular-nums ${isActive ? 'text-[#A65F2A]' : 'text-slate-400'}`}>
+                  0{bIdx + 1}
+                </span>
+              )}
               {branch.label}
+              {isActive && <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-[#A65F2A]" />}
             </button>
           );
         })}
       </div>
 
-      {/* Sub-step pills */}
-      <div className="flex flex-wrap gap-1.5">
-        {BRANCHES[activeBranch >= 0 ? activeBranch : 0].steps.map((stepIdx) => {
+      {/* Compact step navigation */}
+      <div className="flex items-center gap-1 overflow-x-auto pb-1">
+        {activeBranchData.steps.map((stepIdx, localIndex) => {
           const isActive = stepIdx === currentStep;
           const isCompleted = completedSteps.includes(stepIdx);
           return (
             <button
               key={stepIdx}
               onClick={() => onStepClick(stepIdx)}
-              className={`
-                flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all border
-                ${isActive
-                   ? 'bg-[#F5C400]/15 text-[#b8910a] border-[#F5C400]/40'
-                   : isCompleted
-                     ? 'bg-emerald-500/10 text-emerald-600 border-emerald-300'
-                     : 'bg-gray-100 text-gray-600 border-gray-200 hover:text-gray-900 hover:border-gray-300'
-                 }
-              `}
+              className={`group flex flex-none items-center gap-1.5 rounded-md px-2 py-1.5 text-[11px] font-medium transition-colors ${
+                isActive
+                  ? 'bg-[#A65F2A]/10 text-[#8A4A22]'
+                  : isCompleted
+                    ? 'text-emerald-700 hover:bg-emerald-50'
+                    : 'text-slate-400 hover:bg-slate-100 hover:text-slate-700'
+              }`}
             >
-              {isCompleted && !isActive && <Check className="w-2.5 h-2.5" />}
+              <span className={`grid h-4 w-4 place-items-center rounded-full text-[9px] ${
+                isActive
+                  ? 'bg-[#A65F2A] text-white'
+                  : isCompleted
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : 'bg-slate-100 text-slate-400'
+              }`}>
+                {isCompleted && !isActive ? <Check className="h-2.5 w-2.5" /> : localIndex + 1}
+              </span>
               {STEP_LABELS[stepIdx]}
             </button>
           );

@@ -1,8 +1,9 @@
 import {
   Document, Packer, Paragraph, TextRun,
   AlignmentType, BorderStyle, Table, TableRow, TableCell,
-  WidthType, ShadingType, convertInchesToTwip
+  WidthType, ShadingType, convertInchesToTwip, ImageRun
 } from 'docx';
+import { getBrandLogoBuffer } from '@/lib/brand';
 
 function saveAs(blob, filename) {
   const url = URL.createObjectURL(blob);
@@ -112,6 +113,7 @@ function twoColTable(pairs) {
 
 // ─── INTERVIEW PACKET ────────────────────────────────────────────────────────
 export async function generateInterviewDOCX(app) {
+  const logoBuffer = await getBrandLogoBuffer();
   const fd = app.applicationData || {};
   const name = `${app.firstName} ${app.lastName}`;
   const position = app.requisitionTitle || app.positionAppliedFor || 'Position';
@@ -123,7 +125,7 @@ export async function generateInterviewDOCX(app) {
 
   // Title block
   sections.push(
-    new Paragraph({ children: [new TextRun({ text: 'GEOLABS, INC.', bold: true, size: 32, color: BRAND_COLOR })], alignment: AlignmentType.CENTER }),
+    new Paragraph({ children: [new ImageRun({ data: logoBuffer, transformation: { width: 80, height: 80 }, type: 'png' })], alignment: AlignmentType.CENTER }),
     new Paragraph({ children: [new TextRun({ text: 'Interview Packet — Confidential', size: 20, color: ACCENT_COLOR })], alignment: AlignmentType.CENTER, spacing: { after: 80 } }),
     divider(),
     new Paragraph({ children: [new TextRun({ text: name, bold: true, size: 28, color: BRAND_COLOR })], spacing: { after: 60 } }),
@@ -215,6 +217,7 @@ export async function generateInterviewDOCX(app) {
 
 // ─── FULL COMPLIANCE RECORD ──────────────────────────────────────────────────
 export async function generateFullDOCX(app) {
+  const logoBuffer = await getBrandLogoBuffer();
   const fd = app.applicationData || {};
   const eeo = app.eeoData || {};
   const name = `${app.firstName} ${app.lastName}`;
@@ -227,7 +230,7 @@ export async function generateFullDOCX(app) {
 
   // Title block
   sections.push(
-    new Paragraph({ children: [new TextRun({ text: 'GEOLABS, INC.', bold: true, size: 32, color: BRAND_COLOR })], alignment: AlignmentType.CENTER }),
+    new Paragraph({ children: [new ImageRun({ data: logoBuffer, transformation: { width: 80, height: 80 }, type: 'png' })], alignment: AlignmentType.CENTER }),
     new Paragraph({ children: [new TextRun({ text: 'Full Application Record — HR & Compliance Use Only', size: 20, color: ACCENT_COLOR })], alignment: AlignmentType.CENTER, spacing: { after: 80 } }),
     bannerParagraph('⚠  CONFIDENTIAL — For Authorized HR & Compliance Personnel Only. Do Not Distribute.', 'EDE9FE', '6D28D9'),
     divider(),
@@ -352,7 +355,7 @@ export async function generateFullDOCX(app) {
     shading: { type: ShadingType.SOLID, color: BLUE_BG },
     children: [
       new TextRun({ text: `Certification Agreed: ${fd.certificationAgreed ? 'YES — Checked' : 'Not checked'}`, bold: true, size: 18 }),
-      new TextRun({ text: `     Knows Geolabs Employee?: ${fd.knowEmployee || '—'}`, size: 18 }),
+      new TextRun({ text: `     Knows Geolabs, Inc. Employee?: ${fd.knowEmployee || '—'}`, size: 18 }),
     ],
     spacing: { before: 80, after: 60 },
   }));

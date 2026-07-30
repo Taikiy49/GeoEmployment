@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { appClient } from '@/api/localClient';
 import { Link } from 'react-router-dom';
-import { Briefcase, Users, TrendingUp, Clock, ChevronRight, AlertCircle, Zap } from 'lucide-react';
+import { Briefcase, Users, TrendingUp, ChevronRight, AlertCircle, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AdminLayout from '../../components/admin/AdminLayout';
 
@@ -22,8 +22,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     Promise.all([
-      base44.entities.Application.filter({ status: 'active', isDraft: false }),
-      base44.entities.JobRequisition.list('-created_date', 100),
+      appClient.entities.Application.filter({ status: 'active', isDraft: false }),
+      appClient.entities.JobRequisition.list('-created_date', 100),
     ]).then(([a, r]) => {
       setApps(a);
       setReqs(r);
@@ -50,7 +50,7 @@ export default function Dashboard() {
   if (loading) return (
     <AdminLayout>
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#F5C400] rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#A65F2A] rounded-full animate-spin" />
       </div>
     </AdminLayout>
   );
@@ -62,8 +62,8 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-2 rounded-full bg-[#F5C400] animate-pulse" />
-              <span className="text-[11px] font-bold text-[#b8910a] tracking-widest uppercase">Live Dashboard</span>
+              <div className="w-2 h-2 rounded-full bg-[#A65F2A] animate-pulse" />
+              <span className="text-[11px] font-bold text-[#8A4A22] tracking-widest uppercase">Live Dashboard</span>
             </div>
             <h1 className="text-2xl font-black text-gray-900 tracking-tight">Hiring Overview</h1>
             <p className="text-sm text-gray-500 mt-0.5">Geolabs, Inc. — Applicant Tracking System</p>
@@ -74,7 +74,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { label: 'Active Applications', value: apps.length, icon: Users, color: '#3b82f6', bg: 'rgba(59,130,246,0.08)' },
-            { label: 'Open Positions', value: activeReqs, icon: Briefcase, color: '#F5C400', bg: 'rgba(245,196,0,0.08)' },
+            { label: 'Open Positions', value: activeReqs, icon: Briefcase, color: '#A65F2A', bg: 'rgba(245,196,0,0.08)' },
             { label: 'New This Week', value: thisWeek, icon: TrendingUp, color: '#22c55e', bg: 'rgba(34,197,94,0.08)' },
             { label: 'Pending Approval', value: pendingApproval, icon: AlertCircle, color: '#f97316', bg: 'rgba(249,115,22,0.08)' },
           ].map((kpi, i) => (
@@ -108,7 +108,7 @@ export default function Dashboard() {
           className="bg-white rounded-2xl border border-gray-200 p-6"
         >
           <div className="flex items-center gap-2 mb-6">
-            <Zap className="w-4 h-4 text-[#F5C400]" />
+            <Zap className="w-4 h-4 text-[#A65F2A]" />
             <h2 className="text-sm font-bold text-gray-900">Hiring Pipeline</h2>
             <span className="ml-auto text-[11px] text-gray-500">{apps.length} total candidates</span>
           </div>
@@ -151,7 +151,7 @@ export default function Dashboard() {
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-sm font-bold text-gray-900">Recent Applications</h2>
-              <Link to="/applications" className="text-[11px] text-[#b8910a] hover:text-[#F5C400] flex items-center gap-0.5 font-medium transition-colors">
+              <Link to="/applications" className="text-[11px] text-[#8A4A22] hover:text-[#A65F2A] flex items-center gap-0.5 font-medium transition-colors">
                 View all <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
@@ -163,8 +163,8 @@ export default function Dashboard() {
                   className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-gray-50 transition-colors group"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-[#F5C400]/10 border border-[#F5C400]/20 flex items-center justify-center flex-shrink-0">
-                      <span className="text-[10px] font-bold text-[#b8910a]">{app.firstName?.[0]?.toUpperCase()}</span>
+                    <div className="w-7 h-7 rounded-full bg-[#A65F2A]/10 border border-[#A65F2A]/20 flex items-center justify-center flex-shrink-0">
+                      <span className="text-[10px] font-bold text-[#8A4A22]">{app.firstName?.[0]?.toUpperCase()}</span>
                     </div>
                     <div>
                       <div className="text-xs font-semibold text-gray-900">{app.firstName} {app.lastName}</div>
@@ -173,7 +173,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-center gap-2">
                     <StageBadge stage={app.stage} />
-                    <ChevronRight className="w-3 h-3 text-gray-300 group-hover:text-[#F5C400] transition-colors" />
+                    <ChevronRight className="w-3 h-3 text-gray-300 group-hover:text-[#A65F2A] transition-colors" />
                   </div>
                 </Link>
               ))}
@@ -190,7 +190,7 @@ export default function Dashboard() {
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-sm font-bold text-gray-900">Job Requisitions</h2>
-              <Link to="/jobs" className="text-[11px] text-[#b8910a] hover:text-[#F5C400] flex items-center gap-0.5 font-medium transition-colors">
+              <Link to="/jobs" className="text-[11px] text-[#8A4A22] hover:text-[#A65F2A] flex items-center gap-0.5 font-medium transition-colors">
                 Manage <ChevronRight className="w-3 h-3" />
               </Link>
             </div>

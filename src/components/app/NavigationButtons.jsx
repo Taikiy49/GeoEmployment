@@ -11,13 +11,13 @@ export default function NavigationButtons({
   isLoading = false,
 }) {
   return (
-    <div className="flex items-center justify-between mt-8 pt-5 border-t border-gray-200">
+    <div className="flex items-center justify-between gap-3 mt-8 pt-5 border-t border-slate-200">
       <div>
         {showBack && (
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-2 px-5 py-2.5 text-sm text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-all font-medium border border-gray-200 hover:border-gray-300"
+            className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:text-slate-950 rounded-xl hover:bg-slate-100 transition-all font-semibold border border-slate-300 hover:border-slate-400"
           >
             <ChevronLeft className="w-4 h-4" />
             Back
@@ -30,10 +30,10 @@ export default function NavigationButtons({
             type="button"
             onClick={onNext}
             disabled={isLoading}
-            className={`flex items-center gap-2 px-7 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg disabled:opacity-60
+            className={`flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg disabled:opacity-60
               ${isSubmit
                 ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/25'
-                : 'bg-[#F5C400] hover:bg-[#EFB506] text-[#0d1117] shadow-[#F5C400]/25'
+                : 'bg-[#A65F2A] hover:bg-[#8A4A22] text-white shadow-[#A65F2A]/25'
               }`}
           >
             {isLoading
