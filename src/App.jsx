@@ -42,7 +42,7 @@ const AdminRoute = ({ children }) => {
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
-  const isAdminDomain = typeof window !== 'undefined' && (window.location.hostname === 'admin.geolabs.net' || window.location.hostname.startsWith("admin."));
+  const isLegacyAdminDomain = typeof window !== 'undefined' && (window.location.hostname === 'admin.geolabs.net' || window.location.hostname.startsWith("admin."));
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
@@ -59,26 +59,19 @@ const AuthenticatedApp = () => {
     }
   }
 
-  if (isAdminDomain) {
-    return (
-      <Routes>
-        <Route path="/" element={<AdminRoute><Dashboard /></AdminRoute>} />
-        <Route path="/jobs" element={<AdminRoute><JobsList /></AdminRoute>} />
-        <Route path="/jobs/new" element={<AdminRoute><JobEditor /></AdminRoute>} />
-        <Route path="/jobs/:id" element={<AdminRoute><JobDetail /></AdminRoute>} />
-        <Route path="/jobs/:id/edit" element={<AdminRoute><JobEditor /></AdminRoute>} />
-        <Route path="/applications" element={<AdminRoute><ApplicationsList /></AdminRoute>} />
-        <Route path="/applications/:id" element={<AdminRoute><ApplicationDetail /></AdminRoute>} />
-        <Route path="/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
-        <Route path="/email-templates" element={<AdminRoute><EmailTemplates /></AdminRoute>} />
-        <Route path="/billing" element={<AdminRoute><BillingRoute /></AdminRoute>} />
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
-    );
-  }
-
   return (
     <Routes>
+      {isLegacyAdminDomain && <Route path="/" element={<Navigate to="/admin" replace />} />}
+      <Route path="/admin" element={<AdminRoute><Dashboard /></AdminRoute>} />
+      <Route path="/admin/jobs" element={<AdminRoute><JobsList /></AdminRoute>} />
+      <Route path="/admin/jobs/new" element={<AdminRoute><JobEditor /></AdminRoute>} />
+      <Route path="/admin/jobs/:id" element={<AdminRoute><JobDetail /></AdminRoute>} />
+      <Route path="/admin/jobs/:id/edit" element={<AdminRoute><JobEditor /></AdminRoute>} />
+      <Route path="/admin/applications" element={<AdminRoute><ApplicationsList /></AdminRoute>} />
+      <Route path="/admin/applications/:id" element={<AdminRoute><ApplicationDetail /></AdminRoute>} />
+      <Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
+      <Route path="/admin/email-templates" element={<AdminRoute><EmailTemplates /></AdminRoute>} />
+      <Route path="/admin/billing" element={<AdminRoute><BillingRoute /></AdminRoute>} />
       <Route path="/" element={<JobBoard />} />
       <Route path="/apply/:requisitionId" element={<Application />} />
       <Route path="/apply" element={<Application />} />

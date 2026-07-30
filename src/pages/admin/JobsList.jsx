@@ -109,7 +109,7 @@ export default function JobsList() {
                 <Briefcase className="w-7 h-7 text-gray-400" />
               </div>
               <p className="text-sm text-gray-500">No requisitions found.</p>
-              <Link to="/jobs/new" className="mt-3 inline-block text-xs text-[#8A4A22] hover:text-[#A65F2A] font-medium">Create your first requisition →</Link>
+              <Link to="/admin/jobs/new" className="mt-3 inline-block text-xs text-[#8A4A22] hover:text-[#A65F2A] font-medium">Create your first requisition →</Link>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -128,7 +128,7 @@ export default function JobsList() {
                   {filtered.map(req => (
                     <tr key={req.id} className="hover:bg-gray-50 transition-colors group">
                       <td className="px-5 py-4">
-                        <Link to={`/jobs/${req.id}`} className="font-semibold text-gray-900 hover:text-[#8A4A22] transition-colors">
+                        <Link to={`/admin/jobs/${req.id}`} className="font-semibold text-gray-900 hover:text-[#8A4A22] transition-colors">
                           {req.title}
                         </Link>
                         <div className="text-[10px] text-gray-400 mt-0.5">{req.office || '—'}</div>
@@ -154,10 +154,10 @@ export default function JobsList() {
                           {req.status === 'paused' && (
                             <button onClick={() => handleStatusChange(req, 'published')} className="px-2.5 py-1 text-[10px] rounded-lg font-bold bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 transition-colors">Resume</button>
                           )}
-                          <Link to={`/jobs/${req.id}`} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
+                          <Link to={`/admin/jobs/${req.id}`} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
                             <Eye className="w-3.5 h-3.5" />
                           </Link>
-                          <Link to={`/jobs/${req.id}/edit`} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
+                          <Link to={`/admin/jobs/${req.id}/edit`} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
                             <Pencil className="w-3.5 h-3.5" />
                           </Link>
                           <button onClick={() => handleDuplicate(req)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">

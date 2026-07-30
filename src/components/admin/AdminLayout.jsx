@@ -8,14 +8,14 @@ import { appClient } from '@/api/localClient';
 import { BRAND_LOGO_URL } from '@/lib/brand';
 
 const BASE_NAV = [
-  { label: 'Dashboard', icon: LayoutDashboard, to: '/' },
-  { label: 'Job Requisitions', icon: Briefcase, to: '/jobs' },
-  { label: 'Applications', icon: Users, to: '/applications' },
-  { label: 'Email Templates', icon: Mail, to: '/email-templates' },
-  { label: 'Settings', icon: Settings, to: '/settings' },
+  { label: 'Dashboard', icon: LayoutDashboard, to: '/admin' },
+  { label: 'Job Requisitions', icon: Briefcase, to: '/admin/jobs' },
+  { label: 'Applications', icon: Users, to: '/admin/applications' },
+  { label: 'Email Templates', icon: Mail, to: '/admin/email-templates' },
+  { label: 'Settings', icon: Settings, to: '/admin/settings' },
 ];
 
-const BILLING_NAV = { label: 'Billing', icon: CreditCard, to: '/billing' };
+const BILLING_NAV = { label: 'Billing', icon: CreditCard, to: '/admin/billing' };
 
 export default function AdminLayout({ children }) {
   const location = useLocation();
@@ -79,7 +79,7 @@ export default function AdminLayout({ children }) {
             </div>
           </div>
           <a
-            href="https://geolabs.net"
+            href="/"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-[11px] text-slate-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/10"

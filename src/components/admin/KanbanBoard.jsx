@@ -39,7 +39,7 @@ function AppCard({ app, index }) {
               </div>
             </div>
             <Link
-              to={`/applications/${app.id}`}
+              to={`/admin/applications/${app.id}`}
               onClick={e => e.stopPropagation()}
               className="text-[#cbd5e1] hover:text-bronze transition-colors flex-shrink-0"
             >

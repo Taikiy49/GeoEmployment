@@ -166,7 +166,7 @@ export default function ApplicationsList() {
                       </td>
                       <td className="px-5 py-4">
                         <Link
-                          to={`/applications/${app.id}`}
+                          to={`/admin/applications/${app.id}`}
                           className="flex items-center gap-1 text-xs text-[#8A4A22] hover:text-[#A65F2A] justify-end font-semibold transition-colors"
                         >
                           Review <ChevronRight className="w-3 h-3" />

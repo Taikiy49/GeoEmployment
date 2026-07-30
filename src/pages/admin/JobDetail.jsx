@@ -46,7 +46,7 @@ export default function JobDetail() {
       <div className="max-w-4xl mx-auto space-y-5">
         {/* Header */}
         <div className="flex items-start gap-3">
-          <Link to="/jobs" className="p-2 rounded-xl hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors mt-0.5">
+          <Link to="/admin/jobs" className="p-2 rounded-xl hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors mt-0.5">
             <ChevronLeft className="w-4 h-4" />
           </Link>
           <div className="flex-1">
@@ -63,7 +63,7 @@ export default function JobDetail() {
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Link to={`/jobs/${id}/edit`}>
+            <Link to={`/admin/jobs/${id}/edit`}>
               <Button variant="outline" size="sm" className="rounded-xl h-9 px-4 text-xs border-gray-200 bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-900">
                 <Pencil className="w-3 h-3 mr-1" /> Edit
               </Button>
@@ -93,13 +93,13 @@ export default function JobDetail() {
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-bold text-gray-900">Application Pipeline — <span className="text-[#8A4A22]">{apps.length}</span> total</h2>
-            <Link to={`/applications?requisitionId=${id}`} className="text-xs text-[#8A4A22] hover:text-[#A65F2A] flex items-center gap-1 font-medium transition-colors">
+            <Link to={`/admin/applications?requisitionId=${id}`} className="text-xs text-[#8A4A22] hover:text-[#A65F2A] flex items-center gap-1 font-medium transition-colors">
               <Users className="w-3.5 h-3.5" /> View All
             </Link>
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
             {Object.entries(stageGroups).map(([stage, count]) => (
-              <Link key={stage} to={`/applications?requisitionId=${id}&stage=${stage}`} className="text-center p-2 rounded-xl hover:bg-gray-50 transition-colors group">
+              <Link key={stage} to={`/admin/applications?requisitionId=${id}&stage=${stage}`} className="text-center p-2 rounded-xl hover:bg-gray-50 transition-colors group">
                 <div className="text-xl font-black text-gray-900 group-hover:text-[#8A4A22] transition-colors">{count}</div>
                 <div className="text-[9px] text-gray-500 mt-0.5 capitalize font-medium">{stage.replace('_', ' ')}</div>
               </Link>

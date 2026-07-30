@@ -112,7 +112,7 @@ export default function AdminSettings() {
         <SectionCard icon={Mail} title="Candidate Email Templates">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs text-[#64748b]">Emails auto-sent when candidates move through hiring stages.</p>
-            <Link to="/email-templates" className="flex items-center gap-1 text-xs text-[#8A4A22] hover:text-[#A65F2A] font-semibold transition-colors">
+            <Link to="/admin/email-templates" className="flex items-center gap-1 text-xs text-[#8A4A22] hover:text-[#A65F2A] font-semibold transition-colors">
               Manage All <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -124,7 +124,7 @@ export default function AdminSettings() {
               return (
                 <Link
                   key={stageKey}
-                  to="/email-templates"
+                  to="/admin/email-templates"
                   className="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-200 hover:border-[#A65F2A]/40 hover:bg-gray-50 transition-all"
                 >
                   {tmpl
@@ -143,7 +143,7 @@ export default function AdminSettings() {
             <p className="text-[11px] text-gray-400">
               {templates.filter(t => t.stageKey).length} of {STAGE_KEYS.length} stages customized
             </p>
-            <Link to="/email-templates" className="text-xs bg-[#A65F2A]/10 text-[#8A4A22] hover:bg-[#A65F2A]/20 px-3 py-1.5 rounded-lg font-bold transition-colors border border-[#A65F2A]/20">
+            <Link to="/admin/email-templates" className="text-xs bg-[#A65F2A]/10 text-[#8A4A22] hover:bg-[#A65F2A]/20 px-3 py-1.5 rounded-lg font-bold transition-colors border border-[#A65F2A]/20">
               Edit Templates →
             </Link>
           </div>

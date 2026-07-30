@@ -151,7 +151,7 @@ export default function Dashboard() {
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-sm font-bold text-gray-900">Recent Applications</h2>
-              <Link to="/applications" className="text-[11px] text-[#8A4A22] hover:text-[#A65F2A] flex items-center gap-0.5 font-medium transition-colors">
+              <Link to="/admin/applications" className="text-[11px] text-[#8A4A22] hover:text-[#A65F2A] flex items-center gap-0.5 font-medium transition-colors">
                 View all <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
@@ -159,7 +159,7 @@ export default function Dashboard() {
               {recentApps.map((app, idx) => (
                 <Link
                   key={app.id}
-                  to={`/applications/${app.id}`}
+                  to={`/admin/applications/${app.id}`}
                   className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-gray-50 transition-colors group"
                 >
                   <div className="flex items-center gap-3">
@@ -190,7 +190,7 @@ export default function Dashboard() {
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-sm font-bold text-gray-900">Job Requisitions</h2>
-              <Link to="/jobs" className="text-[11px] text-[#8A4A22] hover:text-[#A65F2A] flex items-center gap-0.5 font-medium transition-colors">
+              <Link to="/admin/jobs" className="text-[11px] text-[#8A4A22] hover:text-[#A65F2A] flex items-center gap-0.5 font-medium transition-colors">
                 Manage <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
@@ -200,7 +200,7 @@ export default function Dashboard() {
                 return (
                   <Link
                     key={req.id}
-                    to={`/jobs/${req.id}`}
+                    to={`/admin/jobs/${req.id}`}
                     className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-gray-50 transition-colors group"
                   >
                     <div className="flex items-center gap-3">
