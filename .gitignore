@@ -30,3 +30,6 @@ dist-ssr
 .env
 .vite
 .vercel
+
+# Private deployment keys must never be committed
+*.pem
