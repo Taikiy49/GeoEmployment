@@ -554,12 +554,7 @@ export default function Application() {
             </div>
           )}
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="rounded-2xl border border-slate-200 shadow-xl shadow-slate-900/5 overflow-hidden bg-white"
-          >
+          <div className="rounded-2xl border border-slate-200 shadow-xl shadow-slate-900/5 overflow-hidden bg-white">
             {currentStep > 0 && (
               <motion.div
                 className="px-4 sm:px-6 pt-5 pb-4 border-b border-slate-200 bg-slate-50/90"
@@ -575,7 +570,7 @@ export default function Application() {
                 {renderStep()}
               </StepShell>
             </div>
-          </motion.div>
+          </div>
         </div>
       </main>
       <AppFooter />
