@@ -146,20 +146,20 @@ export default function JobBoard() {
     <div className="min-h-screen bg-slate-50 font-inter overflow-x-clip">
       <Header />
 
-      <section className="relative min-h-[34rem] overflow-hidden bg-slate-950 text-white flex items-center">
+      <section className="relative flex min-h-[calc(100svh-4rem)] items-center overflow-hidden bg-slate-950 text-white">
         <video
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover object-center"
           src={geolabsCoverVideo}
           autoPlay
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="auto"
           aria-hidden="true"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[#111923]/75 via-[#111923]/40 to-[#111923]/10" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#111923]/45 via-transparent to-[#111923]/10" />
-        <div className="relative w-full max-w-6xl mx-auto px-6 py-16 sm:py-20">
+        <div className="relative mx-auto w-full max-w-6xl px-6 py-14 sm:py-16">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
