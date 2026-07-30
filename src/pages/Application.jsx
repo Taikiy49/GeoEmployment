@@ -8,6 +8,7 @@ import useSEO from '../hooks/useSEO';
 import AppFooter from '../components/app/AppFooter';
 import Stepper from '../components/app/Stepper';
 import StepShell from '../components/app/StepShell';
+import GroupedApplicationStep from '../components/app/GroupedApplicationStep';
 import { INITIAL_FORM_DATA } from '../lib/initialFormData';
 
 import StartStep from '../components/steps/StartStep';
@@ -28,6 +29,29 @@ import AlcoholDrugStep from '../components/steps/AlcoholDrugStep';
 import ReviewStep from '../components/steps/ReviewStep';
 
 const SAVE_DEBOUNCE_MS = 2500;
+const FLOW_VERSION = 'simple-v2';
+const FINAL_REVIEW_STEP = 5;
+
+const mapLegacyStep = (step) => {
+  const value = Number.isFinite(Number(step)) ? Number(step) : 0;
+  if (value <= 0) return 0;
+  if (value <= 3) return 1;
+  if (value <= 6) return 2;
+  if (value <= 10 || value === 14) return 3;
+  if (value <= 13) return 4;
+  return FINAL_REVIEW_STEP;
+};
+
+const restoreStep = (step, version) => (
+  version === FLOW_VERSION
+    ? Math.min(Math.max(Number(step) || 0, 0), FINAL_REVIEW_STEP)
+    : mapLegacyStep(step)
+);
+
+const restoreCompletedSteps = (steps, version) => (
+  [...new Set((Array.isArray(steps) ? steps : []).map(step => restoreStep(step, version)))]
+);
+
 const REQUIRED_FIELDS = [
   ['firstName', 'First name'],
   ['lastName', 'Last name'],
@@ -54,10 +78,20 @@ export default function Application() {
 
   const [requisition, setRequisition] = useState(null);
   const [currentStep, setCurrentStep] = useState(() => {
-    try { return parseInt(localStorage.getItem(`${storageKey}_step`) || '0', 10); } catch { return 0; }
+    try {
+      return restoreStep(
+        localStorage.getItem(`${storageKey}_step`) || '0',
+        localStorage.getItem(`${storageKey}_flowVersion`),
+      );
+    } catch { return 0; }
   });
   const [completedSteps, setCompletedSteps] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(`${storageKey}_completed`) || '[]'); } catch { return []; }
+    try {
+      return restoreCompletedSteps(
+        JSON.parse(localStorage.getItem(`${storageKey}_completed`) || '[]'),
+        localStorage.getItem(`${storageKey}_flowVersion`),
+      );
+    } catch { return []; }
   });
   const [direction, setDirection] = useState(1);
   const [formData, setFormData] = useState(() => {
@@ -105,8 +139,8 @@ export default function Application() {
         if (draft?.applicationData) {
           setFormData({ ...INITIAL_FORM_DATA, ...draft.applicationData });
           setDraftId(draft.id);
-          setCurrentStep(draft.applicationData._step || 0);
-          setCompletedSteps(draft.applicationData._completedSteps || []);
+          setCurrentStep(restoreStep(draft.applicationData._step || 0, draft.applicationData._flowVersion));
+          setCompletedSteps(restoreCompletedSteps(draft.applicationData._completedSteps || [], draft.applicationData._flowVersion));
           setDraftRestored(true);
         }
       });
@@ -136,6 +170,7 @@ export default function Application() {
     try {
       localStorage.setItem(`${storageKey}_step`, String(currentStep));
       localStorage.setItem(`${storageKey}_completed`, JSON.stringify(completedSteps));
+      localStorage.setItem(`${storageKey}_flowVersion`, FLOW_VERSION);
     } catch {}
   }, [currentStep, completedSteps, storageKey]);
 
@@ -163,7 +198,12 @@ export default function Application() {
         resumeFileUrl: formData.resumeFileUrl || '',
         isDraft: true,
         draftSavedAt: new Date().toISOString(),
-        applicationData: { ...persistableFormData, _step: currentStep, _completedSteps: completedSteps },
+        applicationData: {
+          ...persistableFormData,
+          _step: currentStep,
+          _completedSteps: completedSteps,
+          _flowVersion: FLOW_VERSION,
+        },
       };
 
       try {
@@ -201,6 +241,7 @@ export default function Application() {
       localStorage.removeItem(storageKey);
       localStorage.removeItem(`${storageKey}_step`);
       localStorage.removeItem(`${storageKey}_completed`);
+      localStorage.removeItem(`${storageKey}_flowVersion`);
       localStorage.removeItem(`${storageKey}_draftId`);
     } catch {}
   };
@@ -227,7 +268,7 @@ export default function Application() {
 
   const returnToReview = useCallback(() => {
     setFixingFromReview(false);
-    goToStep(15);
+    goToStep(FINAL_REVIEW_STEP);
   }, [goToStep]);
 
   const handleSubmit = async () => {
@@ -319,21 +360,37 @@ export default function Application() {
   const renderStep = () => {
     switch (currentStep) {
       case 0: return <StartStep onNext={goNext} requisition={requisition} />;
-      case 1: return <ResumeStep {...stepProps} />;
-      case 2: return <ApplicationInfoStep {...stepProps} requisition={requisition} />;
-      case 3: return <GeneralInfoStep {...stepProps} />;
-      case 4: return <EmploymentStep {...stepProps} />;
-      case 5: return <EducationStep {...stepProps} />;
-      case 6: return <SkillsStep {...stepProps} />;
-      case 7: return <ReferencesStep {...stepProps} />;
-      case 8: return <MedicalStep {...stepProps} />;
-      case 9: return <AffiliationsStep {...stepProps} />;
-      case 10: return <CertificationStep {...stepProps} />;
-      case 11: return <EEOStep {...stepProps} />;
-      case 12: return <DisabilityStep {...stepProps} />;
-      case 13: return <VeteranStep {...stepProps} />;
-      case 14: return <AlcoholDrugStep {...stepProps} />;
-      case 15: return <ReviewStep formData={formData} onBack={goBack} onSubmit={handleSubmit} onNavigate={goFixReviewItem} requiredFields={REQUIRED_FIELDS} />;
+      case 1: return (
+        <GroupedApplicationStep onBack={goBack} onNext={goNext}>
+          <ResumeStep {...stepProps} />
+          <ApplicationInfoStep {...stepProps} requisition={requisition} />
+          <GeneralInfoStep {...stepProps} />
+        </GroupedApplicationStep>
+      );
+      case 2: return (
+        <GroupedApplicationStep onBack={goBack} onNext={goNext}>
+          <EmploymentStep {...stepProps} />
+          <EducationStep {...stepProps} />
+          <SkillsStep {...stepProps} />
+        </GroupedApplicationStep>
+      );
+      case 3: return (
+        <GroupedApplicationStep onBack={goBack} onNext={goNext}>
+          <ReferencesStep {...stepProps} />
+          <MedicalStep {...stepProps} />
+          <AffiliationsStep {...stepProps} />
+          <CertificationStep {...stepProps} />
+          <AlcoholDrugStep {...stepProps} />
+        </GroupedApplicationStep>
+      );
+      case 4: return (
+        <GroupedApplicationStep onBack={goBack} onNext={goNext}>
+          <EEOStep {...stepProps} />
+          <DisabilityStep {...stepProps} />
+          <VeteranStep {...stepProps} />
+        </GroupedApplicationStep>
+      );
+      case 5: return <ReviewStep formData={formData} onBack={goBack} onSubmit={handleSubmit} onNavigate={goFixReviewItem} requiredFields={REQUIRED_FIELDS} />;
       default: return null;
     }
   };
@@ -481,7 +538,7 @@ export default function Application() {
             </motion.div>
           )}
 
-          {fixingFromReview && currentStep !== 15 && (
+          {fixingFromReview && currentStep !== FINAL_REVIEW_STEP && (
             <div className="flex flex-col gap-2 rounded-lg border border-[#A65F2A]/25 bg-[#F8F0E9] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs font-bold text-slate-900">Updating your application</p>

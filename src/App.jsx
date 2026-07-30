@@ -12,7 +12,6 @@ import JobBoard from './pages/JobBoard';
 import Application from './pages/Application';
 
 // Admin pages
-import Billing from './pages/admin/Billing';
 import Dashboard from './pages/admin/Dashboard';
 import JobsList from './pages/admin/JobsList';
 import JobEditor from './pages/admin/JobEditor';
@@ -21,13 +20,6 @@ import ApplicationsList from './pages/admin/ApplicationsList';
 import ApplicationDetail from './pages/admin/ApplicationDetail';
 import AdminSettings from './pages/admin/AdminSettings';
 import EmailTemplates from './pages/admin/EmailTemplates';
-
-// Billing route — only accessible to taikiy49@gmail.com
-const BillingRoute = () => {
-  const { user } = useAuth();
-  if (user?.email !== 'taikiy49@gmail.com') return <Navigate to="/" />;
-  return <Billing />;
-};
 
 // Protects admin routes — only admin role can enter
 const AdminRoute = ({ children }) => {
@@ -71,7 +63,6 @@ const AuthenticatedApp = () => {
       <Route path="/admin/applications/:id" element={<AdminRoute><ApplicationDetail /></AdminRoute>} />
       <Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
       <Route path="/admin/email-templates" element={<AdminRoute><EmailTemplates /></AdminRoute>} />
-      <Route path="/admin/billing" element={<AdminRoute><BillingRoute /></AdminRoute>} />
       <Route path="/" element={<JobBoard />} />
       <Route path="/apply/:requisitionId" element={<Application />} />
       <Route path="/apply" element={<Application />} />

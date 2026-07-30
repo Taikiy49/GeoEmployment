@@ -11,7 +11,7 @@ export default function NavigationButtons({
   isLoading = false,
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 mt-8 pt-5 border-t border-slate-200">
+    <div className="application-navigation flex items-center justify-between gap-3 mt-8 pt-5 border-t border-slate-200">
       <div>
         {showBack && (
           <button

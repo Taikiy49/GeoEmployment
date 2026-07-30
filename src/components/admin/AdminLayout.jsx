@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Users, Settings,
-  Menu, Shield, ChevronRight, LogOut, CreditCard, Mail, X
+  Menu, Shield, ChevronRight, LogOut, Mail, X
 } from 'lucide-react';
 import { appClient } from '@/api/localClient';
 import { BRAND_LOGO_URL } from '@/lib/brand';
@@ -15,8 +15,6 @@ const BASE_NAV = [
   { label: 'Settings', icon: Settings, to: '/admin/settings' },
 ];
 
-const BILLING_NAV = { label: 'Billing', icon: CreditCard, to: '/admin/billing' };
-
 export default function AdminLayout({ children }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -26,9 +24,7 @@ export default function AdminLayout({ children }) {
     appClient.auth.me().then(u => setCurrentUser(u)).catch(() => {});
   }, []);
 
-  const nav = currentUser?.email === 'taikiy49@gmail.com'
-    ? [...BASE_NAV, BILLING_NAV]
-    : BASE_NAV;
+  const nav = BASE_NAV;
 
   const NavItem = ({ item }) => {
     const active = location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(item.to));
@@ -56,7 +52,7 @@ export default function AdminLayout({ children }) {
         <div className="flex items-center gap-3">
           <img src={BRAND_LOGO_URL} alt="Geolabs, Inc." className="w-11 h-11 object-contain" />
           <div>
-            <div className="text-[10px] text-[#D69A6B] font-semibold tracking-wide">HR Admin Portal</div>
+            <div className="text-sm font-black leading-tight tracking-wide text-[#D69A6B]">HR Admin Portal</div>
           </div>
         </div>
       </div>

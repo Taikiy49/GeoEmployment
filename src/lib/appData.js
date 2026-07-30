@@ -129,8 +129,6 @@ const seedTemplates = () => [
   }
 ];
 
-const seedSubscriptions = () => [];
-
 const ensureSeedData = () => {
   const dataVersion = 'original-content-v1';
   if (!readStore('geolabs_jobs', null)) {
@@ -146,7 +144,6 @@ const ensureSeedData = () => {
   if (!readStore('geolabs_applications', null)) writeStore('geolabs_applications', []);
   if (!readStore('geolabs_users', null)) writeStore('geolabs_users', seedUsers());
   if (!readStore('geolabs_templates', null)) writeStore('geolabs_templates', seedTemplates());
-  if (!readStore('geolabs_subscriptions', null)) writeStore('geolabs_subscriptions', seedSubscriptions());
   if (!readStore('geolabs_current_user', null)) writeStore('geolabs_current_user', seedUsers()[0]);
 };
 
@@ -319,34 +316,10 @@ export const appData = {
         saveCollection('geolabs_templates', updated);
         return true;
       }
-    },
-    Subscription: {
-      list: async () => getCollection('geolabs_subscriptions', []),
-      create: async (data) => {
-        const subs = getCollection('geolabs_subscriptions', []);
-        const next = { id: data.id || makeId('subscription'), created_date: new Date().toISOString(), updated_date: new Date().toISOString(), ...data };
-        subs.push(next);
-        saveCollection('geolabs_subscriptions', subs);
-        return next;
-      },
-      update: async (id, updates) => {
-        const subs = getCollection('geolabs_subscriptions', []);
-        const index = subs.findIndex((sub) => sub.id === id);
-        if (index === -1) return null;
-        subs[index] = { ...subs[index], ...updates, updated_date: new Date().toISOString() };
-        saveCollection('geolabs_subscriptions', subs);
-        return subs[index];
-      }
     }
   },
   functions: {
     invoke: async (name, payload = {}) => {
-      if (name === 'createCheckout') {
-        return { ok: true, checkoutUrl: 'https://example.com/checkout', payload };
-      }
-      if (name === 'cancelSubscription') {
-        return { ok: true, cancelled: true, payload };
-      }
       return { ok: true, name, payload };
     }
   },

@@ -4,18 +4,18 @@ import { Button } from '@/components/ui/button';
 import FormSection from '../app/FormSection';
 
 const FIELD_DESTINATIONS = {
-  positionAppliedFor: { step: 2, section: 'Position details' },
-  preferredLocation: { step: 2, section: 'Position details' },
-  firstName: { step: 3, section: 'Personal information' },
-  lastName: { step: 3, section: 'Personal information' },
-  email: { step: 3, section: 'Personal information' },
-  address: { step: 3, section: 'Personal information' },
-  city: { step: 3, section: 'Personal information' },
-  state: { step: 3, section: 'Personal information' },
-  zip: { step: 3, section: 'Personal information' },
-  highestEducationLevel: { step: 5, section: 'Education' },
-  medInitials: { step: 8, section: 'Medical policy acknowledgment' },
-  certifyInitials: { step: 10, section: 'Employment certification' },
+  positionAppliedFor: { step: 1, section: 'Your details' },
+  preferredLocation: { step: 1, section: 'Your details' },
+  firstName: { step: 1, section: 'Your details' },
+  lastName: { step: 1, section: 'Your details' },
+  email: { step: 1, section: 'Your details' },
+  address: { step: 1, section: 'Your details' },
+  city: { step: 1, section: 'Your details' },
+  state: { step: 1, section: 'Your details' },
+  zip: { step: 1, section: 'Your details' },
+  highestEducationLevel: { step: 2, section: 'Experience and education' },
+  medInitials: { step: 3, section: 'Requirements and agreements' },
+  certifyInitials: { step: 3, section: 'Requirements and agreements' },
 };
 
 export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, requiredFields = [] }) {
@@ -23,7 +23,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
   const [submitError, setSubmitError] = useState('');
   const missingCoreFields = requiredFields
     .filter(([key]) => !String(formData[key] || '').trim())
-    .map(([key, label]) => ({ key, label, ...(FIELD_DESTINATIONS[key] || { step: 3, section: 'Application details' }) }));
+    .map(([key, label]) => ({ key, label, ...(FIELD_DESTINATIONS[key] || { step: 1, section: 'Your details' }) }));
   const signaturesMissing = !formData.certificationAgreed || !formData.drugTestAgreed
     || !formData.certificationSignature?.trim() || !formData.drugTestSignature?.trim();
   const invalidEmail = Boolean(formData.email) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
@@ -36,21 +36,19 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
     actionGroups.set(step, existing);
   });
   if (invalidEmail) {
-    const existing = actionGroups.get(3) || { step: 3, title: 'Personal information', items: [] };
+    const existing = actionGroups.get(1) || { step: 1, title: 'Your details', items: [] };
     existing.items.push('Valid email address');
-    actionGroups.set(3, existing);
+    actionGroups.set(1, existing);
   }
   if (!formData.certificationAgreed || !formData.certificationSignature?.trim()) {
-    const existing = actionGroups.get(10) || { step: 10, title: 'Employment certification', items: [] };
+    const existing = actionGroups.get(3) || { step: 3, title: 'Requirements and agreements', items: [] };
     existing.items.push('Signature and agreement');
-    actionGroups.set(10, existing);
+    actionGroups.set(3, existing);
   }
   if (!formData.drugTestAgreed || !formData.drugTestSignature?.trim()) {
-    actionGroups.set(14, {
-      step: 14,
-      title: 'Drug-testing acknowledgment',
-      items: ['Signature and agreement'],
-    });
+    const existing = actionGroups.get(3) || { step: 3, title: 'Requirements and agreements', items: [] };
+    existing.items.push('Drug-testing signature and agreement');
+    actionGroups.set(3, existing);
   }
   const requiredActions = [...actionGroups.values()];
 
@@ -114,14 +112,14 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             </div>
           )}
 
-          <ReviewBlock title="Personal Information" onEdit={() => onNavigate(3)}>
+          <ReviewBlock title="Personal Information" onEdit={() => onNavigate(1)}>
             <ReviewRow label="Name" value={`${formData.firstName || ''} ${formData.middleName || ''} ${formData.lastName || ''}`.trim()} />
             <ReviewRow label="Email" value={formData.email} />
             <ReviewRow label="Phone" value={formData.phone || formData.cell} />
             <ReviewRow label="Address" value={[formData.address, formData.city, formData.state, formData.zip].filter(Boolean).join(', ')} />
           </ReviewBlock>
 
-          <ReviewBlock title="Application Details" onEdit={() => onNavigate(2)}>
+          <ReviewBlock title="Application Details" onEdit={() => onNavigate(1)}>
             <ReviewRow label="Position" value={formData.positionAppliedFor} />
             <ReviewRow label="Location" value={formData.preferredLocation} />
             <ReviewRow label="Driver's License" value={formData.driverLicense} />
@@ -129,7 +127,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             <ReviewRow label="Available Start" value={formData.availableStartDate} />
           </ReviewBlock>
 
-          <ReviewBlock title="Employment History" onEdit={() => onNavigate(4)}>
+          <ReviewBlock title="Employment History" onEdit={() => onNavigate(2)}>
             {formData.employment.map((job, i) => (
               job.company ? (
                 <div key={i} className="mb-2 last:mb-0">
@@ -140,7 +138,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             ))}
           </ReviewBlock>
 
-          <ReviewBlock title="Education" onEdit={() => onNavigate(5)}>
+          <ReviewBlock title="Education" onEdit={() => onNavigate(2)}>
             <ReviewRow label="Highest Level" value={formData.highestEducationLevel} />
             {formData.education.map((edu, i) => (
               edu.institution ? (
@@ -152,7 +150,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             ))}
           </ReviewBlock>
 
-          <ReviewBlock title="Certifications & Acknowledgments" onEdit={() => onNavigate(10)}>
+          <ReviewBlock title="Certifications & Acknowledgments" onEdit={() => onNavigate(3)}>
             <ReviewRow label="Reference Authorization" value={formData.certifyInitials ? 'Initialed' : 'Missing'} />
             <ReviewRow label="Medical Policy" value={formData.medInitials ? 'Initialed' : 'Missing'} />
             <ReviewRow label="Employment Certification" value={formData.certificationAgreed ? 'Signed' : 'Not signed'} />
