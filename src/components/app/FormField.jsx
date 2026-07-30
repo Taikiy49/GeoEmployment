@@ -47,8 +47,9 @@ export default function FormField({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           rows={rows}
+          wrap="soft"
           disabled={disabled}
-          className={`${inputClass} resize-none`}
+          className={`${inputClass} box-border max-w-full overflow-x-hidden whitespace-pre-wrap break-words resize-none`}
         />
       ) : (
         <input

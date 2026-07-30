@@ -97,6 +97,16 @@
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A65F2A] focus-visible:ring-offset-2;
   }
 
+  textarea {
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
   ::selection {
     background: rgba(166, 95, 42, 0.24);
   }
