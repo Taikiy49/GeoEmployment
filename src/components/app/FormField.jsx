@@ -19,7 +19,7 @@ export default function FormField({
   const inputClass = "w-full px-4 py-3 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A] transition-all disabled:opacity-50 disabled:cursor-not-allowed";
 
   return (
-    <div className={className}>
+    <div className={`min-w-0 max-w-full ${className}`}>
       {label && (
         <label htmlFor={id} className="block text-[11px] font-bold text-gray-700 mb-2 uppercase tracking-widest">
           {label}
@@ -49,7 +49,7 @@ export default function FormField({
           rows={rows}
           wrap="soft"
           disabled={disabled}
-          className={`${inputClass} box-border max-w-full overflow-x-hidden whitespace-pre-wrap break-words resize-none`}
+          className={`${inputClass} block min-w-0 max-w-full box-border whitespace-pre-wrap break-words resize-y`}
         />
       ) : (
         <input

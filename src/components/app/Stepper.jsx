@@ -18,7 +18,7 @@ const STEP_LABELS = [
 export default function Stepper({ currentStep, completedSteps, onStepClick }) {
   const activeBranch = BRANCHES.findIndex(b => b.steps.includes(currentStep));
   const totalSteps = STEP_LABELS.length;
-  const progressPercent = Math.round((completedSteps.length / totalSteps) * 100);
+  const progressPercent = Math.round(((currentStep + 1) / totalSteps) * 100);
   const activeBranchData = BRANCHES[activeBranch >= 0 ? activeBranch : 0];
 
   return (
@@ -30,9 +30,10 @@ export default function Stepper({ currentStep, completedSteps, onStepClick }) {
               Application progress
             </p>
             <p className="mt-1 text-sm font-semibold text-slate-900">
-              Step {currentStep + 1} of {totalSteps}
-              <span className="mx-2 text-slate-300">/</span>
               <span className="text-[#8A4A22]">{STEP_LABELS[currentStep]}</span>
+              {currentStep === totalSteps - 1 && (
+                <span className="ml-2 font-normal text-slate-500">Final review</span>
+              )}
             </p>
           </div>
           <span className="text-xs font-semibold tabular-nums text-slate-500">{progressPercent}% complete</span>
@@ -77,7 +78,7 @@ export default function Stepper({ currentStep, completedSteps, onStepClick }) {
       </div>
 
       {/* Compact step navigation */}
-      <div className="flex items-center gap-1 overflow-x-auto pb-1">
+      {activeBranchData.steps.length > 1 && <div className="flex items-center gap-1 overflow-x-auto pb-1">
         {activeBranchData.steps.map((stepIdx, localIndex) => {
           const isActive = stepIdx === currentStep;
           const isCompleted = completedSteps.includes(stepIdx);
@@ -106,7 +107,7 @@ export default function Stepper({ currentStep, completedSteps, onStepClick }) {
             </button>
           );
         })}
-      </div>
+      </div>}
     </div>
   );
 }

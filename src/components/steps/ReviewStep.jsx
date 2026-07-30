@@ -1,18 +1,58 @@
 import React, { useState } from 'react';
-import { AlertCircle, Send } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Pencil, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import FormSection from '../app/FormSection';
 
-export default function ReviewStep({ formData, onBack, onSubmit, requiredFields = [] }) {
+const FIELD_DESTINATIONS = {
+  positionAppliedFor: { step: 2, section: 'Position details' },
+  preferredLocation: { step: 2, section: 'Position details' },
+  firstName: { step: 3, section: 'Personal information' },
+  lastName: { step: 3, section: 'Personal information' },
+  email: { step: 3, section: 'Personal information' },
+  address: { step: 3, section: 'Personal information' },
+  city: { step: 3, section: 'Personal information' },
+  state: { step: 3, section: 'Personal information' },
+  zip: { step: 3, section: 'Personal information' },
+  highestEducationLevel: { step: 5, section: 'Education' },
+  medInitials: { step: 8, section: 'Medical policy acknowledgment' },
+  certifyInitials: { step: 10, section: 'Employment certification' },
+};
+
+export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, requiredFields = [] }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const missingCoreFields = requiredFields
     .filter(([key]) => !String(formData[key] || '').trim())
-    .map(([, label]) => label);
+    .map(([key, label]) => ({ key, label, ...(FIELD_DESTINATIONS[key] || { step: 3, section: 'Application details' }) }));
   const signaturesMissing = !formData.certificationAgreed || !formData.drugTestAgreed
     || !formData.certificationSignature?.trim() || !formData.drugTestSignature?.trim();
   const invalidEmail = Boolean(formData.email) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
   const cannotSubmit = missingCoreFields.length > 0 || signaturesMissing || invalidEmail;
+  const actionGroups = new Map();
+
+  missingCoreFields.forEach(({ step, section, label }) => {
+    const existing = actionGroups.get(step) || { step, title: section, items: [] };
+    existing.items.push(label);
+    actionGroups.set(step, existing);
+  });
+  if (invalidEmail) {
+    const existing = actionGroups.get(3) || { step: 3, title: 'Personal information', items: [] };
+    existing.items.push('Valid email address');
+    actionGroups.set(3, existing);
+  }
+  if (!formData.certificationAgreed || !formData.certificationSignature?.trim()) {
+    const existing = actionGroups.get(10) || { step: 10, title: 'Employment certification', items: [] };
+    existing.items.push('Signature and agreement');
+    actionGroups.set(10, existing);
+  }
+  if (!formData.drugTestAgreed || !formData.drugTestSignature?.trim()) {
+    actionGroups.set(14, {
+      step: 14,
+      title: 'Drug-testing acknowledgment',
+      items: ['Signature and agreement'],
+    });
+  }
+  const requiredActions = [...actionGroups.values()];
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -29,17 +69,59 @@ export default function ReviewStep({ formData, onBack, onSubmit, requiredFields 
     <div>
       <FormSection
         title="Review & Submit"
-        description="Please review the following summary of your application before submitting."
+        description={cannotSubmit
+          ? 'You’re almost done. Complete the items below, then return here to submit.'
+          : 'Everything required is complete. Review your information, then submit when you’re ready.'}
       >
         <div className="space-y-4">
-          <ReviewBlock title="Personal Information">
+          {cannotSubmit ? (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-bold text-amber-950">A few items need your attention</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-amber-800">
+                    Select any item below. We’ll take you directly to the right place and keep everything you’ve already entered.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {requiredActions.map(action => (
+                  <button
+                    key={action.step}
+                    type="button"
+                    onClick={() => onNavigate(action.step)}
+                    className="group flex min-w-0 items-center justify-between gap-3 rounded-lg border border-amber-200 bg-white px-3 py-3 text-left transition-colors hover:border-[#A65F2A] hover:bg-[#F8F0E9]"
+                  >
+                    <span className="min-w-0">
+                      <span className="block text-xs font-bold text-slate-900">{action.title}</span>
+                      <span className="mt-0.5 block text-[11px] leading-snug text-slate-500">
+                        {action.items.join(', ')}
+                      </span>
+                    </span>
+                    <ArrowRight className="h-4 w-4 flex-shrink-0 text-[#A65F2A] transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+              <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-emerald-600" />
+              <div>
+                <p className="text-sm font-bold text-emerald-900">Ready to submit</p>
+                <p className="text-xs text-emerald-700">All required information and signatures are complete.</p>
+              </div>
+            </div>
+          )}
+
+          <ReviewBlock title="Personal Information" onEdit={() => onNavigate(3)}>
             <ReviewRow label="Name" value={`${formData.firstName || ''} ${formData.middleName || ''} ${formData.lastName || ''}`.trim()} />
             <ReviewRow label="Email" value={formData.email} />
             <ReviewRow label="Phone" value={formData.phone || formData.cell} />
             <ReviewRow label="Address" value={[formData.address, formData.city, formData.state, formData.zip].filter(Boolean).join(', ')} />
           </ReviewBlock>
 
-          <ReviewBlock title="Application Details">
+          <ReviewBlock title="Application Details" onEdit={() => onNavigate(2)}>
             <ReviewRow label="Position" value={formData.positionAppliedFor} />
             <ReviewRow label="Location" value={formData.preferredLocation} />
             <ReviewRow label="Driver's License" value={formData.driverLicense} />
@@ -47,7 +129,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, requiredFields 
             <ReviewRow label="Available Start" value={formData.availableStartDate} />
           </ReviewBlock>
 
-          <ReviewBlock title="Employment History">
+          <ReviewBlock title="Employment History" onEdit={() => onNavigate(4)}>
             {formData.employment.map((job, i) => (
               job.company ? (
                 <div key={i} className="mb-2 last:mb-0">
@@ -58,7 +140,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, requiredFields 
             ))}
           </ReviewBlock>
 
-          <ReviewBlock title="Education">
+          <ReviewBlock title="Education" onEdit={() => onNavigate(5)}>
             <ReviewRow label="Highest Level" value={formData.highestEducationLevel} />
             {formData.education.map((edu, i) => (
               edu.institution ? (
@@ -70,7 +152,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, requiredFields 
             ))}
           </ReviewBlock>
 
-          <ReviewBlock title="Certifications & Acknowledgments">
+          <ReviewBlock title="Certifications & Acknowledgments" onEdit={() => onNavigate(10)}>
             <ReviewRow label="Reference Authorization" value={formData.certifyInitials ? 'Initialed' : 'Missing'} />
             <ReviewRow label="Medical Policy" value={formData.medInitials ? 'Initialed' : 'Missing'} />
             <ReviewRow label="Employment Certification" value={formData.certificationAgreed ? 'Signed' : 'Not signed'} />
@@ -78,24 +160,6 @@ export default function ReviewStep({ formData, onBack, onSubmit, requiredFields 
             <ReviewRow label="Resume Uploaded" value={formData.resumeFileUrl ? 'Yes' : 'No'} />
           </ReviewBlock>
 
-          {(!formData.certificationAgreed || !formData.drugTestAgreed || !formData.certificationSignature || !formData.drugTestSignature) && (
-            <div className="flex items-start gap-2 p-4 rounded-lg bg-red-50 border border-red-200">
-              <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-red-700">
-                <strong>Required signatures missing.</strong> You must complete the Employment Certification (Step 11) and Alcohol & Drug Testing (Step 15) signatures before submitting.
-              </p>
-            </div>
-          )}
-          {(missingCoreFields.length > 0 || invalidEmail) && (
-            <div className="flex items-start gap-2 p-4 rounded-lg bg-amber-50 border border-amber-200">
-              <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-amber-800">
-                <strong>Application details need attention.</strong>{' '}
-                {missingCoreFields.length > 0 && `Missing: ${missingCoreFields.join(', ')}.`}
-                {invalidEmail && ' Enter a valid email address.'}
-              </p>
-            </div>
-          )}
           {submitError && (
             <div role="alert" className="flex items-start gap-2 p-4 rounded-lg bg-red-50 border border-red-200">
               <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
@@ -131,10 +195,21 @@ export default function ReviewStep({ formData, onBack, onSubmit, requiredFields 
   );
 }
 
-function ReviewBlock({ title, children }) {
+function ReviewBlock({ title, children, onEdit }) {
   return (
     <div className="bg-[#f8fafc] rounded-lg border border-[#e2e8f0] p-4">
-      <h4 className="text-[11px] font-semibold text-bronze-dark uppercase tracking-wider mb-3">{title}</h4>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h4 className="text-[11px] font-semibold text-bronze-dark uppercase tracking-wider">{title}</h4>
+        {onEdit && (
+          <button
+            type="button"
+            onClick={onEdit}
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold text-slate-500 hover:bg-white hover:text-[#8A4A22]"
+          >
+            <Pencil className="h-3 w-3" /> Edit
+          </button>
+        )}
+      </div>
       {children}
     </div>
   );
@@ -144,7 +219,7 @@ function ReviewRow({ label, value }) {
   return (
     <div className="flex justify-between items-baseline py-1">
       <span className="text-[11px] text-[#64748b]">{label}</span>
-      <span className="text-xs text-[#0f172a] font-medium text-right max-w-[60%] truncate">{value || '—'}</span>
+      <span className="max-w-[65%] break-words text-right text-xs font-medium text-[#0f172a]">{value || '—'}</span>
     </div>
   );
 }

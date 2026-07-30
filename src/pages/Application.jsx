@@ -69,6 +69,7 @@ export default function Application() {
   const [submitted, setSubmitted] = useState(false);
   const [submittedId, setSubmittedId] = useState(null);
   const [confirmationSent, setConfirmationSent] = useState(false);
+  const [fixingFromReview, setFixingFromReview] = useState(false);
 
   // Draft DB sync state
   const [draftId, setDraftId] = useState(null);
@@ -219,6 +220,16 @@ export default function Application() {
     goToStep(currentStep - 1);
   }, [currentStep, goToStep]);
 
+  const goFixReviewItem = useCallback((step) => {
+    setFixingFromReview(true);
+    goToStep(step);
+  }, [goToStep]);
+
+  const returnToReview = useCallback(() => {
+    setFixingFromReview(false);
+    goToStep(15);
+  }, [goToStep]);
+
   const handleSubmit = async () => {
     const missingFields = REQUIRED_FIELDS
       .filter(([key]) => !String(formData[key] || '').trim())
@@ -322,7 +333,7 @@ export default function Application() {
       case 12: return <DisabilityStep {...stepProps} />;
       case 13: return <VeteranStep {...stepProps} />;
       case 14: return <AlcoholDrugStep {...stepProps} />;
-      case 15: return <ReviewStep formData={formData} onBack={goBack} onSubmit={handleSubmit} requiredFields={REQUIRED_FIELDS} />;
+      case 15: return <ReviewStep formData={formData} onBack={goBack} onSubmit={handleSubmit} onNavigate={goFixReviewItem} requiredFields={REQUIRED_FIELDS} />;
       default: return null;
     }
   };
@@ -468,6 +479,22 @@ export default function Application() {
                 {saveStatus === 'idle' && draftId && <><Cloud className="w-3 h-3 text-gray-300" /> Auto-saved</>}
               </div>
             </motion.div>
+          )}
+
+          {fixingFromReview && currentStep !== 15 && (
+            <div className="flex flex-col gap-2 rounded-lg border border-[#A65F2A]/25 bg-[#F8F0E9] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-bold text-slate-900">Updating your application</p>
+                <p className="text-[11px] text-slate-600">Your progress is saved. Return to the final review whenever you’re ready.</p>
+              </div>
+              <button
+                type="button"
+                onClick={returnToReview}
+                className="flex-shrink-0 rounded-lg bg-[#A65F2A] px-3 py-2 text-xs font-bold text-white hover:bg-[#8A4A22]"
+              >
+                Return to final review
+              </button>
+            </div>
           )}
 
           <motion.div
