@@ -155,7 +155,7 @@ export default function JobBoard() {
           preload="auto"
           aria-hidden="true"
         >
-          <source src="/geolabs-cover.mp4" type="video/mp4" />
+          <source src="/geolabs-cover.mp4?v=20260730-2" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-r from-[#111923]/75 via-[#111923]/40 to-[#111923]/10" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#111923]/45 via-transparent to-[#111923]/10" />
