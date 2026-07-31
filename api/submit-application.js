@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { buildApplicationDocx } from './generate-application-docx.js';
+import { convertDocxToPdf } from './convert-docx-to-pdf.js';
 
 const HR_RECIPIENTS = (
   process.env.HR_APPLICATION_EMAIL
@@ -332,10 +333,12 @@ export default async function handler(req, res) {
     const safeApplicantName = `${application.firstName}-${application.lastName}`
       .replace(/[^a-z0-9-]+/gi, '-')
       .replace(/-+/g, '-');
+    const applicationDocx = await buildApplicationDocx(application);
+    const applicationPdf = await convertDocxToPdf(applicationDocx);
     attachments.push({
-      filename: `${safeApplicantName}-Geolabs-Application.docx`,
-      content: (await buildApplicationDocx(application)).toString('base64'),
-      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      filename: `${safeApplicantName}-Geolabs-Application.pdf`,
+      content: applicationPdf.toString('base64'),
+      type: 'application/pdf',
     });
     const resume = application.resumeAttachment;
     if (resume?.content && resume?.filename) {
