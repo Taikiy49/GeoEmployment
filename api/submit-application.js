@@ -1,5 +1,5 @@
-import { jsPDF } from 'jspdf';
 import { randomUUID } from 'node:crypto';
+import { buildApplicationDocx } from './generate-application-docx.js';
 
 const HR_RECIPIENT = process.env.HR_APPLICATION_EMAIL || 'tyamashita@geolabs.net';
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Geolabs Careers <applications@geolabs.net>';
@@ -56,216 +56,7 @@ const historyCards = (items, render) => {
   return filtered.map(render).join('');
 };
 
-function buildApplicationPdf(application) {
-  const pdfSafe = (value) => String(value ?? '')
-    .replace(/[ʻ’]/g, "'")
-    .replace(/[–—]/g, '-')
-    .normalize('NFKD')
-    .replace(/[^\x20-\x7E\n]/g, '');
-  const data = application.applicationData || {};
-  const eeo = application.eeoData || {};
-  const fullName = [data.firstName || application.firstName, data.middleName, data.lastName || application.lastName]
-    .filter(present)
-    .join(' ');
-  const position = application.requisitionTitle || data.positionAppliedFor || application.positionAppliedFor || 'General application';
-  const submitted = new Date(application.submittedAt || Date.now()).toLocaleString('en-US', {
-    timeZone: 'Pacific/Honolulu',
-    dateStyle: 'long',
-    timeStyle: 'short',
-  });
-
-  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const margin = 44;
-  const contentWidth = pageWidth - margin * 2;
-  const bronze = [166, 95, 42];
-  const bronzeDark = [138, 74, 34];
-  const navy = [17, 25, 35];
-  const slate = [71, 85, 105];
-  const light = [247, 249, 250];
-  let y = 0;
-
-  const drawHeader = () => {
-    doc.setFillColor(...navy);
-    doc.rect(0, 0, pageWidth, 70, 'F');
-    doc.setFillColor(...bronze);
-    doc.rect(0, 70, pageWidth, 3, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(18);
-    doc.text('Geolabs, Inc.', margin, 31);
-    doc.setTextColor(203, 213, 225);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.text('EMPLOYMENT APPLICATION  |  CONFIDENTIAL HR REVIEW COPY', margin, 49);
-    y = 98;
-  };
-
-  const drawFooter = () => {
-    const pageNumber = doc.getNumberOfPages();
-    doc.setDrawColor(226, 232, 240);
-    doc.line(margin, pageHeight - 35, pageWidth - margin, pageHeight - 35);
-    doc.setTextColor(100, 116, 139);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7.5);
-    doc.text('Geolabs, Inc.  |  Confidential applicant information', margin, pageHeight - 20);
-    doc.text(`Page ${pageNumber}`, pageWidth - margin, pageHeight - 20, { align: 'right' });
-  };
-
-  const newPage = () => {
-    if (doc.getNumberOfPages() > 0) drawFooter();
-    doc.addPage();
-    drawHeader();
-  };
-
-  const ensureSpace = (height) => {
-    if (y + height > pageHeight - 52) newPage();
-  };
-
-  const sectionTitle = (title, restricted = false) => {
-    ensureSpace(34);
-    doc.setFillColor(...(restricted ? [255, 247, 248] : [248, 240, 233]));
-    doc.roundedRect(margin, y, contentWidth, 24, 4, 4, 'F');
-    doc.setTextColor(...(restricted ? [159, 18, 57] : bronzeDark));
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.text(title.toUpperCase(), margin + 10, y + 16);
-    y += 34;
-  };
-
-  const field = (label, value) => {
-    const printable = present(value) ? pdfSafe(value) : 'Not provided';
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    const lines = doc.splitTextToSize(printable, contentWidth - 152);
-    const height = Math.max(22, lines.length * 12 + 8);
-    ensureSpace(height);
-    doc.setFillColor(...light);
-    doc.rect(margin, y, contentWidth, height, 'F');
-    doc.setTextColor(100, 116, 139);
-    doc.setFont('helvetica', 'bold');
-    doc.text(label, margin + 10, y + 14);
-    doc.setTextColor(30, 41, 59);
-    doc.setFont('helvetica', 'normal');
-    doc.text(lines, margin + 142, y + 14);
-    y += height + 2;
-  };
-
-  const paragraphBlock = (heading, value) => {
-    if (!present(value)) return;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    const lines = doc.splitTextToSize(pdfSafe(value), contentWidth - 20);
-    const height = lines.length * 12 + 32;
-    ensureSpace(Math.min(height, pageHeight - 130));
-    doc.setTextColor(...slate);
-    doc.setFont('helvetica', 'bold');
-    doc.text(pdfSafe(heading), margin, y + 10);
-    y += 20;
-    doc.setTextColor(30, 41, 59);
-    doc.setFont('helvetica', 'normal');
-    for (const line of lines) {
-      ensureSpace(14);
-      doc.text(line, margin + 8, y);
-      y += 12;
-    }
-    y += 8;
-  };
-
-  drawHeader();
-  doc.setTextColor(...bronzeDark);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.text('NEW APPLICATION', margin, y);
-  y += 22;
-  doc.setTextColor(...navy);
-  doc.setFontSize(22);
-  doc.text(pdfSafe(fullName), margin, y);
-  y += 19;
-  doc.setTextColor(...slate);
-  doc.setFontSize(12);
-  doc.text(pdfSafe(position), margin, y);
-  y += 17;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.text(pdfSafe(`Submitted ${submitted} HST  |  Application ${application.id || 'Not assigned'}`), margin, y);
-  y += 26;
-
-  sectionTitle('Applicant & position');
-  field('Email', application.email);
-  field('Phone', application.phone || data.phone || data.cell);
-  field('Address', [data.address, data.city, data.state, data.zip].filter(present).join(', '));
-  field('Preferred office', data.preferredLocation || application.preferredLocation);
-  field('Available start', data.availableStartDate);
-  field('Referred by', data.referredBy);
-  field('Desired salary', data.desiredSalary);
-  field("Driver's license", data.driverLicense);
-
-  sectionTitle('Employment history');
-  const employment = (data.employment || []).filter(item => Object.values(item || {}).some(present));
-  if (!employment.length) field('History', 'Not provided');
-  employment.forEach((job, index) => {
-    paragraphBlock(
-      `${index + 1}. ${job.position || 'Position'} — ${job.company || 'Company'}`,
-      [
-        [job.dateFrom, job.dateTo || 'Present'].filter(present).join(' to '),
-        job.address,
-        job.supervisor ? `Supervisor: ${job.supervisor}${job.phone ? ` (${job.phone})` : ''}` : '',
-        job.duties ? `Responsibilities: ${job.duties}` : '',
-        job.reasonForLeaving ? `Reason for leaving: ${job.reasonForLeaving}` : '',
-      ].filter(present).join('\n')
-    );
-  });
-
-  sectionTitle('Education');
-  const education = (data.education || []).filter(item => Object.values(item || {}).some(present));
-  if (!education.length) field('Education', 'Not provided');
-  education.forEach((item, index) => {
-    paragraphBlock(
-      `${index + 1}. ${item.institution || 'Institution'}`,
-      [item.degree, item.field, item.location, item.yearCompleted].filter(present).join(' · ')
-    );
-  });
-
-  sectionTitle('Skills & qualifications');
-  field('Highest education', data.highestEducationLevel);
-  field('Years of experience', data.skillsYearsExperience);
-  field('Primary focus', data.skillsPrimaryFocus);
-  paragraphBlock('Skills summary', data.skillsSummary);
-  paragraphBlock('Technical skills', data.skillsTechnical);
-  paragraphBlock('Field / lab experience', data.fieldLabExperience);
-  paragraphBlock('Computer skills', data.computerSkills);
-  paragraphBlock('Certifications', data.certifications);
-  paragraphBlock('Professional licenses', data.professionalLicenses);
-  paragraphBlock('Professional organizations', data.professionalOrgs);
-
-  sectionTitle('Professional references');
-  const references = (data.references || []).filter(item => Object.values(item || {}).some(present));
-  if (!references.length) field('References', 'Not provided');
-  references.forEach((item, index) => {
-    field(`Reference ${index + 1}`, [item.name, item.company, item.phone].filter(present).join(' · '));
-  });
-
-  sectionTitle('Certifications & acknowledgments');
-  field('Can perform essential duties', yesNo(data.canPerformDuties).replace(/&#039;/g, "'"));
-  field('Accommodation requested', yesNo(data.needsAccommodation).replace(/&#039;/g, "'"));
-  field('Reference authorization', present(data.certifyInitials) ? `Acknowledged by ${data.certifyInitials}` : 'Not provided');
-  field('Employment certification', data.certificationAgreed ? `Signed by ${data.certificationSignature || 'applicant'} on ${data.certificationDate || 'date not provided'}` : 'Not signed');
-  field('Drug-testing acknowledgment', data.drugTestAgreed ? `Signed by ${data.drugTestSignature || 'applicant'} on ${data.drugTestDate || 'date not provided'}` : 'Not signed');
-
-  sectionTitle('Restricted compliance information', true);
-  paragraphBlock('Handling notice', 'Voluntary self-identification data must be kept separate from hiring decisions and accessed only for authorized compliance purposes.');
-  field('Gender', eeo.gender);
-  field('Race / ethnicity', eeo.race);
-  field('Disability self-identification', eeo.disabilityStatus);
-  field('Veteran self-identification', veteranLabel(eeo.veteranStatus).replace(/&#039;/g, "'"));
-
-  drawFooter();
-  return Buffer.from(doc.output('arraybuffer')).toString('base64');
-}
-
-function buildHrEmail(application) {
+ function buildHrEmail(application) {
   const data = application.applicationData || {};
   const fullName = join([data.firstName || application.firstName, data.middleName, data.lastName || application.lastName]);
   const position = text(application.requisitionTitle || data.positionAppliedFor || application.positionAppliedFor, 'General application');
@@ -518,8 +309,9 @@ export default async function handler(req, res) {
       .replace(/[^a-z0-9-]+/gi, '-')
       .replace(/-+/g, '-');
     attachments.push({
-      filename: `${safeApplicantName}-Geolabs-Application.pdf`,
-      content: buildApplicationPdf(application),
+      filename: `${safeApplicantName}-Geolabs-Application.docx`,
+      content: (await buildApplicationDocx(application)).toString('base64'),
+      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     });
     const resume = application.resumeAttachment;
     if (resume?.content && resume?.filename) {
@@ -561,4 +353,4 @@ export default async function handler(req, res) {
   }
 }
 
-export { buildApplicationPdf, buildHrEmail, buildApplicantEmail };
+export { buildHrEmail, buildApplicantEmail };
