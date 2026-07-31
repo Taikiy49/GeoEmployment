@@ -247,19 +247,7 @@ const buildApplication = (applicant, index) => {
     drugTestAgreed: true,
     drugTestSignature: fullName,
     drugTestDate: today,
-    resumeFileUrl: `attached:${id}-Example-Resume.txt`,
-    resumeFileName: `${id}-Example-Resume.txt`,
   };
-
-  const resumeText = [
-    'GEOLABS, INC. — FICTIONAL TEST RESUME',
-    fullName,
-    applicant.position,
-    '',
-    applicant.skillsSummary,
-    '',
-    'This file is test data generated to verify the employment application workflow.',
-  ].join('\n');
 
   return {
     id,
@@ -274,7 +262,6 @@ const buildApplication = (applicant, index) => {
     positionAppliedFor: applicant.position,
     preferredLocation: applicant.location,
     applicationData,
-    resumeFileUrl: applicationData.resumeFileUrl,
     submittedAt: new Date().toISOString(),
     isDraft: false,
     eeoData: {
@@ -286,11 +273,6 @@ const buildApplication = (applicant, index) => {
     stageHistory: [{ stage: 'applied', changedAt: new Date().toISOString(), changedBy: 'applicant', note: 'Fictional production workflow test' }],
     auditTrail: [{ action: 'Test application submitted', performedBy: recipient, performedAt: new Date().toISOString(), details: 'Fictional production workflow test' }],
     source: 'production_test',
-    resumeAttachment: {
-      filename: applicationData.resumeFileName,
-      type: 'text/plain',
-      content: Buffer.from(resumeText).toString('base64'),
-    },
   };
 };
 
