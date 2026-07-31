@@ -427,7 +427,7 @@ export default function ApplicationDetail() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-navy">Move Candidate?</h3>
-                <p className="text-xs text-[#64748b] mt-0.5">This will update their stage and send an email notification.</p>
+                <p className="text-xs text-[#64748b] mt-0.5">This will update their stage and record the change in the audit history.</p>
               </div>
             </div>
             <div className="bg-[#f9fafb] rounded-lg p-3 mb-5 flex items-center gap-3 text-sm">

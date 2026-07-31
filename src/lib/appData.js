@@ -178,6 +178,31 @@ const matchFilters = (item, params = {}) => Object.entries(params).every(([key, 
   return actual === expected;
 });
 
+const usesServerApplicationStore = () => (
+  typeof window !== 'undefined'
+  && !['localhost', '127.0.0.1'].includes(window.location.hostname)
+  && window.location.pathname.startsWith('/admin')
+);
+
+const applicationApi = async (path = '', options = {}) => {
+  const response = await fetch(`/api/admin/applications${path}`, {
+    credentials: 'same-origin',
+    headers: {
+      Accept: 'application/json',
+      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.headers || {}),
+    },
+    ...options,
+  });
+  const result = await response.json().catch(() => ({}));
+  if (response.status === 401) {
+    window.location.assign(`/auth/login?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+    throw new Error('Microsoft admin authentication is required.');
+  }
+  if (!response.ok) throw new Error(result.error || 'Application record request failed.');
+  return result;
+};
+
 export const appData = {
   auth: {
     me: async () => {
@@ -250,16 +275,31 @@ export const appData = {
     },
     Application: {
       filter: async (params = {}, sortField = null, limit = 100) => {
+        if (usesServerApplicationStore()) {
+          const query = new URLSearchParams({
+            filters: JSON.stringify(params),
+            sort: sortField || '-created_date',
+            limit: String(limit),
+          });
+          return (await applicationApi(`?${query}`)).applications;
+        }
         const apps = getCollection('geolabs_applications', []);
         const results = apps.filter((app) => matchFilters(app, params));
         const sorted = sortCollection(results, sortField);
         return sorted.slice(0, limit);
       },
       list: async (sortField = '-created_date', limit = 200) => {
+        if (usesServerApplicationStore()) {
+          const query = new URLSearchParams({ sort: sortField, limit: String(limit) });
+          return (await applicationApi(`?${query}`)).applications;
+        }
         const apps = getCollection('geolabs_applications', []);
         return sortCollection(apps, sortField).slice(0, limit);
       },
       create: async (data) => {
+        if (usesServerApplicationStore()) {
+          return (await applicationApi('', { method: 'POST', body: JSON.stringify(data) })).application;
+        }
         const apps = getCollection('geolabs_applications', []);
         const next = {
           id: data.id || makeId('application'),
@@ -272,6 +312,12 @@ export const appData = {
         return next;
       },
       update: async (id, updates) => {
+        if (usesServerApplicationStore()) {
+          return (await applicationApi(`/${encodeURIComponent(id)}`, {
+            method: 'PATCH',
+            body: JSON.stringify(updates),
+          })).application;
+        }
         const apps = getCollection('geolabs_applications', []);
         const index = apps.findIndex((app) => app.id === id);
         if (index === -1) return null;
@@ -280,6 +326,10 @@ export const appData = {
         return apps[index];
       },
       delete: async (id) => {
+        if (usesServerApplicationStore()) {
+          await applicationApi(`/${encodeURIComponent(id)}`, { method: 'DELETE' });
+          return true;
+        }
         const apps = getCollection('geolabs_applications', []);
         const updated = apps.filter((app) => app.id !== id);
         saveCollection('geolabs_applications', updated);

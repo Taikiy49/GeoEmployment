@@ -1,13 +1,22 @@
 import http from 'node:http';
+import { randomUUID } from 'node:crypto';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import submitApplication from '../api/submit-application.js';
 import { getAdminSession, handleAdminAuth } from './admin-auth.js';
+import {
+  deleteApplication,
+  getApplication,
+  getResumePath,
+  listApplications,
+  updateApplication,
+  upsertSubmittedApplication,
+} from './application-store.js';
 
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
 const port = Number(process.env.PORT || 3000);
-const maxBodyBytes = 5 * 1024 * 1024;
+const maxBodyBytes = 20 * 1024 * 1024;
 
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -60,16 +69,131 @@ async function handleApi(request, response) {
     );
   }
 
+  request.body.id ||= randomUUID();
+  if (!request.body.firstName || !request.body.lastName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(request.body.email || '')) {
+    return sendJson(response, 400, { error: 'First name, last name, and a valid email address are required.' });
+  }
+  try {
+    await upsertSubmittedApplication(request.body, 'processing');
+  } catch (error) {
+    console.error('Application persistence failed:', error);
+    return sendJson(response, 500, { error: 'We could not securely save your application. Please try again.' });
+  }
+
   response.status = (statusCode) => {
     response.statusCode = statusCode;
     return response;
   };
-  response.json = (payload) => {
-    sendJson(response, response.statusCode || 200, payload);
+  response.json = async (payload) => {
+    const statusCode = response.statusCode || 200;
+    try {
+      await updateApplication(request.body.id, {
+        deliveryStatus: statusCode < 300 && payload?.ok ? 'delivered' : 'delivery_failed',
+        deliveryUpdatedAt: new Date().toISOString(),
+        ...(payload?.hrMessageId ? { hrMessageId: payload.hrMessageId } : {}),
+        ...(payload?.emailProvider ? { emailProvider: payload.emailProvider } : {}),
+        ...(payload?.confirmationSent !== undefined ? { confirmationSent: payload.confirmationSent } : {}),
+      });
+    } catch (error) {
+      console.error('Application delivery status update failed:', error);
+    }
+    sendJson(response, statusCode, payload);
     return response;
   };
 
   return submitApplication(request, response);
+}
+
+const parseFilters = value => {
+  try {
+    return value ? JSON.parse(value) : {};
+  } catch {
+    return {};
+  }
+};
+
+async function handleAdminApplicationApi(request, response) {
+  if (!getAdminSession(request)) {
+    sendJson(response, 401, { error: 'Microsoft admin authentication is required.' });
+    return;
+  }
+
+  const url = new URL(request.url, 'http://localhost');
+  const match = /^\/api\/admin\/applications(?:\/([^/]+))?(?:\/(resume))?$/.exec(url.pathname);
+  if (!match) {
+    sendJson(response, 404, { error: 'Not found.' });
+    return;
+  }
+  const applicationId = match[1] ? decodeURIComponent(match[1]) : null;
+  const resource = match[2];
+
+  if (request.method === 'GET' && resource === 'resume' && applicationId) {
+    const application = await getApplication(applicationId);
+    const resumePath = getResumePath(application);
+    if (!resumePath || !existsSync(resumePath)) {
+      sendJson(response, 404, { error: 'Resume not found.' });
+      return;
+    }
+    const size = statSync(resumePath).size;
+    response.writeHead(200, {
+      'Content-Type': application.resumeContentType || 'application/octet-stream',
+      'Content-Length': size,
+      'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(application.resumeFileName || 'resume')}`,
+      'Cache-Control': 'private, no-store',
+    });
+    if (request.method === 'HEAD') response.end();
+    else createReadStream(resumePath).pipe(response);
+    return;
+  }
+
+  if (request.method === 'GET' && applicationId) {
+    const application = await getApplication(applicationId);
+    if (!application) sendJson(response, 404, { error: 'Application not found.' });
+    else sendJson(response, 200, { application });
+    return;
+  }
+
+  if (request.method === 'GET') {
+    const applications = await listApplications({
+      filters: parseFilters(url.searchParams.get('filters')),
+      sortField: url.searchParams.get('sort') || '-created_date',
+      limit: url.searchParams.get('limit') || 200,
+    });
+    sendJson(response, 200, { applications });
+    return;
+  }
+
+  if (request.method === 'POST' && !applicationId) {
+    try {
+      const application = await readJson(request);
+      application.id ||= randomUUID();
+      const saved = await upsertSubmittedApplication(application, application.deliveryStatus || 'manual');
+      sendJson(response, 201, { application: saved });
+    } catch (error) {
+      sendJson(response, error.message === 'PAYLOAD_TOO_LARGE' ? 413 : 400, { error: 'Invalid application record.' });
+    }
+    return;
+  }
+
+  if (request.method === 'PATCH' && applicationId) {
+    try {
+      const updates = await readJson(request);
+      const application = await updateApplication(applicationId, updates);
+      if (!application) sendJson(response, 404, { error: 'Application not found.' });
+      else sendJson(response, 200, { application });
+    } catch (error) {
+      sendJson(response, error.message === 'PAYLOAD_TOO_LARGE' ? 413 : 400, { error: 'Invalid update.' });
+    }
+    return;
+  }
+
+  if (request.method === 'DELETE' && applicationId) {
+    const deleted = await deleteApplication(applicationId);
+    sendJson(response, deleted ? 200 : 404, deleted ? { ok: true } : { error: 'Application not found.' });
+    return;
+  }
+
+  sendJson(response, 405, { error: 'Method not allowed.' });
 }
 
 function serveApplication(request, response) {
@@ -133,6 +257,10 @@ const server = http.createServer(async (request, response) => {
   try {
     if (request.url?.startsWith('/auth/')) {
       if (await handleAdminAuth(request, response)) return;
+    }
+    if (request.url?.startsWith('/api/admin/applications')) {
+      await handleAdminApplicationApi(request, response);
+      return;
     }
     if (request.url?.startsWith('/api/submit-application')) {
       await handleApi(request, response);
