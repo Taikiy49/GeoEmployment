@@ -8,6 +8,7 @@ import {
   Header,
   HeadingLevel,
   ImageRun,
+  LineRuleType,
   PageBreak,
   PageNumber,
   Packer,
@@ -61,12 +62,17 @@ const sectionHeading = (text, restricted = false) => new Paragraph({
   heading: HeadingLevel.HEADING_1,
   pageBreakBefore: true,
   keepNext: true,
-  spacing: { before: 0, after: 180 },
+  spacing: {
+    before: 0,
+    after: 220,
+    line: 560,
+    lineRule: LineRuleType.EXACT,
+  },
   shading: { type: ShadingType.SOLID, color: restricted ? PALE_RESTRICTED : PALE_BRONZE },
   border: {
     left: { style: BorderStyle.SINGLE, size: 18, color: restricted ? RESTRICTED : BRONZE },
   },
-  indent: { left: 160 },
+  indent: { left: 240, right: 180 },
   children: [
     new TextRun({
       text,
