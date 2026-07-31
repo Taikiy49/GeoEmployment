@@ -156,7 +156,7 @@ const responseTable = pairs => new Table({
       new TableCell({
         width: { size: 3300, type: WidthType.DXA },
         shading: { type: ShadingType.SOLID, color: index % 2 ? 'F9FAFB' : PALE_SLATE },
-        margins: { top: 150, bottom: 150, left: 190, right: 190 },
+        margins: { top: 85, bottom: 85, left: 190, right: 190 },
         children: [
           new Paragraph({
             children: [new TextRun({ text: label, bold: true, size: 17, color: SLATE })],
@@ -166,9 +166,9 @@ const responseTable = pairs => new Table({
       new TableCell({
         width: { size: 6780, type: WidthType.DXA },
         shading: { type: ShadingType.SOLID, color: WHITE },
-        margins: { top: 150, bottom: 150, left: 190, right: 190 },
+        margins: { top: 85, bottom: 85, left: 190, right: 190 },
         children: String(valueText(value)).split('\n').map(line => new Paragraph({
-          spacing: { after: 40 },
+          spacing: { after: 0, line: 250 },
           children: [new TextRun({ text: line || ' ', size: 18, color: NAVY })],
         })),
       }),
