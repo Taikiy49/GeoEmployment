@@ -149,6 +149,26 @@ const responseTable = pairs => new Table({
 
 const checkedAnswer = (selected, statement) => `${selected ? '☒' : '☐'} ${statement}`;
 
+const signatureRecord = ({
+  heading = 'Electronic signature record',
+  statement,
+  signature,
+  date,
+  method = 'Typed electronic signature',
+  application,
+}) => [
+  subheading(heading),
+  responseTable([
+    ['Exact statement acknowledged', statement],
+    ['Signature / initials', signature],
+    ['Signature date', date],
+    ['Signature method', signature ? method : empty],
+    ['Application ID', application.id],
+    ['Submission timestamp', safeDate(application.submittedAt)],
+    ['Record status', signature ? 'Signed electronically' : 'No signature provided'],
+  ]),
+];
+
 const applicantName = application => {
   const data = application.applicationData || {};
   return [
@@ -419,6 +439,14 @@ export async function buildApplicationDocx(application) {
     subheading('Reference authorization'),
     body('By initialing below, you authorize Geolabs, Inc. to contact the references listed above regarding your employment history and qualifications.'),
     responseTable([["Applicant's Initials", data.certifyInitials]]),
+    ...signatureRecord({
+      heading: 'Reference authorization signature record',
+      statement: 'By initialing below, you authorize Geolabs, Inc. to contact the references listed above regarding your employment history and qualifications.',
+      signature: data.certifyInitials,
+      date: data.applicationDate || application.submittedAt,
+      method: 'Typed initials',
+      application,
+    }),
   );
 
   children.push(
@@ -429,6 +457,14 @@ export async function buildApplicationDocx(application) {
     body("Employees may also be required, at any time during the course of their employment, to undergo an annual physical examination including drug and alcohol testing, conducted at the Company's expense by a Company-selected physician."),
     body('I authorize the physician conducting the examination, and any laboratory conducting related testing, to disclose the results of such examination and testing to Geolabs, Inc.'),
     responseTable([["Applicant's Initials", data.medInitials]]),
+    ...signatureRecord({
+      heading: 'Medical authorization signature record',
+      statement: 'I authorize the physician conducting the examination, and any laboratory conducting related testing, to disclose the results of such examination and testing to Geolabs, Inc.',
+      signature: data.medInitials,
+      date: data.applicationDate || application.submittedAt,
+      method: 'Typed initials',
+      application,
+    }),
     subheading('Ability to Perform Essential Job Functions'),
     body('Geolabs, Inc. complies with all applicable provisions of the Americans with Disabilities Act (ADA) and will not discriminate against any qualified applicant with a disability. Reasonable accommodations will be made for known physical or mental limitations unless doing so would impose an undue hardship.'),
     body(checkedAnswer(data.canPerformDuties, 'I am able to perform the essential functions of the position for which I am applying, with or without reasonable accommodation.')),
@@ -451,6 +487,14 @@ export async function buildApplicationDocx(application) {
     body('By this document, the Company discloses to you that a consumer report, including an investigative consumer report containing information as to your character, general reputation, personal characteristics, and mode of living, may be obtained for employment purposes as part of the pre-employment background investigation and at any time during your employment. Should an investigative consumer report be requested, you will have the right to request a complete and accurate disclosure of the nature and scope of the investigation requested and a written summary of your rights under the Fair Credit Reporting Act.'),
     body('I agree that Geolabs, Inc. is hereby authorized to inquire into my background, prior employment, and criminal records and may consider any criminal conviction record after a conditional offer of employment is made. The Company may withdraw a conditional employment offer if a criminal conviction record bears a rational relationship to the duties and responsibilities of the position applied for. Criminal conviction records more than five (5) years old for misdemeanors and seven (7) years for felonies (excluding periods of incarceration) will not be considered.'),
     responseTable([["Applicant's Initials", data.fcrInitials]]),
+    ...signatureRecord({
+      heading: 'FCRA disclosure signature record',
+      statement: 'I acknowledge that I have read and understand the Fair Credit Reporting Act Disclosure reproduced above.',
+      signature: data.fcrInitials,
+      date: data.certificationDate || data.applicationDate || application.submittedAt,
+      method: 'Typed initials',
+      application,
+    }),
     subheading('Other Information'),
     body('If you know anyone currently employed by Geolabs, Inc., please let us know. This is used for internal routing and conflict-of-interest review only.'),
     responseTable([
@@ -467,6 +511,13 @@ export async function buildApplicationDocx(application) {
       ["Applicant's Signature", data.certificationSignature],
       ['Application Date', data.certificationDate],
     ]),
+    ...signatureRecord({
+      heading: 'Employment certification signature record',
+      statement: 'I have read and understand the above statements, and I certify that all information provided in this application is accurate and complete.',
+      signature: data.certificationSignature,
+      date: data.certificationDate,
+      application,
+    }),
   );
 
   children.push(
@@ -492,6 +543,13 @@ export async function buildApplicationDocx(application) {
       ['Signature of Applicant', data.disabilitySignature],
       ['Signature Date', data.disabilitySignatureDate],
     ]),
+    ...signatureRecord({
+      heading: 'Company electronic record associated with the voluntary disability response',
+      statement: 'By typing your name, you acknowledge this as your electronic signature. This company signature record is separate from, and does not modify, Form CC-305.',
+      signature: data.disabilitySignature,
+      date: data.disabilitySignatureDate,
+      application,
+    }),
     subheading('Invitation to Self-Identify as a Protected Veteran (VEVRAA)'),
     body("Under the regulations implementing the affirmative action provisions of the Vietnam Era Veterans' Readjustment Assistance Act (VEVRAA) of 1972 issued by the Office of Federal Contract Compliance Programs (OFCCP), federal contractors are required to invite applicants and current employees to inform the contractor whether they are veterans belonging to one or more of the categories of veterans covered under VEVRAA who wish to benefit under the contractor's affirmative action program (AAP) for covered veterans."),
     body('In extending this invitation, we advise you that: (a) workers and applicants are under no obligation to respond but may do so in the future if they choose; (b) responses will remain confidential within the Human Resources department; and (c) responses will be used only for the necessary information to include in our affirmative action plan.'),
@@ -501,6 +559,13 @@ export async function buildApplicationDocx(application) {
       ['Signature of Applicant', data.vetSignature],
       ['Date', data.vetDate],
     ]),
+    ...signatureRecord({
+      heading: 'Protected-veteran self-identification signature record',
+      statement: 'By typing your name, you acknowledge this as your electronic signature for the voluntary protected-veteran self-identification response reproduced above.',
+      signature: data.vetSignature,
+      date: data.vetDate,
+      application,
+    }),
   );
 
   children.push(
@@ -515,6 +580,13 @@ export async function buildApplicationDocx(application) {
       ['Signature of Applicant', data.drugTestSignature],
       ['Date', data.drugTestDate],
     ]),
+    ...signatureRecord({
+      heading: 'Alcohol & drug testing agreement signature record',
+      statement: 'I have read, understand, and agree to comply with the Alcohol & Drug Testing Program described above. I agree this constitutes a condition of my employment application and any future employment with Geolabs, Inc.',
+      signature: data.drugTestSignature,
+      date: data.drugTestDate,
+      application,
+    }),
   );
 
   const additionalRows = extraResponseRows(data);

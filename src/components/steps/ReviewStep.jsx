@@ -151,11 +151,42 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
           </ReviewBlock>
 
           <ReviewBlock title="Certifications & Acknowledgments" onEdit={() => onNavigate(3)}>
-            <ReviewRow label="Reference Authorization" value={formData.certifyInitials ? 'Initialed' : 'Missing'} />
-            <ReviewRow label="Medical Policy" value={formData.medInitials ? 'Initialed' : 'Missing'} />
-            <ReviewRow label="Employment Certification" value={formData.certificationAgreed ? 'Signed' : 'Not signed'} />
-            <ReviewRow label="Drug Test Acknowledgment" value={formData.drugTestAgreed ? 'Signed' : 'Not signed'} />
+            <ReviewRow label="Reference Authorization" value={formData.certifyInitials ? `Initialed: ${formData.certifyInitials}` : 'Missing'} />
+            <ReviewRow label="Medical Policy" value={formData.medInitials ? `Initialed: ${formData.medInitials}` : 'Missing'} />
+            <ReviewRow
+              label="Employment Certification"
+              value={formData.certificationAgreed
+                ? `${formData.certificationSignature || 'Signature missing'} · ${formData.certificationDate || 'Date missing'}`
+                : 'Not signed'}
+            />
+            <ReviewRow
+              label="Drug Test Acknowledgment"
+              value={formData.drugTestAgreed
+                ? `${formData.drugTestSignature || 'Signature missing'} · ${formData.drugTestDate || 'Date missing'}`
+                : 'Not signed'}
+            />
             <ReviewRow label="Resume Uploaded" value={formData.resumeFileUrl ? 'Yes' : 'No'} />
+          </ReviewBlock>
+
+          <ReviewBlock title="Voluntary Self-Identification Records" onEdit={() => onNavigate(4)}>
+            <ReviewRow
+              label="EEO Survey"
+              value={formData.eeoGender || formData.eeoRace
+                ? `${formData.eeoName || 'Name not provided'} · ${formData.eeoDate || 'Date not provided'}`
+                : 'No response provided'}
+            />
+            <ReviewRow
+              label="Disability Form"
+              value={formData.disabilityStatus
+                ? `${formData.disabilitySignature || formData.disabilityName || 'Name not provided'} · ${formData.disabilitySignatureDate || formData.disabilityDate || 'Date not provided'}`
+                : 'No response provided'}
+            />
+            <ReviewRow
+              label="Veteran Form"
+              value={formData.veteranStatus
+                ? `${formData.vetSignature || 'Signature not provided'} · ${formData.vetDate || 'Date not provided'}`
+                : 'No response provided'}
+            />
           </ReviewBlock>
 
           {submitError && (

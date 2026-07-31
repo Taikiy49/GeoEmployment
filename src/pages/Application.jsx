@@ -462,21 +462,21 @@ export default function Application() {
     switch (currentStep) {
       case 0: return <StartStep onNext={goNext} requisition={requisition} />;
       case 1: return (
-        <GroupedApplicationStep onBack={goBack} onNext={goNext}>
+        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={1}>
           <ResumeStep {...stepProps} resumeStorageKey={storageKey} />
           <ApplicationInfoStep {...stepProps} requisition={requisition} />
           <GeneralInfoStep {...stepProps} />
         </GroupedApplicationStep>
       );
       case 2: return (
-        <GroupedApplicationStep onBack={goBack} onNext={goNext}>
+        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={2}>
           <EmploymentStep {...stepProps} />
           <EducationStep {...stepProps} />
           <SkillsStep {...stepProps} />
         </GroupedApplicationStep>
       );
       case 3: return (
-        <GroupedApplicationStep onBack={goBack} onNext={goNext}>
+        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={3}>
           <ReferencesStep {...stepProps} />
           <MedicalStep {...stepProps} />
           <AffiliationsStep {...stepProps} />
@@ -485,7 +485,7 @@ export default function Application() {
         </GroupedApplicationStep>
       );
       case 4: return (
-        <GroupedApplicationStep onBack={goBack} onNext={goNext}>
+        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={4}>
           <EEOStep {...stepProps} />
           <DisabilityStep {...stepProps} />
           <VeteranStep {...stepProps} />

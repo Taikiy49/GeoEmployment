@@ -10,8 +10,22 @@ const STEPS = [
   'Review',
 ];
 
+export const APPLICATION_STAGE_TASKS = {
+  1: ['Resume', 'Position', 'Personal information'],
+  2: ['Employment', 'Education', 'Skills'],
+  3: ['References', 'Medical authorization', 'Affiliations', 'Certification', 'Drug policy'],
+  4: ['EEO survey', 'Disability form', 'Veteran status'],
+  5: ['Review & submit'],
+};
+
 export default function Stepper({ currentStep, completedSteps, onStepClick }) {
   const progressPercent = Math.round((currentStep / (STEPS.length - 1)) * 100);
+  const currentTasks = APPLICATION_STAGE_TASKS[currentStep] || [];
+
+  const goToTask = taskIndex => {
+    document.getElementById(`application-task-${currentStep}-${taskIndex}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <div className="space-y-4">
@@ -60,6 +74,29 @@ export default function Stepper({ currentStep, completedSteps, onStepClick }) {
           );
         })}
       </div>
+
+      {currentTasks.length > 1 && (
+        <div className="rounded-xl border border-slate-200 bg-white p-3">
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">
+            Tasks in this section
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {currentTasks.map((task, taskIndex) => (
+              <button
+                key={task}
+                type="button"
+                onClick={() => goToTask(taskIndex)}
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-2 text-[11px] font-semibold text-slate-700 transition-colors hover:border-[#A65F2A]/40 hover:bg-[#F8F0E9] hover:text-[#8A4A22]"
+              >
+                <span className="grid h-4 w-4 place-items-center rounded-full bg-white text-[9px] font-bold text-[#A65F2A] shadow-sm">
+                  {taskIndex + 1}
+                </span>
+                {task}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
