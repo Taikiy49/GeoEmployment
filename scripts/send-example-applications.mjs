@@ -15,7 +15,10 @@ if (process.env.SEND_EXAMPLE_APPLICATIONS !== '1') {
 }
 
 const today = new Date().toISOString().slice(0, 10);
-const applicantEmail = process.env.TEST_APPLICANT_EMAIL || 'tyamashita@geolabs-software.com';
+const applicantEmail = process.env.TEST_APPLICANT_EMAIL;
+if (!applicantEmail) {
+  throw new Error('Set TEST_APPLICANT_EMAIL to the address that should receive the test confirmation.');
+}
 
 const applicants = [
   {
