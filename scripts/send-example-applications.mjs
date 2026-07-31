@@ -1,3 +1,12 @@
+import {
+  AlignmentType,
+  Document,
+  HeadingLevel,
+  Packer,
+  Paragraph,
+  TextRun,
+} from 'docx';
+
 const endpoint = process.env.APPLICATION_ENDPOINT
   || 'https://careers.geolabs.net/api/submit-application';
 
@@ -185,9 +194,86 @@ const applicants = [
   },
 ];
 
-const buildApplication = (applicant, index) => {
+const buildTestResume = async applicant => Packer.toBuffer(new Document({
+  creator: 'Geolabs, Inc. Employment Portal',
+  title: `${applicant.firstName} ${applicant.lastName} — Test Resume`,
+  sections: [{
+    children: [
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 80 },
+        children: [new TextRun({
+          text: `${applicant.firstName} ${applicant.lastName}`,
+          bold: true,
+          size: 34,
+          color: '172033',
+        })],
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 260 },
+        children: [new TextRun({
+          text: `${applicant.position}  •  ${applicant.location}  •  ${applicant.phone}`,
+          size: 19,
+          color: '64748B',
+        })],
+      }),
+      new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        children: [new TextRun({ text: 'Professional Summary', bold: true, color: '9A5528' })],
+      }),
+      new Paragraph({
+        spacing: { after: 220, line: 300 },
+        children: [new TextRun({ text: applicant.skillsSummary, size: 20, color: '172033' })],
+      }),
+      new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        children: [new TextRun({ text: 'Experience', bold: true, color: '9A5528' })],
+      }),
+      ...applicant.employment.flatMap(job => [
+        new Paragraph({
+          spacing: { before: 120, after: 40 },
+          children: [new TextRun({
+            text: `${job.position} — ${job.company}`,
+            bold: true,
+            size: 21,
+            color: '172033',
+          })],
+        }),
+        new Paragraph({
+          spacing: { after: 80 },
+          children: [new TextRun({
+            text: `${job.dateFrom} – ${job.dateTo || 'Present'}  •  ${job.address}`,
+            size: 18,
+            color: '64748B',
+          })],
+        }),
+        new Paragraph({
+          spacing: { after: 160, line: 280 },
+          children: [new TextRun({ text: job.duties, size: 19, color: '334155' })],
+        }),
+      ]),
+      new Paragraph({
+        heading: HeadingLevel.HEADING_1,
+        children: [new TextRun({ text: 'Education', bold: true, color: '9A5528' })],
+      }),
+      ...applicant.education.map(item => new Paragraph({
+        spacing: { after: 100 },
+        children: [new TextRun({
+          text: `${item.degree} ${item.field} — ${item.institution}, ${item.yearCompleted}`,
+          size: 20,
+          color: '172033',
+        })],
+      })),
+    ],
+  }],
+}));
+
+const buildApplication = async (applicant, index) => {
   const fullName = `${applicant.firstName} ${applicant.lastName}`;
   const id = `TEST-${Date.now()}-${index + 1}`;
+  const resumeFileName = `${id}-${applicant.firstName.replace(/^TEST\s+/, '')}-${applicant.lastName}-Resume.docx`;
+  const resumeContent = await buildTestResume(applicant);
   const applicationData = {
     applicationDate: today,
     positionAppliedFor: applicant.position,
@@ -243,6 +329,8 @@ const buildApplication = (applicant, index) => {
     drugTestAgreed: true,
     drugTestSignature: fullName,
     drugTestDate: today,
+    resumeFileUrl: `attached:${resumeFileName}`,
+    resumeFileName,
   };
 
   return {
@@ -258,6 +346,7 @@ const buildApplication = (applicant, index) => {
     positionAppliedFor: applicant.position,
     preferredLocation: applicant.location,
     applicationData,
+    resumeFileUrl: applicationData.resumeFileUrl,
     submittedAt: new Date().toISOString(),
     isDraft: false,
     eeoData: {
@@ -269,6 +358,11 @@ const buildApplication = (applicant, index) => {
     stageHistory: [{ stage: 'applied', changedAt: new Date().toISOString(), changedBy: 'applicant', note: 'Fictional production workflow test' }],
     auditTrail: [{ action: 'Test application submitted', performedBy: recipient, performedAt: new Date().toISOString(), details: 'Fictional production workflow test' }],
     source: 'production_test',
+    resumeAttachment: {
+      filename: resumeFileName,
+      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      content: resumeContent.toString('base64'),
+    },
   };
 };
 
@@ -279,7 +373,7 @@ const selectedApplicants = applicants.slice(startIndex, startIndex + count);
 const results = [];
 for (const [selectedIndex, applicant] of selectedApplicants.entries()) {
   const index = startIndex + selectedIndex;
-  const application = buildApplication(applicant, index);
+  const application = await buildApplication(applicant, index);
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
