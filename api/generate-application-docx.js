@@ -219,7 +219,7 @@ const extraResponseRows = data => Object.entries(data)
 
 async function logoRun(width, height) {
   try {
-    const logoPath = fileURLToPath(new URL('../public/geolabs.png', import.meta.url));
+    const logoPath = fileURLToPath(new URL('../public/geolabs-logo.png', import.meta.url));
     const data = await readFile(logoPath);
     return new ImageRun({
       data,
@@ -244,15 +244,18 @@ export async function buildApplicationDocx(application) {
     || data.positionAppliedFor
     || application.positionAppliedFor
     || 'General application';
-  const coverLogo = await logoRun(300, 106);
-  const headerLogo = await logoRun(118, 42);
+  const coverLogo = await logoRun(88, 88);
+  const headerLogo = await logoRun(30, 30);
   const children = [];
 
   children.push(
     new Paragraph({
       alignment: AlignmentType.CENTER,
       spacing: { before: 300, after: 260 },
-      children: [coverLogo],
+      children: [
+        coverLogo,
+        new TextRun({ text: '  Geolabs, Inc.', bold: true, size: 34, color: NAVY }),
+      ],
     }),
     new Paragraph({
       alignment: AlignmentType.CENTER,
@@ -649,7 +652,8 @@ export async function buildApplicationDocx(application) {
         spacing: { after: 110 },
         children: [
           headerLogo,
-          new TextRun({ text: '     Confidential Employment Application', size: 16, color: SLATE }),
+          new TextRun({ text: '  Geolabs, Inc.', bold: true, size: 18, color: NAVY }),
+          new TextRun({ text: '   |   Confidential Employment Application', size: 16, color: SLATE }),
         ],
       }),
     ],
