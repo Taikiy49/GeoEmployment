@@ -6,7 +6,6 @@ import { motion, useInView, AnimatePresence } from 'framer-motion';
 import Header from '../components/app/Header';
 import useSEO from '../hooks/useSEO';
 import AppFooter from '../components/app/AppFooter';
-import geolabsCoverVideo from '../geolabs-cover.mp4';
 
 const EMP_LABELS = {
   full_time: 'Full-time', part_time: 'Part-time', contract: 'Contract',
@@ -149,14 +148,15 @@ export default function JobBoard() {
       <section className="relative flex min-h-[calc(100svh-4rem)] items-center overflow-hidden bg-slate-950 text-white">
         <video
           className="absolute inset-0 h-full w-full object-cover object-center"
-          src={geolabsCoverVideo}
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
           aria-hidden="true"
-        />
+        >
+          <source src="/geolabs-cover.mp4" type="video/mp4" />
+        </video>
         <div className="absolute inset-0 bg-gradient-to-r from-[#111923]/75 via-[#111923]/40 to-[#111923]/10" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#111923]/45 via-transparent to-[#111923]/10" />
         <div className="relative mx-auto w-full max-w-6xl px-6 py-14 sm:py-16">
