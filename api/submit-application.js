@@ -2,9 +2,12 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { buildApplicationDocx } from './generate-application-docx.js';
 
-const HR_RECIPIENT = process.env.HR_APPLICATION_EMAIL || 'tyamashita@geolabs.net';
+const HR_RECIPIENTS = (
+  process.env.HR_APPLICATION_EMAIL
+  || 'employement@geolabs.net,tyamashita@geolabs.net'
+).split(',').map(address => address.trim()).filter(Boolean);
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Geolabs Careers <applications@geolabs.net>';
-const MICROSOFT_SENDER = process.env.MS_SENDER_EMAIL || HR_RECIPIENT;
+const MICROSOFT_SENDER = process.env.MS_SENDER_EMAIL || 'tyamashita@geolabs.net';
 const LOGO_CID = 'geolabs-logo';
 const LOGO_SRC = `cid:${LOGO_CID}`;
 const LOGO_CONTENT = readFileSync(
@@ -341,7 +344,7 @@ export default async function handler(req, res) {
 
     const hrResult = await sendEmail({
       from: FROM_EMAIL,
-      to: [HR_RECIPIENT],
+      to: HR_RECIPIENTS,
       reply_to: application.email,
       subject: `Application: ${application.firstName} ${application.lastName} — ${application.requisitionTitle || application.positionAppliedFor || 'General Application'}`,
       html: buildHrEmail(application),

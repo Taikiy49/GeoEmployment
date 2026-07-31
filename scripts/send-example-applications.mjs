@@ -15,7 +15,7 @@ if (process.env.SEND_EXAMPLE_APPLICATIONS !== '1') {
 }
 
 const today = new Date().toISOString().slice(0, 10);
-const applicantEmail = 'tyamashita@geolabs-software.com';
+const applicantEmail = process.env.TEST_APPLICANT_EMAIL || 'tyamashita@geolabs-software.com';
 
 const applicants = [
   {
@@ -373,7 +373,12 @@ const selectedApplicants = applicants.slice(startIndex, startIndex + count);
 const results = [];
 for (const [selectedIndex, applicant] of selectedApplicants.entries()) {
   const index = startIndex + selectedIndex;
-  const application = await buildApplication(applicant, index);
+  const testApplicant = {
+    ...applicant,
+    firstName: process.env.TEST_FIRST_NAME || applicant.firstName,
+    lastName: process.env.TEST_LAST_NAME || applicant.lastName,
+  };
+  const application = await buildApplication(testApplicant, index);
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
