@@ -4,7 +4,7 @@ import { buildApplicationDocx } from './generate-application-docx.js';
 
 const HR_RECIPIENTS = (
   process.env.HR_APPLICATION_EMAIL
-  || 'employement@geolabs.net,tyamashita@geolabs.net'
+  || 'employment@geolabs.net,tyamashita@geolabs.net'
 ).split(',').map(address => address.trim()).filter(Boolean);
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Geolabs Careers <applications@geolabs.net>';
 const MICROSOFT_SENDER = process.env.MS_SENDER_EMAIL || 'tyamashita@geolabs.net';
