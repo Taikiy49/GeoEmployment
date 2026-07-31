@@ -102,6 +102,11 @@ export default function Application() {
     } catch { return []; }
   });
   const [direction, setDirection] = useState(1);
+  const [activeTasks, setActiveTasks] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(`${storageKey}_tasks`) || '{}');
+    } catch { return {}; }
+  });
   const [formData, setFormData] = useState(() => {
     try {
       const { data } = readSavedFormData(localStorage.getItem(storageKey));
@@ -233,9 +238,10 @@ export default function Application() {
     try {
       localStorage.setItem(`${storageKey}_step`, String(currentStep));
       localStorage.setItem(`${storageKey}_completed`, JSON.stringify(completedSteps));
+      localStorage.setItem(`${storageKey}_tasks`, JSON.stringify(activeTasks));
       localStorage.setItem(`${storageKey}_flowVersion`, FLOW_VERSION);
     } catch {}
-  }, [currentStep, completedSteps, storageKey]);
+  }, [currentStep, completedSteps, activeTasks, storageKey]);
 
   // Keep multiple open tabs synchronized to the newest saved draft.
   useEffect(() => {
@@ -259,6 +265,11 @@ export default function Application() {
       if (event.key === `${storageKey}_completed` && event.newValue) {
         try {
           setCompletedSteps(restoreCompletedSteps(JSON.parse(event.newValue), FLOW_VERSION));
+        } catch {}
+      }
+      if (event.key === `${storageKey}_tasks` && event.newValue) {
+        try {
+          setActiveTasks(JSON.parse(event.newValue));
         } catch {}
       }
     };
@@ -333,6 +344,7 @@ export default function Application() {
       localStorage.removeItem(storageKey);
       localStorage.removeItem(`${storageKey}_step`);
       localStorage.removeItem(`${storageKey}_completed`);
+      localStorage.removeItem(`${storageKey}_tasks`);
       localStorage.removeItem(`${storageKey}_flowVersion`);
       localStorage.removeItem(`${storageKey}_draftId`);
       deleteResumeFile(storageKey).catch(() => {});
@@ -457,26 +469,31 @@ export default function Application() {
   };
 
   const stepProps = { formData, setFormData, onNext: goNext, onBack: goBack };
+  const activeTask = activeTasks[currentStep] || 0;
+  const setActiveTask = taskIndex => {
+    setActiveTasks(previous => ({ ...previous, [currentStep]: taskIndex }));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const renderStep = () => {
     switch (currentStep) {
       case 0: return <StartStep onNext={goNext} requisition={requisition} />;
       case 1: return (
-        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={1}>
+        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={1} activeTask={activeTask} onTaskChange={setActiveTask}>
           <ResumeStep {...stepProps} resumeStorageKey={storageKey} />
           <ApplicationInfoStep {...stepProps} requisition={requisition} />
           <GeneralInfoStep {...stepProps} />
         </GroupedApplicationStep>
       );
       case 2: return (
-        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={2}>
+        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={2} activeTask={activeTask} onTaskChange={setActiveTask}>
           <EmploymentStep {...stepProps} />
           <EducationStep {...stepProps} />
           <SkillsStep {...stepProps} />
         </GroupedApplicationStep>
       );
       case 3: return (
-        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={3}>
+        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={3} activeTask={activeTask} onTaskChange={setActiveTask}>
           <ReferencesStep {...stepProps} />
           <MedicalStep {...stepProps} />
           <AffiliationsStep {...stepProps} />
@@ -485,7 +502,7 @@ export default function Application() {
         </GroupedApplicationStep>
       );
       case 4: return (
-        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={4}>
+        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={4} activeTask={activeTask} onTaskChange={setActiveTask}>
           <EEOStep {...stepProps} />
           <DisabilityStep {...stepProps} />
           <VeteranStep {...stepProps} />
@@ -663,7 +680,13 @@ export default function Application() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
               >
-                <Stepper currentStep={currentStep} completedSteps={completedSteps} onStepClick={goToStep} />
+                <Stepper
+                  currentStep={currentStep}
+                  completedSteps={completedSteps}
+                  onStepClick={goToStep}
+                  activeTask={activeTask}
+                  onTaskClick={setActiveTask}
+                />
               </motion.div>
             )}
             <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
