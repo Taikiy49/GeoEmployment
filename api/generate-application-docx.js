@@ -14,6 +14,7 @@ import {
   ShadingType,
   Table,
   TableCell,
+  TableLayoutType,
   TableOfContents,
   TableRow,
   TextRun,
@@ -120,6 +121,7 @@ const notice = (text, restricted = false) => new Paragraph({
 const responseTable = pairs => new Table({
   width: { size: 10080, type: WidthType.DXA },
   columnWidths: [3300, 6780],
+  layout: TableLayoutType.FIXED,
   borders,
   rows: pairs.map(([label, value], index) => new TableRow({
     cantSplit: true,
@@ -127,7 +129,7 @@ const responseTable = pairs => new Table({
       new TableCell({
         width: { size: 3300, type: WidthType.DXA },
         shading: { type: ShadingType.SOLID, color: index % 2 ? 'F9FAFB' : PALE_SLATE },
-        margins: { top: 110, bottom: 110, left: 130, right: 130 },
+        margins: { top: 150, bottom: 150, left: 190, right: 190 },
         children: [
           new Paragraph({
             children: [new TextRun({ text: label, bold: true, size: 17, color: SLATE })],
@@ -137,7 +139,7 @@ const responseTable = pairs => new Table({
       new TableCell({
         width: { size: 6780, type: WidthType.DXA },
         shading: { type: ShadingType.SOLID, color: WHITE },
-        margins: { top: 110, bottom: 110, left: 130, right: 130 },
+        margins: { top: 150, bottom: 150, left: 190, right: 190 },
         children: String(valueText(value)).split('\n').map(line => new Paragraph({
           spacing: { after: 40 },
           children: [new TextRun({ text: line || ' ', size: 18, color: NAVY })],
@@ -215,14 +217,14 @@ const extraResponseRows = data => Object.entries(data)
     typeof value === 'object' ? JSON.stringify(value, null, 2) : value,
   ]);
 
-async function logoRun() {
+async function logoRun(width, height) {
   try {
-    const logoPath = fileURLToPath(new URL('../public/geolabs-logo.png', import.meta.url));
+    const logoPath = fileURLToPath(new URL('../public/geolabs.png', import.meta.url));
     const data = await readFile(logoPath);
     return new ImageRun({
       data,
       type: 'png',
-      transformation: { width: 92, height: 92 },
+      transformation: { width, height },
       altText: {
         title: 'Geolabs, Inc.',
         description: 'Geolabs, Inc. logo',
@@ -230,7 +232,7 @@ async function logoRun() {
       },
     });
   } catch {
-    return new TextRun({ text: 'G', bold: true, size: 72, color: BRONZE });
+    return new TextRun({ text: 'Geolabs, Inc.', bold: true, size: 34, color: BRONZE });
   }
 }
 
@@ -242,19 +244,15 @@ export async function buildApplicationDocx(application) {
     || data.positionAppliedFor
     || application.positionAppliedFor
     || 'General application';
-  const logo = await logoRun();
+  const coverLogo = await logoRun(300, 106);
+  const headerLogo = await logoRun(118, 42);
   const children = [];
 
   children.push(
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { before: 380, after: 220 },
-      children: [logo],
-    }),
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { after: 90 },
-      children: [new TextRun({ text: 'GEOLABS, INC.', bold: true, size: 22, color: BRONZE, characterSpacing: 80 })],
+      spacing: { before: 300, after: 260 },
+      children: [coverLogo],
     }),
     new Paragraph({
       alignment: AlignmentType.CENTER,
@@ -280,7 +278,7 @@ export async function buildApplicationDocx(application) {
     ]),
     new Paragraph({
       spacing: { before: 220, after: 80 },
-      children: [new TextRun({ text: 'DOCUMENT CONTENTS', bold: true, size: 17, color: BRONZE, characterSpacing: 50 })],
+      children: [new TextRun({ text: 'DOCUMENT CONTENTS', bold: true, size: 17, color: BRONZE })],
     }),
     new Paragraph({
       spacing: { after: 100, line: 250 },
@@ -648,10 +646,10 @@ export async function buildApplicationDocx(application) {
     children: [
       new Paragraph({
         border: { bottom: { style: BorderStyle.SINGLE, size: 5, color: BRONZE } },
-        spacing: { after: 80 },
+        spacing: { after: 110 },
         children: [
-          new TextRun({ text: 'Geolabs, Inc.', bold: true, size: 18, color: NAVY }),
-          new TextRun({ text: '   |   Confidential Employment Application', size: 16, color: SLATE }),
+          headerLogo,
+          new TextRun({ text: '     Confidential Employment Application', size: 16, color: SLATE }),
         ],
       }),
     ],
