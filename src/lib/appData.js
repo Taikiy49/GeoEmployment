@@ -181,19 +181,26 @@ const matchFilters = (item, params = {}) => Object.entries(params).every(([key, 
 export const appData = {
   auth: {
     me: async () => {
-      ensureSeedData();
-      return readStore('geolabs_current_user', null) || getCollection('geolabs_users')[0];
+      if (typeof window === 'undefined') return null;
+      const response = await fetch('/auth/session', {
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' },
+      });
+      if (!response.ok) throw new Error('Unable to verify the Microsoft admin session.');
+      const result = await response.json();
+      return result.authenticated ? result.user : null;
     },
-    logout: async (redirectTo = null) => {
+    logout: async () => {
       safeRemoveItem('geolabs_current_user');
-      if (redirectTo && typeof window !== 'undefined') {
-        window.location.assign(redirectTo);
-      }
+      if (typeof window !== 'undefined') window.location.assign('/auth/logout');
       return true;
     },
-    redirectToLogin: async (redirectTo = '/') => {
+    redirectToLogin: async () => {
       if (typeof window !== 'undefined') {
-        window.history.replaceState({}, '', redirectTo);
+        const returnTo = window.location.pathname.startsWith('/admin')
+          ? `${window.location.pathname}${window.location.search}`
+          : '/admin';
+        window.location.assign(`/auth/login?returnTo=${encodeURIComponent(returnTo)}`);
       }
       return true;
     }

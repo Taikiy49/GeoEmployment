@@ -3,6 +3,7 @@ import { createReadStream, existsSync, statSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import submitApplication from '../api/submit-application.js';
+import { getAdminSession, handleAdminAuth } from './admin-auth.js';
 
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
 const port = Number(process.env.PORT || 3000);
@@ -130,8 +131,20 @@ function serveApplication(request, response) {
 
 const server = http.createServer(async (request, response) => {
   try {
+    if (request.url?.startsWith('/auth/')) {
+      if (await handleAdminAuth(request, response)) return;
+    }
     if (request.url?.startsWith('/api/submit-application')) {
       await handleApi(request, response);
+      return;
+    }
+    if (new URL(request.url, 'http://localhost').pathname.startsWith('/admin') && !getAdminSession(request)) {
+      const returnTo = new URL(request.url, 'http://localhost').pathname;
+      response.writeHead(302, {
+        Location: `/auth/login?returnTo=${encodeURIComponent(returnTo)}`,
+        'Cache-Control': 'no-store',
+      });
+      response.end();
       return;
     }
     serveApplication(request, response);
