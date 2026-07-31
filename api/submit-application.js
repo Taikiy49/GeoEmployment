@@ -1,8 +1,16 @@
 import { jsPDF } from 'jspdf';
+import { randomUUID } from 'node:crypto';
 
 const HR_RECIPIENT = process.env.HR_APPLICATION_EMAIL || 'tyamashita@geolabs.net';
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Geolabs Careers <applications@geolabs.net>';
+const MICROSOFT_SENDER = process.env.MS_SENDER_EMAIL || HR_RECIPIENT;
 const LOGO_URL = 'https://careers.geolabs.net/geolabs-logo.png';
+const hasMicrosoftConfig = () => Boolean(
+  process.env.MS_TENANT_ID
+  && process.env.MS_CLIENT_ID
+  && process.env.MS_CLIENT_SECRET
+  && MICROSOFT_SENDER
+);
 
 const escapeHtml = (value) => String(value ?? '')
   .replaceAll('&', '&amp;')
@@ -397,7 +405,84 @@ function buildApplicantEmail(application) {
 </body></html>`;
 }
 
-async function sendEmail(payload) {
+let microsoftTokenCache = null;
+
+async function getMicrosoftAccessToken() {
+  if (microsoftTokenCache?.expiresAt > Date.now() + 60_000) {
+    return microsoftTokenCache.token;
+  }
+
+  const response = await fetch(
+    `https://login.microsoftonline.com/${encodeURIComponent(process.env.MS_TENANT_ID)}/oauth2/v2.0/token`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: process.env.MS_CLIENT_ID,
+        client_secret: process.env.MS_CLIENT_SECRET,
+        scope: 'https://graph.microsoft.com/.default',
+        grant_type: 'client_credentials',
+      }),
+    },
+  );
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || !result.access_token) {
+    throw new Error(result.error_description || result.error || 'Microsoft 365 authentication failed.');
+  }
+
+  microsoftTokenCache = {
+    token: result.access_token,
+    expiresAt: Date.now() + (Number(result.expires_in) || 3600) * 1000,
+  };
+  return microsoftTokenCache.token;
+}
+
+async function sendMicrosoftEmail(payload) {
+  const accessToken = await getMicrosoftAccessToken();
+  const clientRequestId = randomUUID();
+  const message = {
+    subject: payload.subject,
+    body: { contentType: 'HTML', content: payload.html },
+    toRecipients: payload.to.map(address => ({ emailAddress: { address } })),
+    replyTo: payload.reply_to
+      ? [{ emailAddress: { address: payload.reply_to } }]
+      : [],
+    attachments: (payload.attachments || []).map(attachment => ({
+      '@odata.type': '#microsoft.graph.fileAttachment',
+      name: attachment.filename,
+      contentType: attachment.type || 'application/octet-stream',
+      contentBytes: attachment.content,
+    })),
+  };
+
+  const response = await fetch(
+    `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(MICROSOFT_SENDER)}/sendMail`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'client-request-id': clientRequestId,
+        'return-client-request-id': 'true',
+      },
+      body: JSON.stringify({ message, saveToSentItems: true }),
+    },
+  );
+
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    throw new Error(result.error?.message || 'Microsoft 365 email delivery failed.');
+  }
+
+  return {
+    id: response.headers.get('request-id')
+      || response.headers.get('client-request-id')
+      || clientRequestId,
+    provider: 'microsoft-graph',
+  };
+}
+
+async function sendResendEmail(payload) {
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -411,9 +496,16 @@ async function sendEmail(payload) {
   return result;
 }
 
+async function sendEmail(payload) {
+  if (hasMicrosoftConfig()) return sendMicrosoftEmail(payload);
+  return sendResendEmail(payload);
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed.' });
-  if (!process.env.RESEND_API_KEY) return res.status(503).json({ error: 'Application email delivery is not configured.' });
+  if (!hasMicrosoftConfig() && !process.env.RESEND_API_KEY) {
+    return res.status(503).json({ error: 'Application email delivery is not configured.' });
+  }
 
   try {
     const application = req.body;
@@ -460,6 +552,7 @@ export default async function handler(req, res) {
       ok: true,
       applicationId: application.id,
       hrMessageId: hrResult.id,
+      emailProvider: hrResult.provider || 'resend',
       confirmationSent,
     });
   } catch (error) {
