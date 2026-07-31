@@ -4,7 +4,6 @@ export const INITIAL_FORM_DATA = {
   positionAppliedFor: '',
   preferredLocation: '',
   referredBy: '',
-  desiredSalary: '',
   availableStartDate: '',
   driverLicense: '',
 

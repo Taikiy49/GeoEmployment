@@ -341,7 +341,6 @@ export async function buildApplicationDocx(application) {
       ['Position Applied For', data.positionAppliedFor || application.positionAppliedFor],
       ['Preferred Office Location', data.preferredLocation || application.preferredLocation],
       ['Referred By', data.referredBy],
-      ['Desired Salary', data.desiredSalary],
       ['Available Start Date', data.availableStartDate],
       ["Driver's License", data.driverLicense],
     ]),

@@ -107,7 +107,6 @@ const historyCards = (items, render) => {
     row('Preferred office', text(data.preferredLocation || application.preferredLocation)),
     row('Available start', text(data.availableStartDate)),
     row('Referred by', text(data.referredBy)),
-    row('Desired salary', text(data.desiredSalary)),
     row("Driver's license", text(data.driverLicense)),
   ].join('');
 
