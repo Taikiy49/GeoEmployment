@@ -66,14 +66,14 @@ const sectionHeading = (text, restricted = false) => new Paragraph({
   spacing: {
     before: 0,
     after: 250,
-    line: 680,
+    line: 560,
     lineRule: LineRuleType.EXACT,
   },
   shading: { type: ShadingType.SOLID, color: restricted ? PALE_RESTRICTED : PALE_BRONZE },
   border: {
     left: { style: BorderStyle.SINGLE, size: 18, color: restricted ? RESTRICTED : BRONZE },
   },
-  indent: { left: 330, right: 260 },
+  indent: { left: 480, right: 260 },
   children: [
     new TextRun({
       text,
