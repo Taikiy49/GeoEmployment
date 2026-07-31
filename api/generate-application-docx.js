@@ -238,7 +238,7 @@ async function logoRun(width, height) {
       },
     });
   } catch {
-    return new TextRun({ text: 'Geolabs, Inc.', bold: true, size: 34, color: BRONZE });
+    return new TextRun({ text: 'G', bold: true, size: 34, color: BRONZE });
   }
 }
 
@@ -305,9 +305,11 @@ export async function buildApplicationDocx(application) {
             '7. Medical Information & Authorization',
             '8. Professional Affiliations',
             '9. Employment Certification & Disclosures',
-            '10. Voluntary Self-Identification',
-            '11. Alcohol & Drug Testing Program',
-            '12. Application Record',
+            '10. EEO Survey',
+            '11. Disability Form',
+            '12. Veteran Status',
+            '13. Alcohol & Drug Testing Program',
+            '14. Application Record',
           ].join('   •   '),
           size: 16,
           color: SLATE,
@@ -528,28 +530,86 @@ export async function buildApplicationDocx(application) {
   );
 
   children.push(
-    sectionHeading('10. Voluntary Self-Identification', true),
+    sectionHeading('10. EEO Voluntary Self-Identification Survey', true),
     notice('RESTRICTED COMPLIANCE INFORMATION — Voluntary responses must be kept separate from hiring decisions and accessed only by authorized HR/compliance personnel.', true),
     subheading('EEO Voluntary Self-Identification Survey'),
     body('This information is collected for federal EEO-1 reporting purposes only. It is voluntary and will not affect your opportunity for employment.'),
     body('The Equal Employment Opportunity Commission (EEOC) requires certain employers to complete an EEO-1 report each year. Covered employers must invite employees and applicants to self-identify gender and race for this report.'),
     body('Completion of this form is voluntary and your decision to provide or withhold this information will not affect your opportunity for employment, or the terms or conditions of your employment. This form will be used for EEO-1 reporting purposes only and will be kept separate from all other personnel records and accessed only by Human Resources.'),
+    body('If you choose not to self-identify at this time, the federal government allows Geolabs, Inc. to determine this information by visual survey and/or other available information.'),
+    subheading('Gender'),
+    body('Select one option, or choose "I do not wish to disclose."'),
+    body(checkedAnswer((eeo.gender || data.eeoGender) === 'Male', 'Male')),
+    body(checkedAnswer((eeo.gender || data.eeoGender) === 'Female', 'Female')),
+    body(checkedAnswer((eeo.gender || data.eeoGender) === 'I do not wish to disclose.', 'I do not wish to disclose.')),
+    body('This section is voluntary. If you do not wish to answer, you may leave it blank.', { italics: true }),
+    subheading('Race / Ethnicity'),
+    body('Select one category that best describes you.'),
+    body(checkedAnswer((eeo.race || data.eeoRace) === 'Hispanic or Latino', 'Hispanic or Latino — A person of Cuban, Mexican, Puerto Rican, South or Central American, or other Spanish culture or origin, regardless of race.')),
+    body(checkedAnswer((eeo.race || data.eeoRace) === 'White (not Hispanic or Latino)', 'White (not Hispanic or Latino) — A person having origins in any of the original peoples of Europe, the Middle East, or North Africa.')),
+    body(checkedAnswer((eeo.race || data.eeoRace) === 'Black or African American (not Hispanic or Latino)', 'Black or African American (not Hispanic or Latino) — A person having origins in any of the Black racial groups of Africa.')),
+    body(checkedAnswer((eeo.race || data.eeoRace) === 'Native Hawaiian or Other Pacific Islander (not Hispanic or Latino)', 'Native Hawaiian or Other Pacific Islander (not Hispanic or Latino) — A person having origins in any of the peoples of Hawaii, Guam, Samoa, or other Pacific Islands.')),
+    body(checkedAnswer((eeo.race || data.eeoRace) === 'Asian (not Hispanic or Latino)', 'Asian (not Hispanic or Latino) — A person having origins in any of the original peoples of the Far East, Southeast Asia, or the Indian Subcontinent (for example, Cambodia, China, India, Japan, Korea, Malaysia, Pakistan, the Philippines, Thailand, and Vietnam).')),
+    body(checkedAnswer((eeo.race || data.eeoRace) === 'Native American or Alaska Native (not Hispanic or Latino)', 'Native American or Alaska Native (not Hispanic or Latino) — A person having origins in any of the original peoples of North and South America (including Central America), and who maintains tribal affiliation or community attachment.')),
+    body(checkedAnswer((eeo.race || data.eeoRace) === 'Two or More Races (not Hispanic or Latino)', 'Two or More Races (not Hispanic or Latino) — All persons who identify with more than one of the above five races.')),
+    body(checkedAnswer((eeo.race || data.eeoRace) === 'I do not wish to disclose.', 'I do not wish to disclose.')),
+    body('This section is voluntary. If you do not wish to answer, you may leave it blank.', { italics: true }),
     responseTable([
       ['Name', data.eeoName],
       ['Date', data.eeoDate],
       ['Gender', eeo.gender || data.eeoGender],
       ['Race / Ethnicity', eeo.race || data.eeoRace],
     ]),
-    subheading('Voluntary Self-Identification of Disability'),
-    body('We are a federal contractor or subcontractor. The law requires us to provide equal employment opportunity to qualified people with disabilities. Completing this form is voluntary and your answer is confidential.'),
+  );
+
+  children.push(
+    sectionHeading('11. Voluntary Self-Identification of Disability', true),
+    notice('Form CC-305 · OMB Control Number 1250-0005 · Expires 04/30/2026 · Voluntary & Confidential', true),
     responseTable([
       ['Name', data.disabilityName],
       ['Date', data.disabilityDate],
       ['Employee ID', data.disabilityEmployeeId],
+    ]),
+    subheading('Why are you being asked to complete this form?'),
+    body('We are a federal contractor or subcontractor. The law requires us to provide equal employment opportunity to qualified people with disabilities. We have a goal of having at least 7% of our workers as people with disabilities. The law says we must measure our progress towards this goal. To do this, we must ask applicants and employees if they have a disability or have ever had one. People can become disabled, so we need to ask this question at least every five years.'),
+    body("Completing this form is voluntary, and we hope that you will choose to do so. Your answer is confidential. No one who makes hiring decisions will see it. Your decision to complete the form and your answer will not harm you in any way. If you want to learn more about the law or this form, visit the U.S. Department of Labor's Office of Federal Contract Compliance Programs (OFCCP) website at www.dol.gov/ofccp."),
+    subheading('How do you know if you have a disability?'),
+    body('A disability is a condition that substantially limits one or more of your "major life activities." If you have or have ever had such a condition, you are a person with a disability. Disabilities include, but are not limited to:'),
+    body([
+      '• Alcohol or other substance use disorder (not currently using drugs illegally)',
+      '• Autoimmune disorder, for example, lupus, fibromyalgia, rheumatoid arthritis, HIV/AIDS',
+      '• Blind or low vision',
+      '• Cancer (past or present)',
+      '• Cardiovascular or heart disease',
+      '• Celiac disease',
+      '• Cerebral palsy',
+      '• Deaf or serious difficulty hearing',
+      '• Diabetes',
+      '• Disfigurement, for example, disfigurement caused by burns, wounds, accidents, or congenital disorders',
+      '• Epilepsy or other seizure disorder',
+      "• Gastrointestinal disorders, for example, Crohn's disease, irritable bowel syndrome",
+      '• Intellectual or developmental disability',
+      '• Mental health conditions, for example, depression, bipolar disorder, anxiety disorder, schizophrenia, PTSD',
+      '• Missing limbs or partially missing limbs',
+      '• Mobility impairment, benefiting from the use of a wheelchair, scooter, walker, leg brace(s) and/or other supports',
+      "• Nervous system condition, for example, migraine headaches, Parkinson's disease, multiple sclerosis (MS)",
+      '• Neurodivergence, for example, attention-deficit/hyperactivity disorder (ADHD), autism spectrum disorder, dyslexia, dyspraxia, other learning disabilities',
+      '• Partial or complete paralysis (any cause)',
+      '• Pulmonary or respiratory conditions, for example, tuberculosis, asthma, emphysema',
+      '• Short stature (dwarfism)',
+      '• Traumatic brain injury',
+    ].join('\n')),
+    subheading('Voluntary Response'),
+    body('Please select one option below. Your response is voluntary.'),
+    body(checkedAnswer((eeo.disabilityStatus || data.disabilityStatus) === 'Yes, I have a disability, or have had one in the past', 'Yes, I have a disability, or have had one in the past')),
+    body(checkedAnswer((eeo.disabilityStatus || data.disabilityStatus) === 'No, I do not have a disability and have not had one in the past', 'No, I do not have a disability and have not had one in the past')),
+    body(checkedAnswer((eeo.disabilityStatus || data.disabilityStatus) === 'I do not want to answer', 'I do not want to answer')),
+    responseTable([
       ['Disability Status', eeo.disabilityStatus || data.disabilityStatus],
       ['Signature of Applicant', data.disabilitySignature],
       ['Signature Date', data.disabilitySignatureDate],
     ]),
+    body('PUBLIC BURDEN STATEMENT: According to the Paperwork Reduction Act of 1995, no persons are required to respond to a collection of information unless such collection displays a valid OMB control number. This survey should take about 5 minutes to complete.', { italics: true }),
     ...signatureRecord({
       heading: 'Company electronic record associated with the voluntary disability response',
       statement: 'By typing your name, you acknowledge this as your electronic signature. This company signature record is separate from, and does not modify, Form CC-305.',
@@ -557,10 +617,24 @@ export async function buildApplicationDocx(application) {
       date: data.disabilitySignatureDate,
       application,
     }),
-    subheading('Invitation to Self-Identify as a Protected Veteran (VEVRAA)'),
+  );
+
+  children.push(
+    sectionHeading('12. Invitation to Self-Identify as a Protected Veteran (VEVRAA)', true),
+    notice('This information is collected for affirmative action reporting only. Your decision to self-identify is voluntary and will not affect your application or employment.', true),
     body("Under the regulations implementing the affirmative action provisions of the Vietnam Era Veterans' Readjustment Assistance Act (VEVRAA) of 1972 issued by the Office of Federal Contract Compliance Programs (OFCCP), federal contractors are required to invite applicants and current employees to inform the contractor whether they are veterans belonging to one or more of the categories of veterans covered under VEVRAA who wish to benefit under the contractor's affirmative action program (AAP) for covered veterans."),
     body('In extending this invitation, we advise you that: (a) workers and applicants are under no obligation to respond but may do so in the future if they choose; (b) responses will remain confidential within the Human Resources department; and (c) responses will be used only for the necessary information to include in our affirmative action plan.'),
     body('Refusal to provide this information will have no bearing on your application and will not subject you to any adverse treatment.'),
+    subheading('Veteran Status'),
+    body('Select one option, or choose "I do not wish to self-identify."'),
+    body(checkedAnswer((eeo.veteranStatus || data.veteranStatus) === 'protected', 'I identify as one or more classifications of protected veterans — Includes Disabled Veteran, Recently Separated Veteran, Active-Duty Wartime/Campaign Badge Veteran, or Armed Forces Service Medal Veteran.')),
+    body(checkedAnswer((eeo.veteranStatus || data.veteranStatus) === 'notProtected', 'I am not a protected veteran')),
+    body(checkedAnswer((eeo.veteranStatus || data.veteranStatus) === 'noAnswer', 'I do not wish to self-identify')),
+    subheading('Definitions of protected veteran categories'),
+    body('Disabled Veteran — A veteran of the U.S. military, ground, naval or air service who is entitled to compensation under laws administered by the Secretary of Veterans Affairs, or who was discharged because of a service-connected disability.'),
+    body('Recently Separated Veteran — Any veteran during the three-year period beginning on the date of discharge or release from active duty in the U.S. military, ground, naval or air service.'),
+    body('Active-Duty Wartime or Campaign Badge Veteran — A veteran who served on active duty during a war, campaign, or expedition for which a campaign badge has been authorized.'),
+    body('Armed Forces Service Medal Veteran — A veteran who participated in a United States military operation for which an Armed Forces service medal was awarded pursuant to Executive Order No. 12985.'),
     responseTable([
       ['Veteran Status', eeo.veteranStatus || data.veteranStatus],
       ['Signature of Applicant', data.vetSignature],
@@ -576,7 +650,7 @@ export async function buildApplicationDocx(application) {
   );
 
   children.push(
-    sectionHeading('11. Alcohol & Drug Testing Program'),
+    sectionHeading('13. Alcohol & Drug Testing Program'),
     ...ALCOHOL_DRUG_PROGRAM_TEXT.split('\n\n').map((paragraph, index, paragraphs) => (
       index === 0
         ? subheading(paragraph)
@@ -599,14 +673,14 @@ export async function buildApplicationDocx(application) {
   const additionalRows = extraResponseRows(data);
   if (additionalRows.length) {
     children.push(
-      sectionHeading('12. Additional Submitted Responses'),
+      sectionHeading('14. Additional Submitted Responses'),
       notice('These fields were submitted by the application but are not part of the standard field set. They are included here to ensure that no applicant response is omitted.'),
       responseTable(additionalRows),
     );
   }
 
   children.push(
-    sectionHeading(additionalRows.length ? '13. Application Record' : '12. Application Record'),
+    sectionHeading(additionalRows.length ? '15. Application Record' : '14. Application Record'),
     subheading('Stage history'),
   );
   const history = Array.isArray(application.stageHistory) ? application.stageHistory : [];
