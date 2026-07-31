@@ -60,6 +60,12 @@ try {
     document.querySelector('input[type="email"]')?.value === 'tabsync@example.com'
   ));
 
+  await firstTab.getByRole('button', { name: /drug policy/i }).click();
+  await firstTab.getByText('Agreement to Comply with Geolabs, Inc. Alcohol & Drug Testing Program', { exact: true }).waitFor();
+  if (await firstTab.getByText('Professional References', { exact: true }).count()) {
+    throw new Error('Drug policy rendered inside the requirements screen.');
+  }
+
   await firstTab.getByRole('button', { name: /optional self-id/i }).click();
   await firstTab.getByText('EEO Voluntary Self-Identification Survey', { exact: true }).waitFor();
   await firstTab.getByRole('button', { name: /disability form/i }).click();

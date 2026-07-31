@@ -25,7 +25,8 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
     .filter(([key]) => !String(formData[key] || '').trim())
     .map(([key, label]) => ({ key, label, ...(FIELD_DESTINATIONS[key] || { step: 1, section: 'Your details' }) }));
   const signaturesMissing = !formData.certificationAgreed || !formData.drugTestAgreed
-    || !formData.certificationSignature?.trim() || !formData.drugTestSignature?.trim();
+    || !formData.certificationSignature?.trim() || !formData.certificationDate
+    || !formData.drugTestSignature?.trim() || !formData.drugTestDate;
   const invalidEmail = Boolean(formData.email) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
   const cannotSubmit = missingCoreFields.length > 0 || signaturesMissing || invalidEmail;
   const actionGroups = new Map();
@@ -40,15 +41,15 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
     existing.items.push('Valid email address');
     actionGroups.set(1, existing);
   }
-  if (!formData.certificationAgreed || !formData.certificationSignature?.trim()) {
+  if (!formData.certificationAgreed || !formData.certificationSignature?.trim() || !formData.certificationDate) {
     const existing = actionGroups.get(3) || { step: 3, title: 'Requirements and agreements', items: [] };
     existing.items.push('Signature and agreement');
     actionGroups.set(3, existing);
   }
-  if (!formData.drugTestAgreed || !formData.drugTestSignature?.trim()) {
-    const existing = actionGroups.get(3) || { step: 3, title: 'Requirements and agreements', items: [] };
+  if (!formData.drugTestAgreed || !formData.drugTestSignature?.trim() || !formData.drugTestDate) {
+    const existing = actionGroups.get(4) || { step: 4, title: 'Drug policy', items: [] };
     existing.items.push('Drug-testing signature and agreement');
-    actionGroups.set(3, existing);
+    actionGroups.set(4, existing);
   }
   const requiredActions = [...actionGroups.values()];
 
@@ -159,16 +160,19 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
                 ? `${formData.certificationSignature || 'Signature missing'} · ${formData.certificationDate || 'Date missing'}`
                 : 'Not signed'}
             />
+            <ReviewRow label="Resume Uploaded" value={formData.resumeFileUrl ? 'Yes' : 'No'} />
+          </ReviewBlock>
+
+          <ReviewBlock title="Alcohol & Drug Testing Agreement" onEdit={() => onNavigate(4)}>
             <ReviewRow
-              label="Drug Test Acknowledgment"
+              label="Applicant Signature"
               value={formData.drugTestAgreed
                 ? `${formData.drugTestSignature || 'Signature missing'} · ${formData.drugTestDate || 'Date missing'}`
                 : 'Not signed'}
             />
-            <ReviewRow label="Resume Uploaded" value={formData.resumeFileUrl ? 'Yes' : 'No'} />
           </ReviewBlock>
 
-          <ReviewBlock title="Voluntary Self-Identification Records" onEdit={() => onNavigate(4)}>
+          <ReviewBlock title="Voluntary Self-Identification Records" onEdit={() => onNavigate(5)}>
             <ReviewRow
               label="EEO Survey"
               value={formData.eeoGender || formData.eeoRace

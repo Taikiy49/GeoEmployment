@@ -6,6 +6,7 @@ const STEPS = [
   'Your details',
   'Experience',
   'Requirements',
+  'Drug policy',
   'Optional self-ID',
   'Review',
 ];
@@ -13,9 +14,10 @@ const STEPS = [
 export const APPLICATION_STAGE_TASKS = {
   1: ['Resume', 'Position', 'Personal information'],
   2: ['Employment', 'Education', 'Skills'],
-  3: ['References', 'Medical authorization', 'Affiliations', 'Certification', 'Drug policy'],
-  4: ['EEO survey', 'Disability form', 'Veteran status'],
-  5: ['Review & submit'],
+  3: ['References', 'Medical authorization', 'Affiliations', 'Certification'],
+  4: ['Agreement & signature'],
+  5: ['EEO survey', 'Disability form', 'Veteran status'],
+  6: ['Review & submit'],
 };
 
 export default function Stepper({

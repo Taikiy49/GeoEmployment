@@ -30,8 +30,15 @@ import AlcoholDrugStep from '../components/steps/AlcoholDrugStep';
 import ReviewStep from '../components/steps/ReviewStep';
 
 const SAVE_DEBOUNCE_MS = 2500;
-const FLOW_VERSION = 'simple-v2';
-const FINAL_REVIEW_STEP = 5;
+const FLOW_VERSION = 'simple-v3';
+const FINAL_REVIEW_STEP = 6;
+
+const mapV2Step = step => {
+  const value = Number.isFinite(Number(step)) ? Number(step) : 0;
+  if (value <= 3) return Math.max(value, 0);
+  if (value === 4) return 5;
+  return FINAL_REVIEW_STEP;
+};
 
 const mapLegacyStep = (step) => {
   const value = Number.isFinite(Number(step)) ? Number(step) : 0;
@@ -39,15 +46,18 @@ const mapLegacyStep = (step) => {
   if (value <= 3) return 1;
   if (value <= 6) return 2;
   if (value <= 10 || value === 14) return 3;
-  if (value <= 13) return 4;
+  if (value <= 13) return 5;
+  if (value === 15) return 4;
   return FINAL_REVIEW_STEP;
 };
 
-const restoreStep = (step, version) => (
-  version === FLOW_VERSION
-    ? Math.min(Math.max(Number(step) || 0, 0), FINAL_REVIEW_STEP)
-    : mapLegacyStep(step)
-);
+const restoreStep = (step, version) => {
+  if (version === FLOW_VERSION) {
+    return Math.min(Math.max(Number(step) || 0, 0), FINAL_REVIEW_STEP);
+  }
+  if (version === 'simple-v2') return mapV2Step(step);
+  return mapLegacyStep(step);
+};
 
 const restoreCompletedSteps = (steps, version) => (
   [...new Set((Array.isArray(steps) ? steps : []).map(step => restoreStep(step, version)))]
@@ -394,11 +404,11 @@ export default function Application() {
     if (missingFields.length) {
       throw new Error(`Complete the following required fields: ${missingFields.join(', ')}.`);
     }
-    if (!formData.certificationAgreed || !formData.certificationSignature?.trim()) {
-      throw new Error('Complete and sign the Employment Certification before submitting.');
+    if (!formData.certificationAgreed || !formData.certificationSignature?.trim() || !formData.certificationDate) {
+      throw new Error('Complete, date, and sign the Employment Certification before submitting.');
     }
-    if (!formData.drugTestAgreed || !formData.drugTestSignature?.trim()) {
-      throw new Error('Complete and sign the Alcohol & Drug Testing acknowledgment before submitting.');
+    if (!formData.drugTestAgreed || !formData.drugTestSignature?.trim() || !formData.drugTestDate) {
+      throw new Error('Complete, date, and sign the Alcohol & Drug Testing acknowledgment before submitting.');
     }
 
     const now = new Date().toISOString();
@@ -498,17 +508,17 @@ export default function Application() {
           <MedicalStep {...stepProps} />
           <AffiliationsStep {...stepProps} />
           <CertificationStep {...stepProps} />
-          <AlcoholDrugStep {...stepProps} />
         </GroupedApplicationStep>
       );
-      case 4: return (
-        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={4} activeTask={activeTask} onTaskChange={setActiveTask}>
+      case 4: return <AlcoholDrugStep {...stepProps} />;
+      case 5: return (
+        <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={5} activeTask={activeTask} onTaskChange={setActiveTask}>
           <EEOStep {...stepProps} />
           <DisabilityStep {...stepProps} />
           <VeteranStep {...stepProps} />
         </GroupedApplicationStep>
       );
-      case 5: return <ReviewStep formData={formData} onBack={goBack} onSubmit={handleSubmit} onNavigate={goFixReviewItem} requiredFields={REQUIRED_FIELDS} />;
+      case 6: return <ReviewStep formData={formData} onBack={goBack} onSubmit={handleSubmit} onNavigate={goFixReviewItem} requiredFields={REQUIRED_FIELDS} />;
       default: return null;
     }
   };
