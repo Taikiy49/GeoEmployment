@@ -19,6 +19,7 @@ import {
   TableOfContents,
   TableRow,
   TextRun,
+  VerticalAlign,
   Paragraph,
   WidthType,
   convertInchesToTwip,
@@ -64,15 +65,15 @@ const sectionHeading = (text, restricted = false) => new Paragraph({
   keepNext: true,
   spacing: {
     before: 0,
-    after: 220,
-    line: 560,
+    after: 250,
+    line: 680,
     lineRule: LineRuleType.EXACT,
   },
   shading: { type: ShadingType.SOLID, color: restricted ? PALE_RESTRICTED : PALE_BRONZE },
   border: {
     left: { style: BorderStyle.SINGLE, size: 18, color: restricted ? RESTRICTED : BRONZE },
   },
-  indent: { left: 240, right: 180 },
+  indent: { left: 330, right: 260 },
   children: [
     new TextRun({
       text,
@@ -104,22 +105,42 @@ const body = (text, options = {}) => new Paragraph({
   ],
 });
 
-const notice = (text, restricted = false) => new Paragraph({
-  spacing: { before: 80, after: 160, line: 290 },
-  shading: { type: ShadingType.SOLID, color: restricted ? PALE_RESTRICTED : PALE_BRONZE },
-  border: {
+const notice = (text, restricted = false) => new Table({
+  width: { size: 10080, type: WidthType.DXA },
+  columnWidths: [10080],
+  layout: TableLayoutType.FIXED,
+  borders: {
     top: { style: BorderStyle.SINGLE, size: 2, color: restricted ? 'F0B5C5' : 'DDBA9E' },
     bottom: { style: BorderStyle.SINGLE, size: 2, color: restricted ? 'F0B5C5' : 'DDBA9E' },
     left: { style: BorderStyle.SINGLE, size: 2, color: restricted ? 'F0B5C5' : 'DDBA9E' },
     right: { style: BorderStyle.SINGLE, size: 2, color: restricted ? 'F0B5C5' : 'DDBA9E' },
+    insideHorizontal: { style: BorderStyle.NONE },
+    insideVertical: { style: BorderStyle.NONE },
   },
-  indent: { left: 150, right: 150 },
-  children: [
-    new TextRun({
-      text,
-      bold: true,
-      size: 18,
-      color: restricted ? RESTRICTED : BRONZE_DARK,
+  rows: [
+    new TableRow({
+      cantSplit: true,
+      children: [
+        new TableCell({
+          width: { size: 10080, type: WidthType.DXA },
+          verticalAlign: VerticalAlign.CENTER,
+          shading: { type: ShadingType.SOLID, color: restricted ? PALE_RESTRICTED : PALE_BRONZE },
+          margins: { top: 210, bottom: 210, left: 240, right: 240 },
+          children: [
+            new Paragraph({
+              spacing: { line: 300 },
+              children: [
+                new TextRun({
+                  text,
+                  bold: true,
+                  size: 18,
+                  color: restricted ? RESTRICTED : BRONZE_DARK,
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
     }),
   ],
 });
@@ -250,22 +271,13 @@ export async function buildApplicationDocx(application) {
     || data.positionAppliedFor
     || application.positionAppliedFor
     || 'General application';
-  const coverLogo = await logoRun(88, 88);
   const headerLogo = await logoRun(30, 30);
   const children = [];
 
   children.push(
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { before: 300, after: 260 },
-      children: [
-        coverLogo,
-        new TextRun({ text: '  Geolabs, Inc.', bold: true, size: 34, color: NAVY }),
-      ],
-    }),
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { after: 180 },
+      spacing: { before: 440, after: 180 },
       children: [new TextRun({ text: 'Complete Employment Application', bold: true, size: 40, color: NAVY })],
     }),
     new Paragraph({
@@ -727,13 +739,43 @@ export async function buildApplicationDocx(application) {
 
   const header = new Header({
     children: [
-      new Paragraph({
-        border: { bottom: { style: BorderStyle.SINGLE, size: 5, color: BRONZE } },
-        spacing: { after: 110 },
-        children: [
-          headerLogo,
-          new TextRun({ text: '  Geolabs, Inc.', bold: true, size: 18, color: NAVY }),
-          new TextRun({ text: '   |   Confidential Employment Application', size: 16, color: SLATE }),
+      new Table({
+        width: { size: 10080, type: WidthType.DXA },
+        columnWidths: [640, 9440],
+        layout: TableLayoutType.FIXED,
+        borders: {
+          top: { style: BorderStyle.NONE },
+          bottom: { style: BorderStyle.SINGLE, size: 5, color: BRONZE },
+          left: { style: BorderStyle.NONE },
+          right: { style: BorderStyle.NONE },
+          insideHorizontal: { style: BorderStyle.NONE },
+          insideVertical: { style: BorderStyle.NONE },
+        },
+        rows: [
+          new TableRow({
+            cantSplit: true,
+            children: [
+              new TableCell({
+                width: { size: 640, type: WidthType.DXA },
+                verticalAlign: VerticalAlign.CENTER,
+                margins: { top: 80, bottom: 100, left: 220, right: 80 },
+                children: [new Paragraph({ children: [headerLogo] })],
+              }),
+              new TableCell({
+                width: { size: 9440, type: WidthType.DXA },
+                verticalAlign: VerticalAlign.CENTER,
+                margins: { top: 80, bottom: 100, left: 80, right: 100 },
+                children: [
+                  new Paragraph({
+                    children: [
+                      new TextRun({ text: 'Geolabs, Inc.', bold: true, size: 18, color: NAVY }),
+                      new TextRun({ text: '   |   Confidential Employment Application', size: 16, color: SLATE }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
         ],
       }),
     ],
