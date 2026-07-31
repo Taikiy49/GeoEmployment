@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { buildApplicationDocx } from './generate-application-docx.js';
 
-const HR_RECIPIENT = process.env.HR_APPLICATION_EMAIL || 'tyamashita@geolabs.net';
+const HR_RECIPIENT = process.env.HR_APPLICATION_EMAIL || 'tyamashita@geolabs-software.com';
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Geolabs Careers <applications@geolabs.net>';
 const MICROSOFT_SENDER = process.env.MS_SENDER_EMAIL || HR_RECIPIENT;
 const LOGO_CID = 'geolabs-logo';

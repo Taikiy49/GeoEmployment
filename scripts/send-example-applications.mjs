@@ -15,7 +15,7 @@ if (process.env.SEND_EXAMPLE_APPLICATIONS !== '1') {
 }
 
 const today = new Date().toISOString().slice(0, 10);
-const recipient = 'tyamashita@geolabs.net';
+const recipient = 'tyamashita@geolabs-software.com';
 
 const applicants = [
   {
