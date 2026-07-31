@@ -1,10 +1,22 @@
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { buildApplicationDocx } from './generate-application-docx.js';
 
 const HR_RECIPIENT = process.env.HR_APPLICATION_EMAIL || 'tyamashita@geolabs.net';
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Geolabs Careers <applications@geolabs.net>';
 const MICROSOFT_SENDER = process.env.MS_SENDER_EMAIL || HR_RECIPIENT;
-const LOGO_URL = 'https://careers.geolabs.net/geolabs-logo.png';
+const LOGO_CID = 'geolabs-logo';
+const LOGO_SRC = `cid:${LOGO_CID}`;
+const LOGO_CONTENT = readFileSync(
+  new URL('../public/geolabs-logo.png', import.meta.url),
+).toString('base64');
+const logoAttachment = () => ({
+  filename: 'geolabs-logo.png',
+  content: LOGO_CONTENT,
+  type: 'image/png',
+  inline: true,
+  contentId: LOGO_CID,
+});
 const hasMicrosoftConfig = () => Boolean(
   process.env.MS_TENANT_ID
   && process.env.MS_CLIENT_ID
@@ -134,7 +146,7 @@ const historyCards = (items, render) => {
     <div style="max-width:720px;margin:0 auto;">
       <div style="padding:22px 30px;border-radius:14px 14px 0 0;background:#111923;border-bottom:3px solid #a65f2a;">
         <table role="presentation" cellspacing="0" cellpadding="0"><tr>
-          <td style="padding-right:14px;"><img src="${LOGO_URL}" width="58" height="58" alt="Geolabs, Inc." style="display:block;width:58px;height:58px;object-fit:contain;border:0;"></td>
+          <td style="padding-right:14px;"><img src="${LOGO_SRC}" width="58" height="58" alt="Geolabs, Inc." style="display:block;width:58px;height:58px;object-fit:contain;border:0;"></td>
           <td><div style="color:#fff;font-size:19px;font-weight:800;">Geolabs, Inc.</div>
           <div style="margin-top:4px;color:#cbd5e1;font-size:12px;">Employment Application · HR Review Copy</div></td>
         </tr></table>
@@ -177,7 +189,7 @@ function buildApplicantEmail(application) {
   <div style="padding:28px 12px;"><div style="max-width:600px;margin:0 auto;">
     <div style="padding:20px 28px;border-radius:14px 14px 0 0;background:#111923;border-bottom:3px solid #a65f2a;">
       <table role="presentation" cellspacing="0" cellpadding="0"><tr>
-        <td style="padding-right:14px;"><img src="${LOGO_URL}" width="54" height="54" alt="Geolabs, Inc." style="display:block;width:54px;height:54px;object-fit:contain;border:0;"></td>
+        <td style="padding-right:14px;"><img src="${LOGO_SRC}" width="54" height="54" alt="Geolabs, Inc." style="display:block;width:54px;height:54px;object-fit:contain;border:0;"></td>
         <td><div style="color:#fff;font-size:19px;font-weight:800;">Geolabs, Inc.</div>
         <div style="margin-top:4px;color:#cbd5e1;font-size:12px;">Employment Opportunities</div></td>
       </tr></table>
@@ -243,6 +255,8 @@ async function sendMicrosoftEmail(payload) {
       name: attachment.filename,
       contentType: attachment.type || 'application/octet-stream',
       contentBytes: attachment.content,
+      isInline: Boolean(attachment.inline),
+      contentId: attachment.contentId,
     })),
   };
 
@@ -280,7 +294,15 @@ async function sendResendEmail(payload) {
       Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      ...payload,
+      attachments: (payload.attachments || []).map(attachment => ({
+        filename: attachment.filename,
+        content: attachment.content,
+        content_type: attachment.type,
+        content_id: attachment.contentId,
+      })),
+    }),
   });
   const result = await response.json();
   if (!response.ok) throw new Error(result.message || 'Email delivery failed.');
@@ -304,7 +326,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'First name, last name, and email are required.' });
     }
 
-    const attachments = [];
+    const attachments = [logoAttachment()];
     const safeApplicantName = `${application.firstName}-${application.lastName}`
       .replace(/[^a-z0-9-]+/gi, '-')
       .replace(/-+/g, '-');
@@ -335,6 +357,7 @@ export default async function handler(req, res) {
         reply_to: 'employment@geolabs.net',
         subject: `Application received — ${application.requisitionTitle || application.positionAppliedFor || 'Geolabs, Inc.'}`,
         html: buildApplicantEmail(application),
+        attachments: [logoAttachment()],
       });
     } catch {
       confirmationSent = false;
