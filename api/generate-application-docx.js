@@ -299,37 +299,6 @@ export async function buildApplicationDocx(application) {
       ['Preferred office', data.preferredLocation || application.preferredLocation],
       ['Applicant email', application.email || data.email],
     ]),
-    new Paragraph({
-      spacing: { before: 220, after: 80 },
-      children: [new TextRun({ text: 'DOCUMENT CONTENTS', bold: true, size: 17, color: BRONZE })],
-    }),
-    new Paragraph({
-      spacing: { after: 100, line: 250 },
-      shading: { type: ShadingType.SOLID, color: PALE_SLATE },
-      indent: { left: 130, right: 130 },
-      children: [
-        new TextRun({
-          text: [
-            '1. Submission Overview',
-            '2. Application & Contact Information',
-            '3. Employment History',
-            '4. Education',
-            '5. Skills & Qualifications',
-            '6. Professional References',
-            '7. Medical Information & Authorization',
-            '8. Professional Affiliations',
-            '9. Employment Certification & Disclosures',
-            '10. EEO Survey',
-            '11. Disability Form',
-            '12. Veteran Status',
-            '13. Alcohol & Drug Testing Program',
-            '14. Application Record',
-          ].join('   •   '),
-          size: 16,
-          color: SLATE,
-        }),
-      ],
-    }),
     new Paragraph({ children: [new PageBreak()] }),
     new Paragraph({
       heading: HeadingLevel.HEADING_1,
