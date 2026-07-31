@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import { appClient } from '@/api/localClient';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { CheckCircle2, ExternalLink, Cloud, Loader2, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Header from '../components/app/Header';
@@ -577,12 +577,12 @@ export default function Application() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.4 }}
             >
-              <Link
-                to="/"
+              <a
+                href="/#open-roles"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold bg-[#A65F2A] hover:bg-[#8A4A22] text-white transition-colors"
               >
                 <ExternalLink className="w-4 h-4" /> View All Open Positions
-              </Link>
+              </a>
             </motion.div>
           </motion.div>
         </main>

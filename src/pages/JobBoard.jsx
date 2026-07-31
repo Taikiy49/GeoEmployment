@@ -133,6 +133,14 @@ export default function JobBoard() {
     });
   }, []);
 
+  useEffect(() => {
+    if (window.location.hash !== '#open-roles') return undefined;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById('open-roles')?.scrollIntoView({ block: 'start' });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
   const departments = ['all', ...new Set(jobs.map(j => j.department).filter(Boolean))];
   const filtered = jobs.filter(j => {
     const matchDept = deptFilter === 'all' || j.department === deptFilter;
