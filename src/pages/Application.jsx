@@ -11,6 +11,7 @@ import StepShell from '../components/app/StepShell';
 import GroupedApplicationStep from '../components/app/GroupedApplicationStep';
 import { INITIAL_FORM_DATA } from '../lib/initialFormData';
 import { deleteResumeFile, getResumeFile, resumeRecordToAttachment } from '../lib/resumeStorage';
+import { getSubmissionIssues } from '../lib/applicationValidation';
 
 import StartStep from '../components/steps/StartStep';
 import ResumeStep from '../components/steps/ResumeStep';
@@ -376,8 +377,9 @@ export default function Application() {
     goToStep(currentStep - 1);
   }, [currentStep, goToStep]);
 
-  const goFixReviewItem = useCallback((step) => {
+  const goFixReviewItem = useCallback((step, task = 0) => {
     setFixingFromReview(true);
+    setActiveTasks(previous => ({ ...previous, [step]: task }));
     goToStep(step);
   }, [goToStep]);
 
@@ -395,20 +397,9 @@ export default function Application() {
       }
       submissionResumeAttachment = await resumeRecordToAttachment(storedResume);
     }
-    const missingFields = REQUIRED_FIELDS
-      .filter(([key]) => !String(formData[key] || '').trim())
-      .map(([, label]) => label);
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email || '')) {
-      throw new Error('Enter a valid email address before submitting.');
-    }
-    if (missingFields.length) {
-      throw new Error(`Complete the following required fields: ${missingFields.join(', ')}.`);
-    }
-    if (!formData.certificationAgreed || !formData.certificationSignature?.trim() || !formData.certificationDate) {
-      throw new Error('Complete, date, and sign the Employment Certification before submitting.');
-    }
-    if (!formData.drugTestAgreed || !formData.drugTestSignature?.trim() || !formData.drugTestDate) {
-      throw new Error('Complete, date, and sign the Alcohol & Drug Testing acknowledgment before submitting.');
+    const submissionIssues = getSubmissionIssues(formData, REQUIRED_FIELDS);
+    if (submissionIssues.length) {
+      throw new Error(`Complete these required items before submitting: ${submissionIssues.map(item => item.label).join('; ')}.`);
     }
 
     const now = new Date().toISOString();
@@ -480,6 +471,7 @@ export default function Application() {
 
   const stepProps = { formData, setFormData, onNext: goNext, onBack: goBack };
   const activeTask = activeTasks[currentStep] || 0;
+  const submissionIssues = getSubmissionIssues(formData, REQUIRED_FIELDS);
   const setActiveTask = taskIndex => {
     setActiveTasks(previous => ({ ...previous, [currentStep]: taskIndex }));
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -696,6 +688,7 @@ export default function Application() {
                   onStepClick={goToStep}
                   activeTask={activeTask}
                   onTaskClick={setActiveTask}
+                  reviewHasBlockers={submissionIssues.length > 0}
                 />
               </motion.div>
             )}

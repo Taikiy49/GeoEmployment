@@ -182,6 +182,10 @@ export const appData = {
   auth: {
     me: async () => {
       if (typeof window === 'undefined') return null;
+      if (['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+        ensureSeedData();
+        return readStore('geolabs_current_user', null) || getCollection('geolabs_users')[0];
+      }
       const response = await fetch('/auth/session', {
         credentials: 'same-origin',
         headers: { Accept: 'application/json' },

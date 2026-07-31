@@ -26,6 +26,7 @@ export default function Stepper({
   onStepClick,
   activeTask = 0,
   onTaskClick,
+  reviewHasBlockers = false,
 }) {
   const progressPercent = Math.round((currentStep / (STEPS.length - 1)) * 100);
   const currentTasks = APPLICATION_STAGE_TASKS[currentStep] || [];
@@ -40,7 +41,11 @@ export default function Stepper({
             </p>
             <p className="mt-1 text-sm font-bold text-[#8A4A22]">{STEPS[currentStep]}</p>
           </div>
-          <span className="text-xs font-semibold tabular-nums text-slate-500">{progressPercent}% complete</span>
+          <span className={`text-xs font-semibold tabular-nums ${currentStep === STEPS.length - 1 && reviewHasBlockers ? 'text-amber-700' : 'text-slate-500'}`}>
+            {currentStep === STEPS.length - 1
+              ? (reviewHasBlockers ? 'Needs attention' : 'Ready to submit')
+              : `${progressPercent}% through application`}
+          </span>
         </div>
         <div className="h-1 overflow-hidden rounded-full bg-slate-200/80">
           <div

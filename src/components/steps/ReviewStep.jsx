@@ -2,55 +2,21 @@ import React, { useState } from 'react';
 import { AlertCircle, ArrowRight, CheckCircle2, Pencil, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import FormSection from '../app/FormSection';
-
-const FIELD_DESTINATIONS = {
-  positionAppliedFor: { step: 1, section: 'Your details' },
-  preferredLocation: { step: 1, section: 'Your details' },
-  firstName: { step: 1, section: 'Your details' },
-  lastName: { step: 1, section: 'Your details' },
-  email: { step: 1, section: 'Your details' },
-  address: { step: 1, section: 'Your details' },
-  city: { step: 1, section: 'Your details' },
-  state: { step: 1, section: 'Your details' },
-  zip: { step: 1, section: 'Your details' },
-  highestEducationLevel: { step: 2, section: 'Experience and education' },
-  medInitials: { step: 3, section: 'Requirements and agreements' },
-  certifyInitials: { step: 3, section: 'Requirements and agreements' },
-};
+import { getSubmissionIssues } from '@/lib/applicationValidation';
 
 export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, requiredFields = [] }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
-  const missingCoreFields = requiredFields
-    .filter(([key]) => !String(formData[key] || '').trim())
-    .map(([key, label]) => ({ key, label, ...(FIELD_DESTINATIONS[key] || { step: 1, section: 'Your details' }) }));
-  const signaturesMissing = !formData.certificationAgreed || !formData.drugTestAgreed
-    || !formData.certificationSignature?.trim() || !formData.certificationDate
-    || !formData.drugTestSignature?.trim() || !formData.drugTestDate;
-  const invalidEmail = Boolean(formData.email) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
-  const cannotSubmit = missingCoreFields.length > 0 || signaturesMissing || invalidEmail;
+  const submissionIssues = getSubmissionIssues(formData, requiredFields);
+  const cannotSubmit = submissionIssues.length > 0;
   const actionGroups = new Map();
 
-  missingCoreFields.forEach(({ step, section, label }) => {
-    const existing = actionGroups.get(step) || { step, title: section, items: [] };
+  submissionIssues.forEach(({ step, task, section, label }) => {
+    const groupKey = `${step}:${task}`;
+    const existing = actionGroups.get(groupKey) || { step, task, title: section, items: [] };
     existing.items.push(label);
-    actionGroups.set(step, existing);
+    actionGroups.set(groupKey, existing);
   });
-  if (invalidEmail) {
-    const existing = actionGroups.get(1) || { step: 1, title: 'Your details', items: [] };
-    existing.items.push('Valid email address');
-    actionGroups.set(1, existing);
-  }
-  if (!formData.certificationAgreed || !formData.certificationSignature?.trim() || !formData.certificationDate) {
-    const existing = actionGroups.get(3) || { step: 3, title: 'Requirements and agreements', items: [] };
-    existing.items.push('Signature and agreement');
-    actionGroups.set(3, existing);
-  }
-  if (!formData.drugTestAgreed || !formData.drugTestSignature?.trim() || !formData.drugTestDate) {
-    const existing = actionGroups.get(4) || { step: 4, title: 'Drug policy', items: [] };
-    existing.items.push('Drug-testing signature and agreement');
-    actionGroups.set(4, existing);
-  }
   const requiredActions = [...actionGroups.values()];
 
   const handleSubmit = async () => {
@@ -78,18 +44,20 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
               <div className="flex items-start gap-3">
                 <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-bold text-amber-950">A few items need your attention</h3>
+                  <h3 className="text-sm font-bold text-amber-950">
+                    {submissionIssues.length} required {submissionIssues.length === 1 ? 'item needs' : 'items need'} your attention
+                  </h3>
                   <p className="mt-1 text-xs leading-relaxed text-amber-800">
-                    Select any item below. We’ll take you directly to the right place and keep everything you’ve already entered.
+                    These are the exact items blocking submission. Select one and we’ll open the specific screen where it can be completed.
                   </p>
                 </div>
               </div>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {requiredActions.map(action => (
                   <button
-                    key={action.step}
+                    key={`${action.step}:${action.task}`}
                     type="button"
-                    onClick={() => onNavigate(action.step)}
+                    onClick={() => onNavigate(action.step, action.task)}
                     className="group flex min-w-0 items-center justify-between gap-3 rounded-lg border border-amber-200 bg-white px-3 py-3 text-left transition-colors hover:border-[#A65F2A] hover:bg-[#F8F0E9]"
                   >
                     <span className="min-w-0">
@@ -113,14 +81,14 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             </div>
           )}
 
-          <ReviewBlock title="Personal Information" onEdit={() => onNavigate(1)}>
+          <ReviewBlock title="Personal Information" onEdit={() => onNavigate(1, 2)}>
             <ReviewRow label="Name" value={`${formData.firstName || ''} ${formData.middleName || ''} ${formData.lastName || ''}`.trim()} />
             <ReviewRow label="Email" value={formData.email} />
             <ReviewRow label="Phone" value={formData.phone || formData.cell} />
             <ReviewRow label="Address" value={[formData.address, formData.city, formData.state, formData.zip].filter(Boolean).join(', ')} />
           </ReviewBlock>
 
-          <ReviewBlock title="Application Details" onEdit={() => onNavigate(1)}>
+          <ReviewBlock title="Application Details" onEdit={() => onNavigate(1, 1)}>
             <ReviewRow label="Position" value={formData.positionAppliedFor} />
             <ReviewRow label="Location" value={formData.preferredLocation} />
             <ReviewRow label="Driver's License" value={formData.driverLicense} />
@@ -128,7 +96,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             <ReviewRow label="Available Start" value={formData.availableStartDate} />
           </ReviewBlock>
 
-          <ReviewBlock title="Employment History" onEdit={() => onNavigate(2)}>
+          <ReviewBlock title="Employment History" onEdit={() => onNavigate(2, 0)}>
             {formData.employment.map((job, i) => (
               job.company ? (
                 <div key={i} className="mb-2 last:mb-0">
@@ -139,7 +107,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             ))}
           </ReviewBlock>
 
-          <ReviewBlock title="Education" onEdit={() => onNavigate(2)}>
+          <ReviewBlock title="Education" onEdit={() => onNavigate(2, 1)}>
             <ReviewRow label="Highest Level" value={formData.highestEducationLevel} />
             {formData.education.map((edu, i) => (
               edu.institution ? (
@@ -151,7 +119,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             ))}
           </ReviewBlock>
 
-          <ReviewBlock title="Certifications & Acknowledgments" onEdit={() => onNavigate(3)}>
+          <ReviewBlock title="Certifications & Acknowledgments" onEdit={() => onNavigate(3, 0)}>
             <ReviewRow label="Reference Authorization" value={formData.certifyInitials ? `Initialed: ${formData.certifyInitials}` : 'Missing'} />
             <ReviewRow label="Medical Policy" value={formData.medInitials ? `Initialed: ${formData.medInitials}` : 'Missing'} />
             <ReviewRow
@@ -163,7 +131,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             <ReviewRow label="Resume Uploaded" value={formData.resumeFileUrl ? 'Yes' : 'No'} />
           </ReviewBlock>
 
-          <ReviewBlock title="Alcohol & Drug Testing Agreement" onEdit={() => onNavigate(4)}>
+          <ReviewBlock title="Alcohol & Drug Testing Agreement" onEdit={() => onNavigate(4, 0)}>
             <ReviewRow
               label="Applicant Signature"
               value={formData.drugTestAgreed
@@ -172,7 +140,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             />
           </ReviewBlock>
 
-          <ReviewBlock title="Voluntary Self-Identification Records" onEdit={() => onNavigate(5)}>
+          <ReviewBlock title="Voluntary Self-Identification Records" onEdit={() => onNavigate(5, 0)}>
             <ReviewRow
               label="EEO Survey"
               value={formData.eeoGender || formData.eeoRace
@@ -211,18 +179,25 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
         >
           Back
         </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={isSubmitting || cannotSubmit}
-          className="rounded-full px-3 h-10 text-sm bg-bronze hover:bg-bronze-dark text-white border border-bronze-dark shadow-sm"
-        >
-          {isSubmitting ? (
-            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-          ) : (
-            <Send className="w-4 h-4 mr-2" />
+        <div className="flex flex-col items-end gap-1.5">
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting || cannotSubmit}
+            className="rounded-full px-3 h-10 text-sm bg-bronze hover:bg-bronze-dark text-white border border-bronze-dark shadow-sm"
+          >
+            {isSubmitting ? (
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+            ) : (
+              <Send className="w-4 h-4 mr-2" />
+            )}
+            {isSubmitting ? 'Submitting...' : 'Submit Application'}
+          </Button>
+          {cannotSubmit && (
+            <p className="max-w-xs text-right text-[11px] font-medium text-amber-700">
+              Submission is blocked until the {submissionIssues.length} required {submissionIssues.length === 1 ? 'item above is' : 'items above are'} completed.
+            </p>
           )}
-          {isSubmitting ? 'Submitting...' : 'Submit Application'}
-        </Button>
+        </div>
       </div>
     </div>
   );
