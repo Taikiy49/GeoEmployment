@@ -220,10 +220,11 @@ export default function ApplicationDetail() {
             )}
 
             {/* Education */}
-            {formData.education?.some(e => e.institution) && (
+            {(formData.highestEducationLevel || formData.education?.some(e => e.institution)) && (
               <DataSection title="Education">
                 <div className="space-y-3">
-                  {formData.education.filter(e => e.institution).map((e, i) => (
+                  <DataRow label="Highest Education Level" value={formData.highestEducationLevel || '—'} />
+                  {(formData.education || []).filter(e => e.institution).map((e, i) => (
                     <div key={i} className="border-l-2 border-bronze-soft pl-4">
                       <div className="font-medium text-sm text-navy">{e.degree} {e.field && `— ${e.field}`}</div>
                       <div className="text-xs text-[#334155]">{e.institution}</div>
@@ -235,12 +236,18 @@ export default function ApplicationDetail() {
             )}
 
             {/* Skills */}
-            {(formData.skillsSummary || formData.certifications || formData.computerSkills || formData.fieldLabExperience) && (
+            {(formData.skillsSummary || formData.skillsYearsExperience || formData.skillsPrimaryFocus
+              || formData.skillsTechnical || formData.skillsCommunication || formData.certifications
+              || formData.computerSkills || formData.fieldLabExperience) && (
               <DataSection title="Skills & Certifications">
-                {formData.skillsSummary && <DataRow label="Skills" value={formData.skillsSummary} />}
+                {formData.skillsYearsExperience && <DataRow label="Years of Relevant Experience" value={formData.skillsYearsExperience} />}
+                {formData.skillsPrimaryFocus && <DataRow label="Primary Areas of Focus" value={formData.skillsPrimaryFocus} className="mt-2" />}
+                {formData.skillsTechnical && <DataRow label="Technical Skills & Field / Lab Tools" value={formData.skillsTechnical} className="mt-2" />}
                 {formData.certifications && <DataRow label="Certifications" value={formData.certifications} className="mt-2" />}
                 {formData.computerSkills && <DataRow label="Software / Computer Skills" value={formData.computerSkills} className="mt-2" />}
                 {formData.fieldLabExperience && <DataRow label="Field / Lab Experience" value={formData.fieldLabExperience} className="mt-2" />}
+                {formData.skillsCommunication && <DataRow label="Communication & Team Skills" value={formData.skillsCommunication} className="mt-2" />}
+                {formData.skillsSummary && <DataRow label="Additional Skills Summary" value={formData.skillsSummary} className="mt-2" />}
               </DataSection>
             )}
 
@@ -251,7 +258,7 @@ export default function ApplicationDetail() {
                   {formData.references.filter(r => r.name).map((r, i) => (
                     <div key={i} className="border-l-2 border-bronze-soft pl-4">
                       <div className="font-medium text-sm text-navy">{r.name}</div>
-                      {r.organization && <div className="text-xs text-[#334155]">{r.organization}</div>}
+                      {(r.company || r.organization) && <div className="text-xs text-[#334155]">{r.company || r.organization}</div>}
                       <div className="flex flex-wrap gap-3 mt-1">
                         {r.phone && <span className="text-[10px] text-[#94a3b8]">📞 {r.phone}</span>}
                         {r.email && <span className="text-[10px] text-[#94a3b8]">✉ {r.email}</span>}
@@ -273,7 +280,7 @@ export default function ApplicationDetail() {
             {/* Certifications & Disclosures */}
             <DataSection title="Certifications & Legal Disclosures">
               <div className="grid grid-cols-2 gap-3">
-                <DataRow label="FCRA Initials" value={formData.fcrInitials || '—'} />
+                <DataRow label="Reference Authorization Initials" value={formData.certifyInitials || '—'} />
                 <DataRow label="Medical Disclosure Initials" value={formData.medInitials || '—'} />
                 <DataRow label="Can Perform Duties (ADA)" value={formData.canPerformDuties ? 'Yes' : 'No'} />
                 <DataRow label="Accommodation Requested" value={formData.needsAccommodation ? 'Yes' : 'No'} />
