@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { createReadStream, existsSync } from 'node:fs';
+import { createReadStream, existsSync, statSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import submitApplication from '../api/submit-application.js';
@@ -82,11 +82,50 @@ function serveApplication(request, response) {
   }
 
   const extension = extname(filePath).toLowerCase();
-  response.writeHead(200, {
+  const fileSize = statSync(filePath).size;
+  const baseHeaders = {
     'Content-Type': contentTypes[extension] || 'application/octet-stream',
     'Cache-Control': extension === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable',
+    'Accept-Ranges': 'bytes',
+  };
+  const range = request.headers.range;
+
+  if (range) {
+    const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+    const isSuffixRange = match && !match[1] && Boolean(match[2]);
+    const suffixLength = isSuffixRange ? Number(match[2]) : 0;
+    const start = isSuffixRange
+      ? Math.max(fileSize - suffixLength, 0)
+      : (match?.[1] ? Number(match[1]) : 0);
+    const end = isSuffixRange
+      ? fileSize - 1
+      : (match?.[2] ? Number(match[2]) : fileSize - 1);
+
+    if (!match || (isSuffixRange && suffixLength === 0) || start > end || start >= fileSize || end >= fileSize) {
+      response.writeHead(416, {
+        ...baseHeaders,
+        'Content-Range': `bytes */${fileSize}`,
+      });
+      response.end();
+      return;
+    }
+
+    response.writeHead(206, {
+      ...baseHeaders,
+      'Content-Length': end - start + 1,
+      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+    });
+    if (request.method === 'HEAD') response.end();
+    else createReadStream(filePath, { start, end }).pipe(response);
+    return;
+  }
+
+  response.writeHead(200, {
+    ...baseHeaders,
+    'Content-Length': fileSize,
   });
-  createReadStream(filePath).pipe(response);
+  if (request.method === 'HEAD') response.end();
+  else createReadStream(filePath).pipe(response);
 }
 
 const server = http.createServer(async (request, response) => {
