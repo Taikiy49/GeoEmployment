@@ -15,7 +15,7 @@ if (process.env.SEND_EXAMPLE_APPLICATIONS !== '1') {
 }
 
 const today = new Date().toISOString().slice(0, 10);
-const recipient = 'tyamashita@geolabs-software.com';
+const applicantEmail = 'tyamashita@geolabs-software.com';
 
 const applicants = [
   {
@@ -288,7 +288,7 @@ const buildApplication = async (applicant, index) => {
     city: applicant.city,
     state: applicant.state,
     zip: applicant.zip,
-    email: recipient,
+    email: applicantEmail,
     phone: applicant.phone,
     cell: applicant.phone,
     employment: applicant.employment,
@@ -341,7 +341,7 @@ const buildApplication = async (applicant, index) => {
     status: 'active',
     firstName: applicant.firstName,
     lastName: applicant.lastName,
-    email: recipient,
+    email: applicantEmail,
     phone: applicant.phone,
     positionAppliedFor: applicant.position,
     preferredLocation: applicant.location,
@@ -356,7 +356,7 @@ const buildApplication = async (applicant, index) => {
       veteranStatus: applicant.veteranStatus,
     },
     stageHistory: [{ stage: 'applied', changedAt: new Date().toISOString(), changedBy: 'applicant', note: 'Fictional production workflow test' }],
-    auditTrail: [{ action: 'Test application submitted', performedBy: recipient, performedAt: new Date().toISOString(), details: 'Fictional production workflow test' }],
+    auditTrail: [{ action: 'Test application submitted', performedBy: applicantEmail, performedAt: new Date().toISOString(), details: 'Fictional production workflow test' }],
     source: 'production_test',
     resumeAttachment: {
       filename: resumeFileName,
