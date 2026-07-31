@@ -64,18 +64,21 @@ const sectionHeading = (text, restricted = false) => new Paragraph({
   pageBreakBefore: true,
   keepNext: true,
   spacing: {
-    before: 0,
-    after: 250,
-    line: 660,
+    before: 280,
+    after: 280,
+    line: 340,
     lineRule: LineRuleType.EXACT,
-  },
-  border: {
-    left: { style: BorderStyle.SINGLE, size: 18, color: restricted ? RESTRICTED : BRONZE },
   },
   indent: { left: 0, right: 0 },
   children: [
     new TextRun({
-      text: `\u00A0\u00A0\u00A0${text}`,
+      text: '┃',
+      bold: true,
+      size: 28,
+      color: restricted ? RESTRICTED : BRONZE,
+    }),
+    new TextRun({
+      text: `\u00A0\u00A0${text}`,
       bold: true,
       size: 28,
       color: restricted ? RESTRICTED : NAVY,
