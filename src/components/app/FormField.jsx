@@ -29,7 +29,7 @@ export default function FormField({
 
       {type === 'select' ? (
         <Select value={value || ''} onValueChange={onChange} disabled={disabled}>
-          <SelectTrigger className="h-12 text-sm rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]">
+          <SelectTrigger id={id} aria-label={label} className="h-12 text-sm rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]">
             <SelectValue placeholder={placeholder || 'Select…'} />
           </SelectTrigger>
           <SelectContent className="bg-white border-gray-300 text-gray-900">

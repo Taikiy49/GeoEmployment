@@ -4,6 +4,7 @@ import FormField from '../app/FormField';
 import NavigationButtons from '../app/NavigationButtons';
 
 const OFFICE_OPTIONS = [
+  { value: 'No preference – Open to available opportunities', label: 'No preference — Open to opportunities' },
   { value: 'Oahu – 94-429 Koaki Street, Suite 200, Waipahu, HI 96797', label: 'Oʻahu — Waipahu, HI' },
   { value: 'Maui – 780 Alua Street, 1st Floor, Wailuku, HI 96793', label: 'Maui — Wailuku, HI' },
   { value: 'Kauai – 1639 Haleukana Street, Unit #5, Lihue, HI 96766', label: 'Kauaʻi — Līhuʻe, HI' },

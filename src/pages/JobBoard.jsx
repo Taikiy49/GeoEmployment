@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { appClient } from '@/api/localClient';
 import { Link } from 'react-router-dom';
-import { MapPin, Clock, Briefcase, ChevronRight, Search, Users, Award, TrendingUp, Heart, Star, Shield } from 'lucide-react';
+import { MapPin, Clock, Briefcase, ChevronRight, Search, Users, Award, TrendingUp, Heart, Star, Shield, FileText } from 'lucide-react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import Header from '../components/app/Header';
 import useSEO from '../hooks/useSEO';
@@ -223,6 +223,32 @@ export default function JobBoard() {
             </p>
           </motion.div>
 
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.05 }}
+            className="mb-6 flex flex-col gap-4 rounded-xl border border-[#A65F2A]/25 bg-[#FBF6F1] p-5 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#A65F2A] text-white">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-slate-950">Don’t see the right position?</h2>
+                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-600">
+                  Submit a general application and our HR team will review your experience for current or future opportunities at Geolabs, Inc.
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/apply"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#A65F2A] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#8A4A22]"
+            >
+              General Application <ChevronRight className="h-4 w-4" />
+            </Link>
+          </motion.div>
+
           {/* Search + Dept filter */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -380,19 +406,6 @@ export default function JobBoard() {
             </p>
           </motion.div>
 
-          {!search && filtered.length > 0 && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              className="text-center text-xs text-gray-600 mt-8"
-            >
-              Don't see a perfect fit?{' '}
-              <Link to="/apply" className="text-[#A65F2A] font-semibold hover:text-[#8A4A22] transition-colors underline underline-offset-2">
-                Submit a general application →
-              </Link>
-            </motion.p>
-          )}
         </div>
       </section>
 

@@ -195,6 +195,11 @@ export default function Application() {
           }));
         }
       });
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        positionAppliedFor: prev.positionAppliedFor || 'General Application',
+      }));
     }
   }, [requisitionId]);
 

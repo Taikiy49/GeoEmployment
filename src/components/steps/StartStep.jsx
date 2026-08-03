@@ -133,15 +133,15 @@ export default function StartStep({ onNext, requisition, onBack }) {
     <div className="max-w-5xl mx-auto py-2 sm:py-4">
       <div className="mb-8 border-b border-slate-200 pb-7">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A65F2A]">
-          {requisition ? 'Employment application' : 'Careers at Geolabs, Inc.'}
+          {requisition ? 'Employment application' : 'General employment application'}
         </p>
         <h2 className="mt-2 text-2xl sm:text-3xl font-bold tracking-[-0.025em] text-slate-950">
-          {requisition?.title || 'Build meaningful work from the ground up.'}
+          {requisition?.title || 'General Application'}
         </h2>
         <p className="mt-3 max-w-3xl text-sm sm:text-base leading-relaxed text-slate-600">
           {requisition
             ? 'Take the next step toward joining our employee-owned geotechnical engineering and drilling team.'
-            : 'Explore opportunities with a 100% employee-owned firm serving Hawaiʻi, California, and the Pacific Basin.'}
+            : 'Interested in joining Geolabs, Inc. but do not see the right opening? Tell us about your experience and our HR team will consider where you may fit.'}
         </p>
         {requisition && (
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-slate-500">
@@ -186,7 +186,7 @@ export default function StartStep({ onNext, requisition, onBack }) {
                  onClick={onNext}
                  className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#A65F2A] hover:bg-[#8A4A22] text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-black/15"
                 >
-                  {requisition ? 'Begin Application' : 'Start an Application'}
+                  {requisition ? 'Begin Application' : 'Begin General Application'}
                   <ArrowRight className="w-4 h-4" />
                 </button>
             </div>
