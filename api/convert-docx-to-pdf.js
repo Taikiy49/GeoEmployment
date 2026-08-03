@@ -43,7 +43,7 @@ const performConversion = async (documentBuffer, extension = 'docx') => {
   const binary = process.env.LIBREOFFICE_BIN || '/opt/libreoffice26.2/program/soffice';
 
   try {
-    await writeFile(inputPath, docxBuffer, { mode: 0o600 });
+    await writeFile(inputPath, documentBuffer, { mode: 0o600 });
     await runLibreOffice(binary, [
       '--headless',
       '--nologo',
