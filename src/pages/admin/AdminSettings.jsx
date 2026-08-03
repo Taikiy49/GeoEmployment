@@ -11,6 +11,15 @@ const STAGE_LABELS = {
   offer: 'Offer Extended', hired: 'Hired', rejected: 'Not Selected', withdrawn: 'Withdrawn',
 };
 
+const SectionCard = ({ icon: Icon, title, children }) => (
+  <div className="bg-white rounded-2xl border border-gray-200 p-5">
+    <h2 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+      <Icon className="w-4 h-4 text-[#8A4A22]" /> {title}
+    </h2>
+    {children}
+  </div>
+);
+
 export default function AdminSettings() {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
@@ -55,15 +64,6 @@ export default function AdminSettings() {
     setTogglingNotif(null);
   };
 
-  const SectionCard = ({ icon: Icon, title, children }) => (
-    <div className="bg-white rounded-2xl border border-gray-200 p-5">
-      <h2 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <Icon className="w-4 h-4 text-[#8A4A22]" /> {title}
-      </h2>
-      {children}
-    </div>
-  );
-
   return (
     <AdminLayout>
       <div className="max-w-3xl mx-auto space-y-5">
@@ -89,8 +89,9 @@ export default function AdminSettings() {
                 onChange={e => setInviteEmail(e.target.value)}
                 placeholder="Email address"
                 type="email"
+                autoComplete="email"
                 className="flex-1 h-10 px-4 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]"
-                onKeyPress={e => e.key === 'Enter' && handleInvite()}
+                onKeyDown={e => e.key === 'Enter' && handleInvite()}
               />
               <Button
                 onClick={handleInvite}
