@@ -29,11 +29,15 @@ const runLibreOffice = (binary, args) => new Promise((resolve, reject) => {
   });
 });
 
-const performConversion = async docxBuffer => {
+const performConversion = async (documentBuffer, extension = 'docx') => {
+  const safeExtension = String(extension).toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (!['doc', 'docx'].includes(safeExtension)) {
+    throw new Error('Only DOC and DOCX documents can be rendered to PDF.');
+  }
   const temporaryRoot = process.env.PDF_TMP_DIR
     || (process.platform === 'linux' ? '/var/tmp' : tmpdir());
   const workspace = await mkdtemp(join(temporaryRoot, 'geolabs-pdf-'));
-  const inputPath = join(workspace, 'application.docx');
+  const inputPath = join(workspace, `application.${safeExtension}`);
   const outputPath = join(workspace, 'application.pdf');
   const profilePath = join(workspace, 'libreoffice-profile');
   const binary = process.env.LIBREOFFICE_BIN || '/opt/libreoffice26.2/program/soffice';
@@ -62,8 +66,12 @@ const performConversion = async docxBuffer => {
   }
 };
 
-export function convertDocxToPdf(docxBuffer) {
-  const conversion = conversionQueue.then(() => performConversion(docxBuffer));
+export function convertOfficeDocumentToPdf(documentBuffer, extension = 'docx') {
+  const conversion = conversionQueue.then(() => performConversion(documentBuffer, extension));
   conversionQueue = conversion.catch(() => {});
   return conversion;
+}
+
+export function convertDocxToPdf(docxBuffer) {
+  return convertOfficeDocumentToPdf(docxBuffer, 'docx');
 }

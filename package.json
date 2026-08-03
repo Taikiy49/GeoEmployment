@@ -9,6 +9,7 @@
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
     "test:draft": "node scripts/test-draft-persistence.mjs",
+    "test:resume-autofill": "node scripts/test-resume-autofill.mjs",
     "typecheck": "tsc -p ./jsconfig.json",
     "preview": "vite preview",
     "start": "node server/ec2-server.js"

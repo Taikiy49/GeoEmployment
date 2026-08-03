@@ -60,13 +60,13 @@ export default function EmploymentStep({ formData, setFormData, onNext, onBack }
                 />
                 <FormField
                   label="Date Employed From"
-                  type="date"
+                  type="month"
                   value={job.dateFrom}
                   onChange={(v) => updateJob(i, 'dateFrom', v)}
                 />
                 <FormField
                   label="Date Employed To"
-                  type="date"
+                  type="month"
                   value={job.dateTo}
                   onChange={(v) => updateJob(i, 'dateTo', v)}
                   hint="Leave blank if current"

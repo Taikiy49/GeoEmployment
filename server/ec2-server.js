@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import parseResume from '../api/parse-resume.js';
 import submitApplication from '../api/submit-application.js';
 import { getAdminSession, handleAdminAuth } from './admin-auth.js';
 import {
@@ -17,6 +18,9 @@ import {
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
 const port = Number(process.env.PORT || 3000);
 const maxBodyBytes = 20 * 1024 * 1024;
+const resumeParseWindows = new Map();
+const RESUME_PARSE_WINDOW_MS = 15 * 60 * 1000;
+const RESUME_PARSE_LIMIT = 6;
 
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -102,6 +106,40 @@ async function handleApi(request, response) {
   };
 
   return submitApplication(request, response);
+}
+
+async function handleResumeParseApi(request, response) {
+  const now = Date.now();
+  const clientAddress = String(request.headers['x-forwarded-for'] || request.socket.remoteAddress || 'unknown')
+    .split(',')[0]
+    .trim();
+  const previous = resumeParseWindows.get(clientAddress);
+  const window = !previous || now - previous.startedAt >= RESUME_PARSE_WINDOW_MS
+    ? { startedAt: now, attempts: 0 }
+    : previous;
+  window.attempts += 1;
+  resumeParseWindows.set(clientAddress, window);
+  if (window.attempts > RESUME_PARSE_LIMIT) {
+    return sendJson(response, 429, { error: 'Too many resume-analysis attempts. Please wait a few minutes or continue manually.' });
+  }
+  try {
+    request.body = await readJson(request);
+  } catch (error) {
+    return sendJson(
+      response,
+      error.message === 'PAYLOAD_TOO_LARGE' ? 413 : 400,
+      { error: error.message === 'PAYLOAD_TOO_LARGE' ? 'Upload is too large.' : 'Invalid request.' },
+    );
+  }
+  response.status = (statusCode) => {
+    response.statusCode = statusCode;
+    return response;
+  };
+  response.json = (payload) => {
+    sendJson(response, response.statusCode || 200, payload);
+    return response;
+  };
+  return parseResume(request, response);
 }
 
 const parseFilters = value => {
@@ -260,6 +298,10 @@ const server = http.createServer(async (request, response) => {
     }
     if (request.url?.startsWith('/api/admin/applications')) {
       await handleAdminApplicationApi(request, response);
+      return;
+    }
+    if (request.url?.startsWith('/api/parse-resume')) {
+      await handleResumeParseApi(request, response);
       return;
     }
     if (request.url?.startsWith('/api/submit-application')) {
