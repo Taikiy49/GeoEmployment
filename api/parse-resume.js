@@ -85,6 +85,69 @@ const cleanRecord = (record, fields, max = 600) => Object.fromEntries(
 );
 const nonEmptyRecord = record => Object.values(record).some(Boolean);
 
+const SOFTWARE_SKILL_PATTERNS = [
+  /\b(microsoft|ms)\s*(office|word|excel|powerpoint|outlook|teams|project|access)\b/i,
+  /\b(onshape|solidworks?|autocad|civil\s*3d|revit|microstation|bluebeam|arcgis|qgis|gint|geostudio|lpile)\b/i,
+  /\b(adobe|photoshop|illustrator|indesign|acrobat|figma|canva)\b/i,
+  /\b(python|matlab|sql|javascript|typescript|r studio|r programming|excel)\b/i,
+  /\b(sap|salesforce|quickbooks|procore|primavera|sharepoint)\b/i,
+  /\b(cad|bim|gis|software)\b/i,
+];
+const COMMUNICATION_SKILL_PATTERNS = [
+  /\b(communication|presentation|public speaking|report writing|technical writing|writing)\b/i,
+  /\b(leadership|teamwork|team building|collaboration|mentoring|training)\b/i,
+  /\b(customer service|client service|client relations|stakeholder|interpersonal)\b/i,
+  /\b(organization|organizational|time management|project coordination|problem solving)\b/i,
+];
+const ADDITIONAL_SKILL_PATTERNS = [
+  /\b(graphic design|photography|videography|illustration|creative design)\b/i,
+];
+const TECHNICAL_SKILL_PATTERNS = [
+  /\b(data analysis|statistical analysis|engineering analysis|technical analysis)\b/i,
+  /\b(soldering|circuit assembly|fabrication|machining|welding|electronics)\b/i,
+  /\b(field|laboratory|lab|soil|concrete|asphalt|aggregate|drilling|sampling|inspection|testing)\b/i,
+  /\b(equipment|instrument|calibration|surveying|construction observation|quality control|quality assurance)\b/i,
+];
+
+const splitSkillList = value => String(value || '')
+  .replace(/[•·▪◦]/g, ',')
+  .split(/[,;|\n]+/)
+  .map(item => item.trim().replace(/^[-–—]\s*/, ''))
+  .filter(Boolean);
+const skillKey = value => value.toLowerCase().replace(/[^a-z0-9+#.]+/g, ' ').trim();
+const matchesAny = (value, patterns) => patterns.some(pattern => pattern.test(value));
+
+function normalizeSkillCategories(data) {
+  const categorized = [
+    ...splitSkillList(data.skillsTechnical).map(value => ({ value, origin: 'technical' })),
+    ...splitSkillList(data.computerSkills).map(value => ({ value, origin: 'software' })),
+    ...splitSkillList(data.skillsCommunication).map(value => ({ value, origin: 'communication' })),
+    ...splitSkillList(data.skillsSummary).map(value => ({ value, origin: 'additional' })),
+  ];
+  const buckets = { technical: [], software: [], communication: [], additional: [] };
+  const seen = new Set();
+
+  for (const item of categorized) {
+    const key = skillKey(item.value);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    let category = item.origin;
+    if (matchesAny(item.value, SOFTWARE_SKILL_PATTERNS)) category = 'software';
+    else if (matchesAny(item.value, COMMUNICATION_SKILL_PATTERNS)) category = 'communication';
+    else if (matchesAny(item.value, ADDITIONAL_SKILL_PATTERNS)) category = 'additional';
+    else if (matchesAny(item.value, TECHNICAL_SKILL_PATTERNS)) category = 'technical';
+    buckets[category].push(item.value);
+  }
+
+  return {
+    ...data,
+    skillsTechnical: buckets.technical.join(', '),
+    computerSkills: buckets.software.join(', '),
+    skillsCommunication: buckets.communication.join(', '),
+    skillsSummary: buckets.additional.join(', '),
+  };
+}
+
 function sanitizeResult(result) {
   const source = result?.data || {};
   const data = {
@@ -129,7 +192,7 @@ function sanitizeResult(result) {
       .filter(nonEmptyRecord),
   };
   return {
-    data,
+    data: normalizeSkillCategories(data),
     warnings: (Array.isArray(result?.warnings) ? result.warnings : []).slice(0, 10).map(item => trim(item, 240)).filter(Boolean),
   };
 }
@@ -169,6 +232,11 @@ Rules:
 - reason for leaving is intentionally excluded and must never be inferred.
 - Map the highest completed education to the provided enum. Do not treat an in-progress degree as completed.
 - Skills summaries may reorganize explicit resume facts but may not introduce claims or adjectives absent from the resume.
+- Treat the four skill fields as mutually exclusive lists. Every skill may appear in exactly one field—never repeat a skill across fields.
+- skillsTechnical is only for engineering, analytical, field, laboratory, testing, fabrication, equipment, and other hands-on technical capabilities. Do not put named computer applications there.
+- computerSkills is only for named software, computer applications, programming languages, CAD/BIM/GIS platforms, and digital systems.
+- skillsCommunication is only for communication, presentation, writing, leadership, teamwork, organization, customer/client service, mentoring, and coordination skills. Creative production skills such as graphic design do not belong there.
+- skillsSummary means additional relevant skills not already represented in the other three skill fields. Do not copy or summarize the other skill lists into it. Leave it empty when there are no remaining skills.
 - Calculate years of relevant experience conservatively from non-overlapping listed roles only when dates support it; otherwise leave it empty.
 - A supervisor may be extracted only if explicitly identified as that job's supervisor.
 - A driver license may be extracted only if explicitly listed.
@@ -233,4 +301,4 @@ export default async function handler(request, response) {
   }
 }
 
-export { sanitizeResult };
+export { normalizeSkillCategories, sanitizeResult };

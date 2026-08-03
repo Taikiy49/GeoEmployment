@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { sanitizeResult } from '../api/parse-resume.js';
+import { normalizeSkillCategories, sanitizeResult } from '../api/parse-resume.js';
 import { countResumeValues, mergeResumeAutofill } from '../src/lib/resumeAutofill.js';
 import { INITIAL_FORM_DATA } from '../src/lib/initialFormData.js';
 
@@ -43,5 +43,24 @@ assert.equal(merged.certificationSignature, 'Must remain untouched');
 assert.equal(merged.eeoGender, 'Must remain untouched');
 assert.equal(merged.resumeAutoFillModel, 'test-model');
 assert.ok(countResumeValues(parsed.data) > 10);
+
+const vianneSkills = normalizeSkillCategories({
+  skillsTechnical: 'Onshape, Solidworks, soldering, circuit assembly, data analysis, Microsoft Office',
+  computerSkills: 'Onshape, Solidworks, data analysis, Microsoft Office',
+  skillsCommunication: 'presentation, graphic design, leadership, organization, customer service',
+  skillsSummary: 'Onshape, Solidworks, soldering, circuit assembly, data analysis, presentation, graphic design, leadership, organization, customer service, Microsoft Office',
+});
+assert.equal(vianneSkills.skillsTechnical, 'soldering, circuit assembly, data analysis');
+assert.equal(vianneSkills.computerSkills, 'Onshape, Solidworks, Microsoft Office');
+assert.equal(vianneSkills.skillsCommunication, 'presentation, leadership, organization, customer service');
+assert.equal(vianneSkills.skillsSummary, 'graphic design');
+
+const allCategorizedSkills = [
+  vianneSkills.skillsTechnical,
+  vianneSkills.computerSkills,
+  vianneSkills.skillsCommunication,
+  vianneSkills.skillsSummary,
+].flatMap(value => value.split(', ')).map(value => value.toLowerCase());
+assert.equal(new Set(allCategorizedSkills).size, allCategorizedSkills.length, 'No skill may appear in more than one category.');
 
 console.log('Resume autofill sanitization and safe merge passed.');

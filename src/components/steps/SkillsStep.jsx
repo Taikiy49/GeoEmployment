@@ -77,7 +77,8 @@ export default function SkillsStep({ formData, setFormData, onNext, onBack }) {
             value={formData.skillsSummary}
             onChange={(v) => update('skillsSummary', v)}
             rows={3}
-            placeholder="Anything else that supports your application"
+            placeholder="Other relevant skills not already listed above"
+            hint="Avoid repeating technical, software, or communication skills already entered in the fields above."
           />
         </div>
       </FormSection>
