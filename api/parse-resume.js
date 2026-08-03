@@ -27,8 +27,6 @@ const employmentSchema = {
     duties: stringSchema,
     supervisor: stringSchema,
   },
-  required: ['company', 'address', 'phone', 'position', 'dateFrom', 'dateTo', 'duties', 'supervisor'],
-  additionalProperties: false,
 };
 const educationSchema = {
   type: 'object',
@@ -39,14 +37,10 @@ const educationSchema = {
     field: stringSchema,
     yearCompleted: stringSchema,
   },
-  required: ['institution', 'location', 'degree', 'field', 'yearCompleted'],
-  additionalProperties: false,
 };
 const referenceSchema = {
   type: 'object',
   properties: { name: stringSchema, company: stringSchema, phone: stringSchema },
-  required: ['name', 'company', 'phone'],
-  additionalProperties: false,
 };
 const responseSchema = {
   type: 'object',
@@ -80,34 +74,9 @@ const responseSchema = {
         affiliations: stringSchema,
         references: { type: 'array', items: referenceSchema, maxItems: 3 },
       },
-      required: [
-        'firstName', 'middleName', 'lastName', 'address', 'city', 'state', 'zip',
-        'email', 'phone', 'driverLicense', 'employment', 'education',
-        'highestEducationLevel', 'skillsYearsExperience', 'skillsPrimaryFocus',
-        'skillsTechnical', 'skillsCommunication', 'certifications',
-        'fieldLabExperience', 'computerSkills', 'skillsSummary', 'professionalOrgs',
-        'professionalLicenses', 'affiliations', 'references',
-      ],
-      additionalProperties: false,
     },
-    evidence: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          field: stringSchema,
-          source: stringSchema,
-          confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
-        },
-        required: ['field', 'source', 'confidence'],
-        additionalProperties: false,
-      },
-      maxItems: 60,
-    },
-    warnings: { type: 'array', items: stringSchema, maxItems: 10 },
+    warnings: { type: 'array', items: stringSchema },
   },
-  required: ['data', 'evidence', 'warnings'],
-  additionalProperties: false,
 };
 
 const trim = (value, max = 600) => String(value || '').trim().slice(0, max);
@@ -161,11 +130,6 @@ function sanitizeResult(result) {
   };
   return {
     data,
-    evidence: (Array.isArray(result?.evidence) ? result.evidence : []).slice(0, 60).map(item => ({
-      field: trim(item?.field, 100),
-      source: trim(item?.source, 240),
-      confidence: ['high', 'medium', 'low'].includes(item?.confidence) ? item.confidence : 'low',
-    })).filter(item => item.field && item.source),
     warnings: (Array.isArray(result?.warnings) ? result.warnings : []).slice(0, 10).map(item => trim(item, 240)).filter(Boolean),
   };
 }
@@ -210,7 +174,6 @@ Rules:
 - A driver license may be extracted only if explicitly listed.
 - Never infer or return age, birth date, graduation-based age, sex/gender, race/ethnicity, disability, medical information, veteran status, religion, marital/family status, citizenship, national origin, photographs, authorization initials, consent, or signatures.
 - Do not populate job applied for, desired salary, availability, referral source, accommodations, medical answers, or legal acknowledgments.
-- For each populated field, provide a short source excerpt and confidence. Mark derived summaries medium confidence.
 - Add a warning for ambiguous, conflicting, incomplete, or low-confidence information.
 
 Return only the structured response requested by the schema.`;
