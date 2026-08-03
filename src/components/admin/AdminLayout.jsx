@@ -27,7 +27,9 @@ export default function AdminLayout({ children }) {
   const nav = BASE_NAV;
 
   const NavItem = ({ item }) => {
-    const active = location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(item.to));
+    const active = item.to === '/admin'
+      ? location.pathname === '/admin'
+      : location.pathname === item.to || location.pathname.startsWith(`${item.to}/`);
     return (
       <Link
         to={item.to}
@@ -52,7 +54,7 @@ export default function AdminLayout({ children }) {
         <div className="flex items-center gap-3">
           <img src={BRAND_LOGO_URL} alt="Geolabs, Inc." className="w-11 h-11 object-contain" />
           <div>
-            <div className="text-sm font-black leading-tight tracking-wide text-[#D69A6B]">HR Admin Portal</div>
+            <div className="text-sm font-black leading-tight tracking-wide text-white">HR Admin Portal</div>
           </div>
         </div>
       </div>
