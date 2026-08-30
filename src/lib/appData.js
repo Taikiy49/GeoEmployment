@@ -39,7 +39,7 @@ const writeStore = (key, value) => {
 
 const makeId = (prefix = 'id') => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-const seedJobs = () => [
+export const seedJobs = () => [
   {
     id: 'job-2025-04',
     externalId: '2025-04',
@@ -184,6 +184,27 @@ const usesServerApplicationStore = () => (
   && window.location.pathname.startsWith('/admin')
 );
 
+const usesServerJobStore = () => (
+  typeof window !== 'undefined'
+  && !['localhost', '127.0.0.1'].includes(window.location.hostname)
+);
+
+const jobApi = async (path = '', options = {}) => {
+  const admin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+  const response = await fetch(`${admin ? '/api/admin/jobs' : '/api/jobs'}${path}`, {
+    credentials: 'same-origin',
+    headers: { Accept: 'application/json', ...(options.body ? { 'Content-Type': 'application/json' } : {}) },
+    ...options,
+  });
+  const result = await response.json().catch(() => ({}));
+  if (response.status === 401 && admin) {
+    window.location.assign(`/auth/login?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+    throw new Error('Microsoft admin authentication is required.');
+  }
+  if (!response.ok) throw new Error(result.error || 'Job opening request failed.');
+  return result;
+};
+
 const applicationApi = async (path = '', options = {}) => {
   const response = await fetch(`/api/admin/applications${path}`, {
     credentials: 'same-origin',
@@ -237,16 +258,25 @@ export const appData = {
   entities: {
     JobRequisition: {
       filter: async (params = {}, sortField = null, limit = 100) => {
+        if (usesServerJobStore()) {
+          const query = new URLSearchParams({ filters: JSON.stringify(params), sort: sortField || '-created_date', limit: String(limit) });
+          return (await jobApi(`?${query}`)).jobs;
+        }
         const jobs = getCollection('geolabs_jobs', []);
         const results = jobs.filter((job) => matchFilters(job, params));
         const sorted = sortCollection(results, sortField);
         return sorted.slice(0, limit);
       },
       list: async (sortField = '-created_date', limit = 200) => {
+        if (usesServerJobStore()) {
+          const query = new URLSearchParams({ sort: sortField, limit: String(limit) });
+          return (await jobApi(`?${query}`)).jobs;
+        }
         const jobs = getCollection('geolabs_jobs', []);
         return sortCollection(jobs, sortField).slice(0, limit);
       },
       create: async (data) => {
+        if (usesServerJobStore()) return (await jobApi('', { method: 'POST', body: JSON.stringify(data) })).job;
         const jobs = getCollection('geolabs_jobs', []);
         const next = {
           id: data.id || makeId('job'),
@@ -259,6 +289,7 @@ export const appData = {
         return next;
       },
       update: async (id, updates) => {
+        if (usesServerJobStore()) return (await jobApi(`/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(updates) })).job;
         const jobs = getCollection('geolabs_jobs', []);
         const index = jobs.findIndex((job) => job.id === id);
         if (index === -1) return null;
@@ -267,6 +298,10 @@ export const appData = {
         return jobs[index];
       },
       delete: async (id) => {
+        if (usesServerJobStore()) {
+          await jobApi(`/${encodeURIComponent(id)}`, { method: 'DELETE' });
+          return true;
+        }
         const jobs = getCollection('geolabs_jobs', []);
         const updated = jobs.filter((job) => job.id !== id);
         saveCollection('geolabs_jobs', updated);

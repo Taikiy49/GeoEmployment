@@ -26,9 +26,8 @@ export const INITIAL_FORM_DATA = {
     { company: '', address: '', phone: '', position: '', dateFrom: '', dateTo: '', duties: '', reasonForLeaving: '', supervisor: '' },
   ],
 
-  // Education (3 entries)
+  // Education (start with 2 entries; applicants can add more)
   education: [
-    { institution: '', location: '', degree: '', field: '', yearCompleted: '' },
     { institution: '', location: '', degree: '', field: '', yearCompleted: '' },
     { institution: '', location: '', degree: '', field: '', yearCompleted: '' },
   ],
@@ -47,21 +46,26 @@ export const INITIAL_FORM_DATA = {
 
   // References (3 entries)
   references: [
-    { name: '', company: '', phone: '' },
-    { name: '', company: '', phone: '' },
-    { name: '', company: '', phone: '' },
+    { name: '', title: '', company: '', phone: '' },
+    { name: '', title: '', company: '', phone: '' },
+    { name: '', title: '', company: '', phone: '' },
   ],
   certifyInitials: '',
 
   // Medical
+  medInitials: '',
   canPerformDuties: false,
   needsAccommodation: false,
 
   // Affiliations
+  affiliations: '',
   professionalOrgs: '',
   professionalLicenses: '',
 
   // Certification
+  fcrInitials: '',
+  knowEmployee: '',
+  knowEmployeeName: '',
   certificationAgreed: false,
   certificationSignature: '',
   certificationDate: '',
@@ -71,14 +75,6 @@ export const INITIAL_FORM_DATA = {
   eeoDate: '',
   eeoGender: '',
   eeoRace: '',
-
-  // Disability
-  disabilityName: '',
-  disabilityDate: '',
-  disabilityEmployeeId: '',
-  disabilityStatus: '',
-  disabilitySignature: '',
-  disabilitySignatureDate: '',
 
   // Veteran
   veteranStatus: '',

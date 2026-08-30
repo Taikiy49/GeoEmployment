@@ -28,11 +28,12 @@ const EMPTY_FORM = {
 export default function JobEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const isNew = id === 'new';
+  const isNew = !id || id === 'new';
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!isNew) {
@@ -66,8 +67,14 @@ export default function JobEditor() {
 
   const save = async (targetStatus) => {
     setSaving(true);
+    setError('');
     const now = new Date().toISOString();
     const data = { ...form };
+    if (isNew && !data.id) {
+      data.id = typeof crypto !== 'undefined' && crypto.randomUUID
+        ? `job-${crypto.randomUUID()}`
+        : `job-${Date.now()}`;
+    }
     if (targetStatus) {
       const prevStatus = data.status;
       data.status = targetStatus;
@@ -78,12 +85,16 @@ export default function JobEditor() {
       if (targetStatus === 'published') data.publishedDate = now;
     }
 
-    if (isNew) {
-      const created = await appClient.entities.JobRequisition.create(data);
-      navigate(`/admin/jobs/${created.id}`);
-    } else {
-      await appClient.entities.JobRequisition.update(id, data);
-      navigate(`/admin/jobs/${id}`);
+    try {
+      if (isNew) {
+        const created = await appClient.entities.JobRequisition.create(data);
+        navigate(`/admin/jobs/${created?.id || data.id}`);
+      } else {
+        await appClient.entities.JobRequisition.update(id, data);
+        navigate(`/admin/jobs/${id}`);
+      }
+    } catch {
+      setError('This job opening could not be saved. Please try again.');
     }
     setSaving(false);
   };
@@ -118,7 +129,7 @@ export default function JobEditor() {
           <Link to="/admin/jobs" className="p-1.5 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]">
             <ChevronLeft className="w-4 h-4" />
           </Link>
-          <h1 className="text-xl font-semibold text-navy">{isNew ? 'New Requisition' : 'Edit Requisition'}</h1>
+          <h1 className="text-xl font-bold text-navy">{isNew ? 'New Job Opening' : 'Edit Job Opening'}</h1>
         </div>
 
         {/* Basic Info */}
@@ -248,7 +259,8 @@ export default function JobEditor() {
         </section>
 
         {/* Actions */}
-        <div className="flex items-center justify-between pt-2">
+        {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{error}</div>}
+        <div className="flex flex-col-reverse items-stretch justify-between gap-3 pt-2 sm:flex-row sm:items-center">
           <Link to="/admin/jobs">
             <Button variant="outline" className="rounded-full px-5 h-9 text-sm">Cancel</Button>
           </Link>
@@ -257,12 +269,12 @@ export default function JobEditor() {
               <Save className="w-3.5 h-3.5 mr-1.5" /> Save Draft
             </Button>
             <Button
-              onClick={() => save('pending_approval')}
-              disabled={saving || !form.title || !form.department}
+              onClick={() => save('published')}
+              disabled={saving || !form.title || !form.department || !form.description}
               className="rounded-full px-5 h-9 text-sm bg-bronze hover:bg-bronze-dark text-white"
             >
               {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" /> : <Send className="w-3.5 h-3.5 mr-1.5" />}
-              Submit for Approval
+              Publish Opening
             </Button>
           </div>
         </div>

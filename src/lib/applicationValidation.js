@@ -11,6 +11,7 @@ const FIELD_DESTINATIONS = {
   highestEducationLevel: { step: 2, task: 1, section: 'Education' },
   certifyInitials: { step: 3, task: 0, section: 'Reference authorization' },
   medInitials: { step: 3, task: 1, section: 'Medical authorization' },
+  fcrInitials: { step: 3, task: 3, section: 'FCRA disclosure' },
 };
 
 const issue = (key, label, destination) => ({ key, label, ...destination });

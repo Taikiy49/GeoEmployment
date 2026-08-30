@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { appClient } from '@/api/localClient';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Copy, Archive, Eye, Pencil, Briefcase } from 'lucide-react';
+import { Plus, Search, Eye, Pencil, Briefcase, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { ReqStatusBadge } from './Dashboard';
 
-const STATUS_FILTERS = ['all', 'draft', 'pending_approval', 'approved', 'published', 'paused', 'closed', 'archived'];
+const STATUS_FILTERS = ['all', 'draft', 'published', 'paused', 'closed'];
 
 export default function JobsList() {
   const [reqs, setReqs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [error, setError] = useState('');
 
   const load = () => {
+    setLoading(true);
+    setError('');
     appClient.entities.JobRequisition.list('-created_date', 200).then(r => {
       setReqs(r);
       setLoading(false);
-    });
+    }).catch(() => { setError('Job openings could not be loaded. Please try again.'); setLoading(false); });
   };
 
   useEffect(() => { load(); }, []);
@@ -30,28 +33,19 @@ export default function JobsList() {
     return matchStatus && matchSearch;
   });
 
-  const handleDuplicate = async (req) => {
-    const { id, created_date, updated_date, ...rest } = req;
-    await appClient.entities.JobRequisition.create({
-      ...rest, title: `${rest.title} (Copy)`, status: 'draft',
-      statusHistory: [], publishedDate: null, approvedDate: null, approvedBy: null,
-    });
-    load();
-  };
-
-  const handleArchive = async (req) => {
-    await appClient.entities.JobRequisition.update(req.id, { status: 'archived' });
-    load();
-  };
-
   const handleStatusChange = async (req, newStatus) => {
+    setError('');
     const now = new Date().toISOString();
     const history = [...(req.statusHistory || []), { status: newStatus, changedAt: now, changedBy: 'admin' }];
     const updates = { status: newStatus, statusHistory: history };
     if (newStatus === 'published') updates.publishedDate = now;
     if (newStatus === 'closed') updates.closedDate = now;
-    await appClient.entities.JobRequisition.update(req.id, updates);
-    load();
+    try {
+      await appClient.entities.JobRequisition.update(req.id, updates);
+      load();
+    } catch {
+      setError('The opening status could not be changed. Please try again.');
+    }
   };
 
   return (
@@ -59,12 +53,12 @@ export default function JobsList() {
       <div className="space-y-5">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-black text-gray-900 tracking-tight">Job Requisitions</h1>
+            <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Job Openings</h1>
             <p className="text-sm text-gray-500 mt-0.5">{reqs.length} total · {reqs.filter(r => r.status === 'published').length} published</p>
           </div>
           <Link to="/admin/jobs/new">
             <Button className="rounded-xl px-5 h-10 text-sm bg-[#A65F2A] hover:bg-[#8A4A22] text-white font-bold shadow-lg shadow-[#A65F2A]/20">
-              <Plus className="w-4 h-4 mr-1.5" /> New Requisition
+              <Plus className="w-4 h-4 mr-1.5" /> New Opening
             </Button>
           </Link>
         </div>
@@ -98,11 +92,13 @@ export default function JobsList() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
           {loading ? (
             <div className="flex items-center justify-center h-48">
               <div className="w-7 h-7 border-2 border-gray-200 border-t-[#A65F2A] rounded-full animate-spin" />
             </div>
+          ) : error ? (
+            <div className="py-14 text-center"><p className="text-sm font-semibold text-red-700">{error}</p><button onClick={load} className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-[#8A4A22]"><RefreshCw className="h-3.5 w-3.5" />Try again</button></div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
@@ -140,12 +136,6 @@ export default function JobsList() {
                       <td className="px-5 py-4">
                         <div className="flex items-center justify-end gap-1">
                           {req.status === 'draft' && (
-                            <button onClick={() => handleStatusChange(req, 'pending_approval')} className="px-2.5 py-1 text-[10px] rounded-lg font-bold bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100 transition-colors">Submit</button>
-                          )}
-                          {req.status === 'pending_approval' && (
-                            <button onClick={() => handleStatusChange(req, 'approved')} className="px-2.5 py-1 text-[10px] rounded-lg font-bold bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 transition-colors">Approve</button>
-                          )}
-                          {req.status === 'approved' && (
                             <button onClick={() => handleStatusChange(req, 'published')} className="px-2.5 py-1 text-[10px] rounded-lg font-bold bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 transition-colors">Publish</button>
                           )}
                           {req.status === 'published' && (
@@ -160,12 +150,6 @@ export default function JobsList() {
                           <Link to={`/admin/jobs/${req.id}/edit`} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
                             <Pencil className="w-3.5 h-3.5" />
                           </Link>
-                          <button onClick={() => handleDuplicate(req)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors">
-                            <Copy className="w-3.5 h-3.5" />
-                          </button>
-                          <button onClick={() => handleArchive(req)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
-                            <Archive className="w-3.5 h-3.5" />
-                          </button>
                         </div>
                       </td>
                     </tr>

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { appClient } from '@/api/localClient';
 import { Link } from 'react-router-dom';
-import { Search, ChevronRight, LayoutGrid, List } from 'lucide-react';
+import { Search, ChevronRight, RefreshCw } from 'lucide-react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { StageBadge } from './Dashboard';
-import KanbanBoard from '../../components/admin/KanbanBoard';
 
 const STAGES = ['all', 'applied', 'under_review', 'phone_screen', 'interview', 'offer', 'hired', 'rejected', 'withdrawn'];
 
@@ -15,7 +14,7 @@ export default function ApplicationsList() {
   const [search, setSearch] = useState('');
   const [stageFilter, setStageFilter] = useState('all');
   const [jobFilter, setJobFilter] = useState('all');
-  const [viewMode, setViewMode] = useState('list'); // 'list' | 'kanban'
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -24,6 +23,8 @@ export default function ApplicationsList() {
     if (reqId) setJobFilter(reqId);
     if (stageParam) setStageFilter(stageParam);
 
+    setLoading(true);
+    setError('');
     Promise.all([
       appClient.entities.Application.filter({ status: 'active', isDraft: false }, '-created_date', 500),
       appClient.entities.JobRequisition.list('-created_date', 200),
@@ -31,7 +32,7 @@ export default function ApplicationsList() {
       setApps(a);
       setReqs(r);
       setLoading(false);
-    });
+    }).catch(() => { setError('Applications could not be loaded. Please try again.'); setLoading(false); });
   }, []);
 
   const filtered = apps.filter(app => {
@@ -56,20 +57,9 @@ export default function ApplicationsList() {
             <h1 className="text-2xl font-black text-gray-900 tracking-tight">Applications</h1>
             <p className="text-sm text-gray-500 mt-0.5">{filtered.length} result{filtered.length !== 1 ? 's' : ''} of {apps.length} total</p>
           </div>
-          <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1">
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-400 hover:text-gray-700'}`}
-            >
-              <List className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('kanban')}
-              className={`p-1.5 rounded-lg transition-colors ${viewMode === 'kanban' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-400 hover:text-gray-700'}`}
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-          </div>
+          <button onClick={() => window.location.reload()} className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 hover:border-gray-300 hover:text-gray-900">
+            <RefreshCw className="h-3.5 w-3.5" /> Refresh
+          </button>
         </div>
 
         {/* Filters */}
@@ -111,17 +101,14 @@ export default function ApplicationsList() {
           </div>
         </div>
 
-        {/* Kanban View */}
-        {viewMode === 'kanban' && !loading && (
-          <KanbanBoard apps={apps} setApps={setApps} jobFilter={jobFilter} />
-        )}
-
         {/* Table */}
-        {viewMode === 'list' && <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
           {loading ? (
             <div className="flex items-center justify-center h-48">
               <div className="w-7 h-7 border-2 border-gray-200 border-t-[#A65F2A] rounded-full animate-spin" />
             </div>
+          ) : error ? (
+            <div className="py-14 text-center"><p className="text-sm font-semibold text-red-700">{error}</p><button onClick={() => window.location.reload()} className="mt-3 text-xs font-semibold text-[#8A4A22]">Try again</button></div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
               <p className="text-sm text-gray-500">No applications match your filters.</p>
@@ -178,7 +165,7 @@ export default function ApplicationsList() {
               </table>
             </div>
           )}
-        </div>}
+        </div>
       </div>
     </AdminLayout>
   );

@@ -122,6 +122,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
           <ReviewBlock title="Certifications & Acknowledgments" onEdit={() => onNavigate(3, 0)}>
             <ReviewRow label="Reference Authorization" value={formData.certifyInitials ? `Initialed: ${formData.certifyInitials}` : 'Missing'} />
             <ReviewRow label="Medical Policy" value={formData.medInitials ? `Initialed: ${formData.medInitials}` : 'Missing'} />
+            <ReviewRow label="FCRA Disclosure" value={formData.fcrInitials ? `Initialed: ${formData.fcrInitials}` : 'Missing'} />
             <ReviewRow
               label="Employment Certification"
               value={formData.certificationAgreed
@@ -145,12 +146,6 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
               label="EEO Survey"
               value={formData.eeoGender || formData.eeoRace
                 ? `${formData.eeoName || 'Name not provided'} · ${formData.eeoDate || 'Date not provided'}`
-                : 'No response provided'}
-            />
-            <ReviewRow
-              label="Disability Form"
-              value={formData.disabilityStatus
-                ? `${formData.disabilitySignature || formData.disabilityName || 'Name not provided'} · ${formData.disabilitySignatureDate || formData.disabilityDate || 'Date not provided'}`
                 : 'No response provided'}
             />
             <ReviewRow

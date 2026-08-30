@@ -3,7 +3,6 @@ import { appClient } from '@/api/localClient';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft, FileText, Lock, MessageSquare, Clock, ExternalLink, Send, Shield, AlertTriangle, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { generateInterviewDOCX, generateFullDOCX } from '@/utils/generateApplicationDOCX';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '../../components/admin/AdminLayout';
@@ -15,6 +14,12 @@ const STAGE_LABELS = {
   interview: 'Interview', offer: 'Offer', hired: 'Hired', rejected: 'Rejected', withdrawn: 'Withdrawn'
 };
 
+const veteranStatusLabel = value => ({
+  protected: 'I identify as one or more of the following classifications of protected veterans',
+  notProtected: 'I am not a protected veteran',
+  noAnswer: 'I do not wish to self-identify',
+})[value] || value || '—';
+
 export default function ApplicationDetail() {
   const { id } = useParams();
   const [app, setApp] = useState(null);
@@ -25,8 +30,8 @@ export default function ApplicationDetail() {
   const [showEEO, setShowEEO] = useState(false);
   const [user, setUser] = useState(null);
   const [confirmStage, setConfirmStage] = useState(null);
-  const [exportingInterview, setExportingInterview] = useState(false);
-  const [exportingFull, setExportingFull] = useState(false);
+  const [actionError, setActionError] = useState('');
+  const [updatingStage, setUpdatingStage] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -46,6 +51,8 @@ export default function ApplicationDetail() {
     if (!confirmStage) return;
     const newStage = confirmStage;
     setConfirmStage(null);
+    setUpdatingStage(true);
+    setActionError('');
     const now = new Date().toISOString();
     const stageHistory = [...(app.stageHistory || []), {
       stage: newStage, changedAt: now, changedBy: user?.email || 'admin',
@@ -55,8 +62,14 @@ export default function ApplicationDetail() {
       action: `Stage changed to ${newStage}`, performedBy: user?.email || 'admin',
       performedAt: now, details: `From: ${app.stage} → To: ${newStage}`
     }];
-    const updated = await appClient.entities.Application.update(id, { stage: newStage, stageHistory, auditTrail });
-    setApp(updated);
+    try {
+      const updated = await appClient.entities.Application.update(id, { stage: newStage, stageHistory, auditTrail });
+      setApp(updated);
+    } catch {
+      setActionError('The candidate stage could not be updated. Please try again.');
+    } finally {
+      setUpdatingStage(false);
+    }
   };
 
   const handleStageChange = (newStage) => {
@@ -80,11 +93,17 @@ export default function ApplicationDetail() {
       action: 'Note added', performedBy: user?.email || 'admin',
       performedAt: now, details: 'Recruiter note added'
     }];
-    const updated = await appClient.entities.Application.update(id, { recruiterNotes: updatedNotes, auditTrail });
-    setApp(updated);
-    setNotes(updatedNotes);
-    setNewNote('');
-    setSavingNote(false);
+    setActionError('');
+    try {
+      const updated = await appClient.entities.Application.update(id, { recruiterNotes: updatedNotes, auditTrail });
+      setApp(updated);
+      setNotes(updatedNotes);
+      setNewNote('');
+    } catch {
+      setActionError('The recruiter note could not be saved. Please try again.');
+    } finally {
+      setSavingNote(false);
+    }
   };
 
   const formData = app?.applicationData || {};
@@ -95,6 +114,7 @@ export default function ApplicationDetail() {
   return (
     <AdminLayout>
       <div className="max-w-5xl mx-auto space-y-5">
+        {actionError && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{actionError}</div>}
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -113,25 +133,6 @@ export default function ApplicationDetail() {
             <div className="text-xs text-[#64748b] mt-0.5">
               {app.email} · Applied {new Date(app.submittedAt || app.created_date).toLocaleDateString()} · {app.requisitionTitle || app.positionAppliedFor || 'Position TBD'}
             </div>
-          </div>
-          {/* PDF Export Buttons */}
-          <div className="flex gap-2 flex-shrink-0 flex-wrap">
-            <button
-              onClick={async () => { setExportingInterview(true); await generateInterviewDOCX(app); setExportingInterview(false); }}
-              disabled={exportingInterview}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border border-[#e2e8f0] bg-white text-[#334155] hover:border-bronze hover:text-bronze transition-colors disabled:opacity-50"
-            >
-              <Download className="w-3.5 h-3.5" />
-              {exportingInterview ? 'Generating…' : 'Interview Packet (.docx)'}
-            </button>
-            <button
-              onClick={async () => { setExportingFull(true); await generateFullDOCX(app); setExportingFull(false); }}
-              disabled={exportingFull}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-bronze text-white hover:bg-bronze-dark transition-colors disabled:opacity-50"
-            >
-              <Download className="w-3.5 h-3.5" />
-              {exportingFull ? 'Generating…' : 'Full Record (.docx)'}
-            </button>
           </div>
         </motion.div>
 
@@ -282,8 +283,8 @@ export default function ApplicationDetail() {
               <div className="grid grid-cols-2 gap-3">
                 <DataRow label="Reference Authorization Initials" value={formData.certifyInitials || '—'} />
                 <DataRow label="Medical Disclosure Initials" value={formData.medInitials || '—'} />
-                <DataRow label="Can Perform Duties (ADA)" value={formData.canPerformDuties ? 'Yes' : 'No'} />
-                <DataRow label="Accommodation Requested" value={formData.needsAccommodation ? 'Yes' : 'No'} />
+                <DataRow label="Can Perform Duties (ADA)" value={formData.canPerformDuties === true ? 'Yes' : formData.canPerformDuties === false ? 'No' : '—'} />
+                <DataRow label="Accommodation Requested" value={formData.needsAccommodation === true ? 'Yes' : formData.needsAccommodation === false ? 'No' : '—'} />
                 <DataRow label="Certification Agreed" value={formData.certificationAgreed ? 'Yes' : 'No'} />
                 <DataRow label="Electronic Signature" value={formData.certificationSignature || '—'} />
                 <DataRow label="Signature Date" value={formData.certificationDate || '—'} />
@@ -313,11 +314,10 @@ export default function ApplicationDetail() {
                 <div className="grid grid-cols-2 gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
                   <DataRow label="Gender" value={app.eeoData?.gender || formData.eeoGender || '—'} />
                   <DataRow label="Race / Ethnicity" value={app.eeoData?.race || formData.eeoRace || '—'} />
-                  <DataRow label="Disability Status" value={app.eeoData?.disabilityStatus || formData.disabilityStatus || '—'} />
-                  <DataRow label="Veteran Status" value={app.eeoData?.veteranStatus || formData.veteranStatus || '—'} />
+                  <DataRow label="Veteran Status" value={veteranStatusLabel(app.eeoData?.veteranStatus || formData.veteranStatus)} />
                 </div>
               ) : (
-                <p className="text-xs text-[#94a3b8] italic">EEO, disability, and veteran data is access-restricted. Click Reveal to view (HR Admin only).</p>
+                <p className="text-xs text-[#94a3b8] italic">EEO and veteran data is access-restricted. Click Reveal to view (HR Admin only).</p>
               )}
             </div>
 
@@ -378,6 +378,28 @@ export default function ApplicationDetail() {
                 >
                   <ExternalLink className="w-3.5 h-3.5" /> View / Download Resume
                 </a>
+              </div>
+            )}
+
+            {(app.documents || []).length > 0 && (
+              <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-4">
+                <h3 className="text-xs font-semibold text-navy mb-3 flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-bronze" /> Application Files
+                </h3>
+                <div className="space-y-2.5">
+                  {app.documents.map(document => (
+                    <a
+                      key={document.key}
+                      href={document.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-start gap-2 text-xs text-bronze hover:underline"
+                    >
+                      {document.restricted ? <Lock className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-purple-600" /> : <Download className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />}
+                      <span>{document.label}{document.restricted ? ' (Restricted)' : ''}</span>
+                    </a>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -451,6 +473,7 @@ export default function ApplicationDetail() {
               </button>
               <button
                 onClick={handleStageChangeConfirmed}
+                disabled={updatingStage}
                 className={`px-4 py-2 rounded-lg text-xs font-semibold text-white transition-colors ${
                   ['rejected', 'withdrawn'].includes(confirmStage)
                     ? 'bg-red-500 hover:bg-red-600'

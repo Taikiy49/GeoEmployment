@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import NavigationButtons from '../app/NavigationButtons';
+import { VETERAN_INTRO_PARAGRAPHS } from '@/lib/legalTexts';
 
 const VET_OPTIONS = [
   {
     value: 'protected',
-    label: 'I identify as one or more classifications of protected veterans',
+    label: 'I identify as one or more of the following classifications of protected veterans',
     desc: 'Includes Disabled Veteran, Recently Separated Veteran, Active-Duty Wartime/Campaign Badge Veteran, or Armed Forces Service Medal Veteran.',
   },
   {
@@ -60,15 +61,9 @@ export default function VeteranStep({ formData, setFormData, onNext, onBack }) {
 
       {/* Legal intro */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
-        <p className="text-xs text-gray-700 leading-relaxed">
-          Under the regulations implementing the affirmative action provisions of the Vietnam Era Veterans' Readjustment Assistance Act (VEVRAA) of 1972 issued by the Office of Federal Contract Compliance Programs (OFCCP), federal contractors are required to invite applicants and current employees to inform the contractor whether they are veterans belonging to one or more of the categories of veterans covered under VEVRAA who wish to benefit under the contractor's affirmative action program (AAP) for covered veterans.
-        </p>
-        <p className="text-xs text-gray-700 leading-relaxed">
-          In extending this invitation, we advise you that: (a) workers and applicants are under no obligation to respond but may do so in the future if they choose; (b) responses will remain confidential within the Human Resources department; and (c) responses will be used only for the necessary information to include in our affirmative action plan.
-        </p>
-        <p className="text-xs text-gray-700 leading-relaxed">
-          Refusal to provide this information will have no bearing on your application and will not subject you to any adverse treatment.
-        </p>
+        {VETERAN_INTRO_PARAGRAPHS.map(paragraph => (
+          <p key={paragraph} className="text-xs text-gray-700 leading-relaxed">{paragraph}</p>
+        ))}
       </div>
 
       {/* Status choice */}
@@ -76,7 +71,7 @@ export default function VeteranStep({ formData, setFormData, onNext, onBack }) {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-gray-800">Veteran Status</h3>
-            <p className="text-xs text-gray-400 mt-0.5">Select one option, or choose "I do not wish to self-identify."</p>
+            <p className="text-xs text-gray-400 mt-0.5">Select one option.</p>
           </div>
           <button type="button" onClick={() => update('veteranStatus', '')}
             className="text-[11px] text-gray-400 hover:text-gray-600 underline">Clear</button>
@@ -125,7 +120,7 @@ export default function VeteranStep({ formData, setFormData, onNext, onBack }) {
         <h3 className="text-sm font-semibold text-gray-800">Electronic Signature</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Signature of Applicant</label>
+            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Print Name / Signature</label>
             <input type="text" value={formData.vetSignature || ''} onChange={e => update('vetSignature', e.target.value)}
               placeholder="Type your full legal name"
               className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-bronze/25 focus:border-bronze italic" />

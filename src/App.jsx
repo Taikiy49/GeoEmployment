@@ -19,7 +19,6 @@ import JobDetail from './pages/admin/JobDetail';
 import ApplicationsList from './pages/admin/ApplicationsList';
 import ApplicationDetail from './pages/admin/ApplicationDetail';
 import AdminSettings from './pages/admin/AdminSettings';
-import EmailTemplates from './pages/admin/EmailTemplates';
 
 // Protects admin routes — only admin role can enter
 const AdminRoute = ({ children }) => {
@@ -62,7 +61,7 @@ const AuthenticatedApp = () => {
       <Route path="/admin/applications" element={<AdminRoute><ApplicationsList /></AdminRoute>} />
       <Route path="/admin/applications/:id" element={<AdminRoute><ApplicationDetail /></AdminRoute>} />
       <Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
-      <Route path="/admin/email-templates" element={<AdminRoute><EmailTemplates /></AdminRoute>} />
+      <Route path="/admin/email-templates" element={<Navigate to="/admin/settings" replace />} />
       <Route path="/" element={<JobBoard />} />
       <Route path="/apply/:requisitionId" element={<Application />} />
       <Route path="/apply" element={<Application />} />

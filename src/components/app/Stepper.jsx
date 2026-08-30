@@ -16,7 +16,7 @@ export const APPLICATION_STAGE_TASKS = {
   2: ['Employment', 'Education', 'Skills'],
   3: ['References', 'Medical authorization', 'Affiliations', 'Certification'],
   4: ['Agreement & signature'],
-  5: ['EEO survey', 'Disability form', 'Veteran status'],
+  5: ['EEO survey', 'Veteran status'],
   6: ['Review & submit'],
 };
 

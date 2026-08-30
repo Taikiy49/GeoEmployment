@@ -9,14 +9,12 @@ import {
   HeadingLevel,
   ImageRun,
   LineRuleType,
-  PageBreak,
   PageNumber,
   Packer,
   ShadingType,
   Table,
   TableCell,
   TableLayoutType,
-  TableOfContents,
   TableRow,
   TextRun,
   VerticalAlign,
@@ -24,7 +22,20 @@ import {
   WidthType,
   convertInchesToTwip,
 } from 'docx';
-import { ALCOHOL_DRUG_PROGRAM_TEXT } from '../src/lib/legalTexts.js';
+import {
+  ALCOHOL_DRUG_PROGRAM_TEXT,
+  AT_WILL_TEXT,
+  EEO_INTRO_PARAGRAPHS,
+  EMPLOYMENT_CERTIFICATION_TEXT,
+  ESSENTIAL_FUNCTIONS_QUESTION,
+  FCRA_AUTHORIZATION_TEXT,
+  FCRA_DISCLOSURE_TEXT,
+  MEDICAL_AUTHORIZATION_TEXT,
+  REFERENCE_AUTHORIZATION_TEXT,
+  VETERAN_DEFINITIONS,
+  VETERAN_INTRO_PARAGRAPHS,
+  WORK_ELIGIBILITY_TEXT,
+} from '../src/lib/legalTexts.js';
 
 const NAVY = '111923';
 const BRONZE = 'A65F2A';
@@ -50,6 +61,12 @@ const titleCase = value => String(value || '')
   .replaceAll('_', ' ')
   .replace(/\b\w/g, character => character.toUpperCase());
 
+const veteranStatusLabel = value => ({
+  protected: 'I identify as one or more of the following classifications of protected veterans',
+  notProtected: 'I am not a protected veteran',
+  noAnswer: 'I do not wish to self-identify',
+})[value] || value;
+
 const borders = {
   top: { style: BorderStyle.SINGLE, size: 1, color: BORDER },
   bottom: { style: BorderStyle.SINGLE, size: 1, color: BORDER },
@@ -59,14 +76,14 @@ const borders = {
   insideVertical: { style: BorderStyle.SINGLE, size: 1, color: BORDER },
 };
 
-const sectionHeading = (text, restricted = false) => new Paragraph({
+const sectionHeading = (text, restricted = false, pageBreakBefore = false) => new Paragraph({
   heading: HeadingLevel.HEADING_1,
-  pageBreakBefore: true,
+  pageBreakBefore,
   keepNext: true,
   spacing: {
-    before: 280,
-    after: 280,
-    line: 340,
+    before: 220,
+    after: 170,
+    line: 320,
     lineRule: LineRuleType.EXACT,
   },
   indent: { left: 0, right: 0 },
@@ -95,7 +112,8 @@ const subheading = text => new Paragraph({
 });
 
 const body = (text, options = {}) => new Paragraph({
-  spacing: { after: 120, line: 300 },
+  alignment: options.alignment || AlignmentType.JUSTIFIED,
+  spacing: { after: options.after ?? 75, line: options.line ?? 250 },
   children: [
     new TextRun({
       text: valueText(text),
@@ -127,20 +145,50 @@ const notice = (text, restricted = false) => new Table({
           width: { size: 10080, type: WidthType.DXA },
           verticalAlign: VerticalAlign.CENTER,
           shading: { type: ShadingType.SOLID, color: restricted ? PALE_RESTRICTED : PALE_BRONZE },
-          margins: { top: 210, bottom: 210, left: 240, right: 240 },
+          margins: { top: 130, bottom: 130, left: 220, right: 220 },
           children: [
             new Paragraph({
               spacing: { line: 300 },
               children: [
                 new TextRun({
                   text,
-                  bold: true,
+                  bold: restricted,
                   size: 18,
                   color: restricted ? RESTRICTED : BRONZE_DARK,
                 }),
               ],
             }),
           ],
+        }),
+      ],
+    }),
+  ],
+});
+
+const policyTextBox = paragraphs => new Table({
+  width: { size: 10080, type: WidthType.DXA },
+  columnWidths: [10080],
+  layout: TableLayoutType.FIXED,
+  borders: {
+    top: { style: BorderStyle.SINGLE, size: 2, color: 'DDBA9E' },
+    bottom: { style: BorderStyle.SINGLE, size: 2, color: 'DDBA9E' },
+    left: { style: BorderStyle.SINGLE, size: 2, color: 'DDBA9E' },
+    right: { style: BorderStyle.SINGLE, size: 2, color: 'DDBA9E' },
+    insideHorizontal: { style: BorderStyle.NONE },
+    insideVertical: { style: BorderStyle.NONE },
+  },
+  rows: [
+    new TableRow({
+      children: [
+        new TableCell({
+          width: { size: 10080, type: WidthType.DXA },
+          shading: { type: ShadingType.SOLID, color: PALE_BRONZE },
+          margins: { top: 120, bottom: 80, left: 180, right: 180 },
+          children: paragraphs.map((paragraph, index) => new Paragraph({
+            alignment: AlignmentType.JUSTIFIED,
+            spacing: { after: index === paragraphs.length - 1 ? 0 : 85, line: 250 },
+            children: [new TextRun({ text: paragraph, size: 21, color: NAVY, bold: false })],
+          })),
         }),
       ],
     }),
@@ -180,25 +228,8 @@ const responseTable = pairs => new Table({
 
 const checkedAnswer = (selected, statement) => `${selected ? '☒' : '☐'} ${statement}`;
 
-const signatureRecord = ({
-  heading = 'Electronic signature record',
-  statement,
-  signature,
-  date,
-  method = 'Typed electronic signature',
-  application,
-}) => [
-  subheading(heading),
-  responseTable([
-    ['Exact statement acknowledged', statement],
-    ['Signature / initials', signature],
-    ['Signature date', date],
-    ['Signature method', signature ? method : empty],
-    ['Application ID', application.id],
-    ['Submission timestamp', safeDate(application.submittedAt)],
-    ['Record status', signature ? 'Signed electronically' : 'No signature provided'],
-  ]),
-];
+const hasEnteredValue = record => Object.values(record || {})
+  .some(value => String(value ?? '').trim() !== '');
 
 const applicantName = application => {
   const data = application.applicationData || {};
@@ -265,7 +296,8 @@ async function logoRun(width, height) {
   }
 }
 
-export async function buildApplicationDocx(application) {
+export async function buildApplicationDocx(application, options = {}) {
+  const mainApplicationOnly = Boolean(options.mainApplicationOnly);
   const data = application.applicationData || {};
   const eeo = application.eeoData || {};
   const name = applicantName(application);
@@ -292,44 +324,25 @@ export async function buildApplicationDocx(application) {
       spacing: { after: 260 },
       children: [new TextRun({ text: position, size: 22, color: BRONZE_DARK })],
     }),
-    notice('CONFIDENTIAL — Authorized HR and compliance personnel only. Voluntary self-identification information must be handled separately from hiring decisions.', true),
+    notice(mainApplicationOnly
+      ? 'CONFIDENTIAL — Authorized HR and interviewing personnel only.'
+      : 'CONFIDENTIAL — Authorized HR and compliance personnel only. Voluntary self-identification information must be handled separately from hiring decisions.', true),
     responseTable([
       ['Application ID', application.id],
       ['Submitted', safeDate(application.submittedAt)],
       ['Preferred office', data.preferredLocation || application.preferredLocation],
       ['Applicant email', application.email || data.email],
     ]),
-    new Paragraph({ children: [new PageBreak()] }),
-    new Paragraph({
-      heading: HeadingLevel.HEADING_1,
-      spacing: { after: 120 },
-      children: [new TextRun({ text: 'Contents', bold: true, size: 32, color: NAVY })],
-    }),
-    body('Open this document in Microsoft Word and update the table if page numbers do not refresh automatically.', { italics: true }),
-    new TableOfContents('Application contents', {
-      hyperlink: true,
-      headingStyleRange: '1-2',
-    }),
-    new Paragraph({ children: [new PageBreak()] }),
   );
 
   children.push(
-    sectionHeading('1. Submission Overview'),
-    notice('Document standard: every submitted response is reproduced without summarization. “Not provided” means the applicant left that field blank. Policy and acknowledgment language is reproduced as presented in the application.'),
+    sectionHeading('1. Submission Overview', false, true),
     responseTable([
       ['Application ID', application.id],
-      ['Application status', application.status],
-      ['Application stage', application.stage],
-      ['Draft record', application.isDraft],
-      ['Application source', application.source],
-      ['Requisition ID', application.requisitionId],
-      ['Position / requisition title', position],
+      ['Position Applied For', position],
       ['Submission date and time', safeDate(application.submittedAt)],
       ['Resume attached', data.resumeFileUrl || application.resumeFileUrl ? 'Yes' : 'No'],
       ['Resume filename', data.resumeFileName || application.resumeFileUrl],
-      ['Resume storage reference', data.resumeFileUrl || application.resumeFileUrl],
-      ['Resume file size', data.resumeFileSize ? `${data.resumeFileSize} bytes` : empty],
-      ['Resume processing timestamp', data.resumeAutoFillTimestamp],
     ]),
   );
 
@@ -360,9 +373,10 @@ export async function buildApplicationDocx(application) {
   );
 
   children.push(sectionHeading('3. Employment History'));
-  const employment = Array.isArray(data.employment) ? data.employment : [];
-  for (let index = 0; index < Math.max(3, employment.length); index += 1) {
-    const job = employment[index] || {};
+  const employment = (Array.isArray(data.employment) ? data.employment : []).filter(hasEnteredValue);
+  if (!employment.length) children.push(body('No employment history was provided.', { italics: true }));
+  for (let index = 0; index < employment.length; index += 1) {
+    const job = employment[index];
     children.push(
       subheading(`Employment ${index + 1}`),
       responseTable([
@@ -384,9 +398,10 @@ export async function buildApplicationDocx(application) {
     ['Highest Level of Education Completed', data.highestEducationLevel],
     ['Additional Education', data.educationAdditional],
   ]));
-  const education = Array.isArray(data.education) ? data.education : [];
-  for (let index = 0; index < Math.max(3, education.length); index += 1) {
-    const school = education[index] || {};
+  const education = (Array.isArray(data.education) ? data.education : []).filter(hasEnteredValue);
+  if (!education.length) children.push(body('No education entries were provided.', { italics: true }));
+  for (let index = 0; index < education.length; index += 1) {
+    const school = education[index];
     children.push(
       subheading(`Education ${index + 1}`),
       responseTable([
@@ -414,13 +429,15 @@ export async function buildApplicationDocx(application) {
   );
 
   children.push(sectionHeading('6. Professional References'));
-  const references = Array.isArray(data.references) ? data.references : [];
-  for (let index = 0; index < Math.max(3, references.length); index += 1) {
-    const reference = references[index] || {};
+  const references = (Array.isArray(data.references) ? data.references : []).filter(hasEnteredValue);
+  if (!references.length) children.push(body('No professional references were provided.', { italics: true }));
+  for (let index = 0; index < references.length; index += 1) {
+    const reference = references[index];
     children.push(
-      subheading(`Reference ${index + 1} of 3`),
+      subheading(`Reference ${index + 1} of ${references.length}`),
       responseTable([
         ['Full Name', reference.name],
+        ['Title', reference.title],
         ['Company / Organization', reference.company],
         ['Phone Number', reference.phone],
       ]),
@@ -428,36 +445,17 @@ export async function buildApplicationDocx(application) {
   }
   children.push(
     subheading('Reference authorization'),
-    body('By initialing below, you authorize Geolabs, Inc. to contact the references listed above regarding your employment history and qualifications.'),
+    body(REFERENCE_AUTHORIZATION_TEXT),
     responseTable([["Applicant's Initials", data.certifyInitials]]),
-    ...signatureRecord({
-      heading: 'Reference authorization signature record',
-      statement: 'By initialing below, you authorize Geolabs, Inc. to contact the references listed above regarding your employment history and qualifications.',
-      signature: data.certifyInitials,
-      date: data.applicationDate || application.submittedAt,
-      method: 'Typed initials',
-      application,
-    }),
   );
 
   children.push(
     sectionHeading('7. Medical Information & Authorization', true),
-    notice('Confidential — Hiring Review Only', true),
     subheading('Pre-Employment & Employment Physicals'),
-    body("After an offer of employment is made, but before employment duties begin, applicants are required to undergo a pre-employment physical examination, including drug and alcohol testing, at the Company's expense and by a Company-selected physician. The offer of employment is conditioned upon the results of such examination."),
-    body("Employees may also be required, at any time during the course of their employment, to undergo an annual physical examination including drug and alcohol testing, conducted at the Company's expense by a Company-selected physician."),
-    body('I authorize the physician conducting the examination, and any laboratory conducting related testing, to disclose the results of such examination and testing to Geolabs, Inc.'),
+    body(MEDICAL_AUTHORIZATION_TEXT),
     responseTable([["Applicant's Initials", data.medInitials]]),
-    ...signatureRecord({
-      heading: 'Medical authorization signature record',
-      statement: 'I authorize the physician conducting the examination, and any laboratory conducting related testing, to disclose the results of such examination and testing to Geolabs, Inc.',
-      signature: data.medInitials,
-      date: data.applicationDate || application.submittedAt,
-      method: 'Typed initials',
-      application,
-    }),
     subheading('Ability to Perform Essential Job Functions'),
-    body('Geolabs, Inc. complies with all applicable provisions of the Americans with Disabilities Act (ADA) and will not discriminate against any qualified applicant with a disability. Reasonable accommodations will be made for known physical or mental limitations unless doing so would impose an undue hardship.'),
+    body(ESSENTIAL_FUNCTIONS_QUESTION),
     body(checkedAnswer(data.canPerformDuties, 'I am able to perform the essential functions of the position for which I am applying, with or without reasonable accommodation.')),
     body(checkedAnswer(data.needsAccommodation, 'I may require a reasonable accommodation to perform the essential functions of the position for which I am applying. (If selected, HR may contact you to discuss specific accommodations.)')),
     body('Do not include medical diagnoses or detailed health history here. Specific accommodation needs may be discussed confidentially with HR after a conditional offer is made.', { italics: true }),
@@ -475,56 +473,35 @@ export async function buildApplicationDocx(application) {
   children.push(
     sectionHeading('9. Employment Certification & Disclosures'),
     subheading('Fair Credit Reporting Act Disclosure'),
-    body('By this document, the Company discloses to you that a consumer report, including an investigative consumer report containing information as to your character, general reputation, personal characteristics, and mode of living, may be obtained for employment purposes as part of the pre-employment background investigation and at any time during your employment. Should an investigative consumer report be requested, you will have the right to request a complete and accurate disclosure of the nature and scope of the investigation requested and a written summary of your rights under the Fair Credit Reporting Act.'),
-    body('I agree that Geolabs, Inc. is hereby authorized to inquire into my background, prior employment, and criminal records and may consider any criminal conviction record after a conditional offer of employment is made. The Company may withdraw a conditional employment offer if a criminal conviction record bears a rational relationship to the duties and responsibilities of the position applied for. Criminal conviction records more than five (5) years old for misdemeanors and seven (7) years for felonies (excluding periods of incarceration) will not be considered.'),
+    body(FCRA_DISCLOSURE_TEXT),
+    body(FCRA_AUTHORIZATION_TEXT),
     responseTable([["Applicant's Initials", data.fcrInitials]]),
-    ...signatureRecord({
-      heading: 'FCRA disclosure signature record',
-      statement: 'I acknowledge that I have read and understand the Fair Credit Reporting Act Disclosure reproduced above.',
-      signature: data.fcrInitials,
-      date: data.certificationDate || data.applicationDate || application.submittedAt,
-      method: 'Typed initials',
-      application,
-    }),
     subheading('Other Information'),
-    body('If you know anyone currently employed by Geolabs, Inc., please let us know. This is used for internal routing and conflict-of-interest review only.'),
     responseTable([
-      ['Do you know anyone presently working at Geolabs, Inc.?', data.knowEmployee],
+      ['Do you know anyone presently working for our company?', data.knowEmployee],
       ['If yes, who?', data.knowEmployeeName],
     ]),
     subheading('Work Eligibility'),
-    body("It is the policy of Geolabs, Inc. to hire only U.S. citizens and aliens who are authorized to work in this country. As a condition of employment, you will be required to produce original documents establishing your identity and authorization to work, and to complete the U.S. Citizenship and Immigration Services' Form I-9."),
+    body(WORK_ELIGIBILITY_TEXT),
     subheading('Certification & At-Will Acknowledgment'),
-    body('I certify that all information provided on this application is complete and accurate. I understand that my application will not be considered if it is incomplete. Furthermore, I understand that false, misleading, or incomplete information could lead to a decision not to hire, or may be grounds for termination if already employed. I hereby authorize any investigation of the above or related work experience, education, or reputation information for the purposes of evaluating my application for employment.'),
-    body('This application is not a contract and cannot create a contract. I understand that if I am employed, my employment is "at will" and may be terminated at any time by either the Company or myself, with or without cause or notice.'),
+    body(EMPLOYMENT_CERTIFICATION_TEXT),
+    body(AT_WILL_TEXT, { bold: true }),
     body(checkedAnswer(data.certificationAgreed, 'I have read and understand the above statements, and I certify that all information provided in this application is accurate and complete.')),
     responseTable([
       ["Applicant's Signature", data.certificationSignature],
       ['Application Date', data.certificationDate],
     ]),
-    ...signatureRecord({
-      heading: 'Employment certification signature record',
-      statement: 'I have read and understand the above statements, and I certify that all information provided in this application is accurate and complete.',
-      signature: data.certificationSignature,
-      date: data.certificationDate,
-      application,
-    }),
   );
 
-  children.push(
-    sectionHeading('10. EEO Voluntary Self-Identification Survey', true),
-    notice('RESTRICTED COMPLIANCE INFORMATION — Voluntary responses must be kept separate from hiring decisions and accessed only by authorized HR/compliance personnel.', true),
-    subheading('EEO Voluntary Self-Identification Survey'),
-    body('This information is collected for federal EEO-1 reporting purposes only. It is voluntary and will not affect your opportunity for employment.'),
-    body('The Equal Employment Opportunity Commission (EEOC) requires certain employers to complete an EEO-1 report each year. Covered employers must invite employees and applicants to self-identify gender and race for this report.'),
-    body('Completion of this form is voluntary and your decision to provide or withhold this information will not affect your opportunity for employment, or the terms or conditions of your employment. This form will be used for EEO-1 reporting purposes only and will be kept separate from all other personnel records and accessed only by Human Resources.'),
-    body('If you choose not to self-identify at this time, the federal government allows Geolabs, Inc. to determine this information by visual survey and/or other available information.'),
+  if (!mainApplicationOnly) {
+    children.push(
+      sectionHeading('10. EEO Voluntary Self-Identification Survey', true, true),
+    subheading('EEO Voluntary Self-Identification Survey (Applicant Data)'),
+    ...EEO_INTRO_PARAGRAPHS.map(paragraph => body(paragraph)),
     subheading('Gender'),
-    body('Select one option, or choose "I do not wish to disclose."'),
+    body('Select one option.'),
     body(checkedAnswer((eeo.gender || data.eeoGender) === 'Male', 'Male')),
     body(checkedAnswer((eeo.gender || data.eeoGender) === 'Female', 'Female')),
-    body(checkedAnswer((eeo.gender || data.eeoGender) === 'I do not wish to disclose.', 'I do not wish to disclose.')),
-    body('This section is voluntary. If you do not wish to answer, you may leave it blank.', { italics: true }),
     subheading('Race / Ethnicity'),
     body('Select one category that best describes you.'),
     body(checkedAnswer((eeo.race || data.eeoRace) === 'Hispanic or Latino', 'Hispanic or Latino — A person of Cuban, Mexican, Puerto Rican, South or Central American, or other Spanish culture or origin, regardless of race.')),
@@ -535,7 +512,6 @@ export async function buildApplicationDocx(application) {
     body(checkedAnswer((eeo.race || data.eeoRace) === 'Native American or Alaska Native (not Hispanic or Latino)', 'Native American or Alaska Native (not Hispanic or Latino) — A person having origins in any of the original peoples of North and South America (including Central America), and who maintains tribal affiliation or community attachment.')),
     body(checkedAnswer((eeo.race || data.eeoRace) === 'Two or More Races (not Hispanic or Latino)', 'Two or More Races (not Hispanic or Latino) — All persons who identify with more than one of the above five races.')),
     body(checkedAnswer((eeo.race || data.eeoRace) === 'I do not wish to disclose.', 'I do not wish to disclose.')),
-    body('This section is voluntary. If you do not wish to answer, you may leave it blank.', { italics: true }),
     responseTable([
       ['Name', data.eeoName],
       ['Date', data.eeoDate],
@@ -545,124 +521,49 @@ export async function buildApplicationDocx(application) {
   );
 
   children.push(
-    sectionHeading('11. Voluntary Self-Identification of Disability', true),
-    notice('Form CC-305 · OMB Control Number 1250-0005 · Expires 04/30/2026 · Voluntary & Confidential', true),
-    responseTable([
-      ['Name', data.disabilityName],
-      ['Date', data.disabilityDate],
-      ['Employee ID', data.disabilityEmployeeId],
-    ]),
-    subheading('Why are you being asked to complete this form?'),
-    body('We are a federal contractor or subcontractor. The law requires us to provide equal employment opportunity to qualified people with disabilities. We have a goal of having at least 7% of our workers as people with disabilities. The law says we must measure our progress towards this goal. To do this, we must ask applicants and employees if they have a disability or have ever had one. People can become disabled, so we need to ask this question at least every five years.'),
-    body("Completing this form is voluntary, and we hope that you will choose to do so. Your answer is confidential. No one who makes hiring decisions will see it. Your decision to complete the form and your answer will not harm you in any way. If you want to learn more about the law or this form, visit the U.S. Department of Labor's Office of Federal Contract Compliance Programs (OFCCP) website at www.dol.gov/ofccp."),
-    subheading('How do you know if you have a disability?'),
-    body('A disability is a condition that substantially limits one or more of your "major life activities." If you have or have ever had such a condition, you are a person with a disability. Disabilities include, but are not limited to:'),
-    body([
-      '• Alcohol or other substance use disorder (not currently using drugs illegally)',
-      '• Autoimmune disorder, for example, lupus, fibromyalgia, rheumatoid arthritis, HIV/AIDS',
-      '• Blind or low vision',
-      '• Cancer (past or present)',
-      '• Cardiovascular or heart disease',
-      '• Celiac disease',
-      '• Cerebral palsy',
-      '• Deaf or serious difficulty hearing',
-      '• Diabetes',
-      '• Disfigurement, for example, disfigurement caused by burns, wounds, accidents, or congenital disorders',
-      '• Epilepsy or other seizure disorder',
-      "• Gastrointestinal disorders, for example, Crohn's disease, irritable bowel syndrome",
-      '• Intellectual or developmental disability',
-      '• Mental health conditions, for example, depression, bipolar disorder, anxiety disorder, schizophrenia, PTSD',
-      '• Missing limbs or partially missing limbs',
-      '• Mobility impairment, benefiting from the use of a wheelchair, scooter, walker, leg brace(s) and/or other supports',
-      "• Nervous system condition, for example, migraine headaches, Parkinson's disease, multiple sclerosis (MS)",
-      '• Neurodivergence, for example, attention-deficit/hyperactivity disorder (ADHD), autism spectrum disorder, dyslexia, dyspraxia, other learning disabilities',
-      '• Partial or complete paralysis (any cause)',
-      '• Pulmonary or respiratory conditions, for example, tuberculosis, asthma, emphysema',
-      '• Short stature (dwarfism)',
-      '• Traumatic brain injury',
-    ].join('\n')),
-    subheading('Voluntary Response'),
-    body('Please select one option below. Your response is voluntary.'),
-    body(checkedAnswer((eeo.disabilityStatus || data.disabilityStatus) === 'Yes, I have a disability, or have had one in the past', 'Yes, I have a disability, or have had one in the past')),
-    body(checkedAnswer((eeo.disabilityStatus || data.disabilityStatus) === 'No, I do not have a disability and have not had one in the past', 'No, I do not have a disability and have not had one in the past')),
-    body(checkedAnswer((eeo.disabilityStatus || data.disabilityStatus) === 'I do not want to answer', 'I do not want to answer')),
-    responseTable([
-      ['Disability Status', eeo.disabilityStatus || data.disabilityStatus],
-      ['Signature of Applicant', data.disabilitySignature],
-      ['Signature Date', data.disabilitySignatureDate],
-    ]),
-    body('PUBLIC BURDEN STATEMENT: According to the Paperwork Reduction Act of 1995, no persons are required to respond to a collection of information unless such collection displays a valid OMB control number. This survey should take about 5 minutes to complete.', { italics: true }),
-    ...signatureRecord({
-      heading: 'Company electronic record associated with the voluntary disability response',
-      statement: 'By typing your name, you acknowledge this as your electronic signature. This company signature record is separate from, and does not modify, Form CC-305.',
-      signature: data.disabilitySignature,
-      date: data.disabilitySignatureDate,
-      application,
-    }),
-  );
-
-  children.push(
-    sectionHeading('12. Invitation to Self-Identify as a Protected Veteran (VEVRAA)', true),
-    notice('This information is collected for affirmative action reporting only. Your decision to self-identify is voluntary and will not affect your application or employment.', true),
-    body("Under the regulations implementing the affirmative action provisions of the Vietnam Era Veterans' Readjustment Assistance Act (VEVRAA) of 1972 issued by the Office of Federal Contract Compliance Programs (OFCCP), federal contractors are required to invite applicants and current employees to inform the contractor whether they are veterans belonging to one or more of the categories of veterans covered under VEVRAA who wish to benefit under the contractor's affirmative action program (AAP) for covered veterans."),
-    body('In extending this invitation, we advise you that: (a) workers and applicants are under no obligation to respond but may do so in the future if they choose; (b) responses will remain confidential within the Human Resources department; and (c) responses will be used only for the necessary information to include in our affirmative action plan.'),
-    body('Refusal to provide this information will have no bearing on your application and will not subject you to any adverse treatment.'),
+    sectionHeading('11. Affirmative Action: Applicant Invitation to Self-Identify as a Protected Veteran (VEVRAA)', true, true),
+    ...VETERAN_INTRO_PARAGRAPHS.map(paragraph => body(paragraph)),
+    body('Please complete the information requested below. Thank you for your cooperation.'),
     subheading('Veteran Status'),
-    body('Select one option, or choose "I do not wish to self-identify."'),
-    body(checkedAnswer((eeo.veteranStatus || data.veteranStatus) === 'protected', 'I identify as one or more classifications of protected veterans — Includes Disabled Veteran, Recently Separated Veteran, Active-Duty Wartime/Campaign Badge Veteran, or Armed Forces Service Medal Veteran.')),
+    body('Select one option.'),
+    body(checkedAnswer((eeo.veteranStatus || data.veteranStatus) === 'protected', 'I identify as one or more of the following classifications of protected veterans:')),
     body(checkedAnswer((eeo.veteranStatus || data.veteranStatus) === 'notProtected', 'I am not a protected veteran')),
     body(checkedAnswer((eeo.veteranStatus || data.veteranStatus) === 'noAnswer', 'I do not wish to self-identify')),
     subheading('Definitions of protected veteran categories'),
-    body('Disabled Veteran — A veteran of the U.S. military, ground, naval or air service who is entitled to compensation under laws administered by the Secretary of Veterans Affairs, or who was discharged because of a service-connected disability.'),
-    body('Recently Separated Veteran — Any veteran during the three-year period beginning on the date of discharge or release from active duty in the U.S. military, ground, naval or air service.'),
-    body('Active-Duty Wartime or Campaign Badge Veteran — A veteran who served on active duty during a war, campaign, or expedition for which a campaign badge has been authorized.'),
-    body('Armed Forces Service Medal Veteran — A veteran who participated in a United States military operation for which an Armed Forces service medal was awarded pursuant to Executive Order No. 12985.'),
+    ...VETERAN_DEFINITIONS.map(definition => body(`${definition.title} — ${definition.text}`)),
     responseTable([
-      ['Veteran Status', eeo.veteranStatus || data.veteranStatus],
-      ['Signature of Applicant', data.vetSignature],
+      ['Veteran Status', veteranStatusLabel(eeo.veteranStatus || data.veteranStatus)],
+      ['Print Name / Signature', data.vetSignature],
       ['Date', data.vetDate],
     ]),
-    ...signatureRecord({
-      heading: 'Protected-veteran self-identification signature record',
-      statement: 'By typing your name, you acknowledge this as your electronic signature for the voluntary protected-veteran self-identification response reproduced above.',
-      signature: data.vetSignature,
-      date: data.vetDate,
-      application,
-    }),
   );
 
   children.push(
-    sectionHeading('13. Alcohol & Drug Testing Program'),
-    ...ALCOHOL_DRUG_PROGRAM_TEXT.split('\n\n').map((paragraph, index, paragraphs) => (
-      index === 0
-        ? subheading(paragraph)
-        : notice(paragraph, index === paragraphs.length - 1)
-    )),
-    body(checkedAnswer(data.drugTestAgreed, 'I have read, understand, and agree to comply with the Alcohol & Drug Testing Program described above. I agree this constitutes a condition of my employment application and any future employment with Geolabs, Inc.')),
+    sectionHeading('12. Alcohol & Drug Testing Program', false, true),
+    subheading(ALCOHOL_DRUG_PROGRAM_TEXT.split('\n\n')[0]),
+    policyTextBox(ALCOHOL_DRUG_PROGRAM_TEXT.split('\n\n').slice(1, -1)),
+    notice(ALCOHOL_DRUG_PROGRAM_TEXT.split('\n\n').at(-1), true),
+    body(checkedAnswer(data.drugTestAgreed, 'I have read, understand, and agree to comply with the Alcohol & Drug Testing Program described above. I agree this constitutes a condition of my employment application and any future employment with Geolabs, Inc.'), { alignment: AlignmentType.JUSTIFIED, after: 70, line: 240 }),
     responseTable([
       ['Signature of Applicant', data.drugTestSignature],
       ['Date', data.drugTestDate],
     ]),
-    ...signatureRecord({
-      heading: 'Alcohol & drug testing agreement signature record',
-      statement: 'I have read, understand, and agree to comply with the Alcohol & Drug Testing Program described above. I agree this constitutes a condition of my employment application and any future employment with Geolabs, Inc.',
-      signature: data.drugTestSignature,
-      date: data.drugTestDate,
-      application,
-    }),
   );
 
+  // Internal workflow history remains available in /admin and is intentionally
+  // excluded from applicant and supervisor PDFs unless explicitly requested.
+  if (options.includeInternalAuditAppendix) {
   const additionalRows = extraResponseRows(data);
   if (additionalRows.length) {
     children.push(
-      sectionHeading('14. Additional Submitted Responses'),
+      sectionHeading('14. Additional Submitted Responses', false, true),
       notice('These fields were submitted by the application but are not part of the standard field set. They are included here to ensure that no applicant response is omitted.'),
       responseTable(additionalRows),
     );
   }
 
   children.push(
-    sectionHeading(additionalRows.length ? '15. Application Record' : '14. Application Record'),
+    sectionHeading(additionalRows.length ? '15. Application Record' : '14. Application Record', false, true),
     subheading('Stage history'),
   );
   const history = Array.isArray(application.stageHistory) ? application.stageHistory : [];
@@ -706,6 +607,8 @@ export async function buildApplicationDocx(application) {
       ])
       : [['Screening questions', empty]],
   ));
+  }
+  }
 
   const header = new Header({
     children: [
@@ -774,15 +677,15 @@ export async function buildApplicationDocx(application) {
     styles: {
       default: {
         document: {
-          run: { font: 'Aptos', size: 19, color: NAVY },
+          run: { font: 'Arial', size: 19, color: NAVY },
           paragraph: { spacing: { line: 280 } },
         },
         heading1: {
-          run: { font: 'Aptos Display', bold: true, color: NAVY, size: 28 },
+          run: { font: 'Arial', bold: true, color: NAVY, size: 28 },
           paragraph: { spacing: { before: 240, after: 160 } },
         },
         heading2: {
-          run: { font: 'Aptos Display', bold: true, color: NAVY, size: 22 },
+          run: { font: 'Arial', bold: true, color: NAVY, size: 22 },
           paragraph: { spacing: { before: 180, after: 100 } },
         },
       },

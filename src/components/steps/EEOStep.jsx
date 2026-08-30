@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import NavigationButtons from '../app/NavigationButtons';
+import { EEO_INTRO_PARAGRAPHS } from '@/lib/legalTexts';
 
-const GENDERS = ['Male', 'Female', 'I do not wish to disclose.'];
+const GENDERS = ['Male', 'Female'];
 
 const ETHNICITIES = [
   {
@@ -87,15 +88,9 @@ export default function EEOStep({ formData, setFormData, onNext, onBack }) {
 
       {/* Legal disclosure */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
-        <p className="text-xs text-gray-700 leading-relaxed">
-          The Equal Employment Opportunity Commission (EEOC) requires certain employers to complete an EEO-1 report each year. Covered employers must invite employees and applicants to self-identify gender and race for this report.
-        </p>
-        <p className="text-xs text-gray-700 leading-relaxed">
-          Completion of this form is voluntary and your decision to provide or withhold this information will not affect your opportunity for employment, or the terms or conditions of your employment. This form will be used for EEO-1 reporting purposes only and will be kept separate from all other personnel records and accessed only by Human Resources.
-        </p>
-        <p className="text-xs text-gray-700 leading-relaxed">
-          If you choose not to self-identify at this time, the federal government allows Geolabs, Inc. to determine this information by visual survey and/or other available information.
-        </p>
+        {EEO_INTRO_PARAGRAPHS.map(paragraph => (
+          <p key={paragraph} className="text-xs text-gray-700 leading-relaxed">{paragraph}</p>
+        ))}
       </div>
 
       {/* Name + Date */}
@@ -132,12 +127,12 @@ export default function EEOStep({ formData, setFormData, onNext, onBack }) {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-gray-800">Gender</h3>
-            <p className="text-xs text-gray-400 mt-0.5">Select one option, or choose "I do not wish to disclose."</p>
+            <p className="text-xs text-gray-400 mt-0.5">Select one option.</p>
           </div>
           <button type="button" onClick={() => update('eeoGender', '')}
             className="text-[11px] text-gray-400 hover:text-gray-600 underline">Clear</button>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {GENDERS.map(g => (
             <RadioCard key={g} selected={formData.eeoGender === g} onClick={() => update('eeoGender', g)}>
               <span className="text-sm text-gray-800">{g}</span>

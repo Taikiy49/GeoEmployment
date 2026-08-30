@@ -3,6 +3,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import FormSection from '../app/FormSection';
 import FormField from '../app/FormField';
 import NavigationButtons from '../app/NavigationButtons';
+import {
+  AT_WILL_TEXT,
+  EMPLOYMENT_CERTIFICATION_TEXT,
+  FCRA_AUTHORIZATION_TEXT,
+  FCRA_DISCLOSURE_TEXT,
+  WORK_ELIGIBILITY_TEXT,
+} from '@/lib/legalTexts';
 
 export default function CertificationStep({ formData, setFormData, onNext, onBack }) {
   const update = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
@@ -29,10 +36,10 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
             </div>
             <div className="bg-[#f8fafc] border border-[#f1f5f9] rounded-lg p-4 space-y-3 max-h-48 overflow-y-auto">
               <p className="text-xs text-[#334155] leading-relaxed">
-                By this document, the Company discloses to you that a consumer report, including an investigative consumer report containing information as to your character, general reputation, personal characteristics, and mode of living, may be obtained for employment purposes as part of the pre-employment background investigation and at any time during your employment. Should an investigative consumer report be requested, you will have the right to request a complete and accurate disclosure of the nature and scope of the investigation requested and a written summary of your rights under the Fair Credit Reporting Act.
+                {FCRA_DISCLOSURE_TEXT}
               </p>
               <p className="text-xs text-[#334155] leading-relaxed">
-                I agree that Geolabs, Inc. is hereby authorized to inquire into my background, prior employment, and criminal records and may consider any criminal conviction record after a conditional offer of employment is made. The Company may withdraw a conditional employment offer if a criminal conviction record bears a rational relationship to the duties and responsibilities of the position applied for. Criminal conviction records more than five (5) years old for misdemeanors and seven (7) years for felonies (excluding periods of incarceration) will not be considered.
+                {FCRA_AUTHORIZATION_TEXT}
               </p>
             </div>
             <div className="space-y-1">
@@ -55,11 +62,11 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
           <div className="bg-white border border-[#e2e8f0] rounded-xl p-4 space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-gray-900 mb-0.5">Other Information</h3>
-              <p className="text-xs text-gray-500">If you know anyone currently employed by Geolabs, Inc., please let us know. This is used for internal routing and conflict-of-interest review only.</p>
+              <p className="text-xs text-gray-500">Please answer the question below.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
-                label="Do you know anyone presently working at Geolabs, Inc.?"
+                label="Do you know anyone presently working for our company?"
                 value={formData.knowEmployee}
                 onChange={v => update('knowEmployee', v)}
                 placeholder="Yes / No"
@@ -79,7 +86,7 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
           <div className="bg-[#F8F0E9] border border-[#A65F2A]/20 rounded-xl p-4">
             <h3 className="text-sm font-semibold text-gray-900 mb-2">Work Eligibility</h3>
             <p className="text-xs text-[#334155] leading-relaxed">
-              It is the policy of Geolabs, Inc. to hire only U.S. citizens and aliens who are authorized to work in this country. As a condition of employment, you will be required to produce original documents establishing your identity and authorization to work, and to complete the U.S. Citizenship and Immigration Services' Form I-9.
+              {WORK_ELIGIBILITY_TEXT}
             </p>
           </div>
 
@@ -91,10 +98,10 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
             </div>
             <div className="bg-[#f8fafc] border border-[#f1f5f9] rounded-lg p-4 space-y-3">
               <p className="text-xs text-[#334155] leading-relaxed">
-                I certify that all information provided on this application is complete and accurate. I understand that my application will not be considered if it is incomplete. Furthermore, I understand that false, misleading, or incomplete information could lead to a decision not to hire, or may be grounds for termination if already employed. I hereby authorize any investigation of the above or related work experience, education, or reputation information for the purposes of evaluating my application for employment.
+                {EMPLOYMENT_CERTIFICATION_TEXT}
               </p>
               <p className="text-xs text-[#334155] leading-relaxed">
-                This application is not a contract and cannot create a contract. I understand that if I am employed, my employment is "at will" and may be terminated at any time by either the Company or myself, with or without cause or notice.
+                {AT_WILL_TEXT}
               </p>
             </div>
 

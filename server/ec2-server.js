@@ -5,15 +5,20 @@ import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import parseResume from '../api/parse-resume.js';
 import submitApplication from '../api/submit-application.js';
+import { sendContinueApplicationEmail } from '../api/send-continue-link.js';
 import { getAdminSession, handleAdminAuth } from './admin-auth.js';
 import {
   deleteApplication,
+  getApplicationDocumentPath,
   getApplication,
   getResumePath,
   listApplications,
+  saveApplicationDocuments,
   updateApplication,
   upsertSubmittedApplication,
 } from './application-store.js';
+import { createJob, deleteJob, getJob, listJobs, updateJob } from './job-store.js';
+import { createDraft, deleteDraft, getDraft, updateDraft } from './draft-store.js';
 
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
 const port = Number(process.env.PORT || 3000);
@@ -21,6 +26,9 @@ const maxBodyBytes = 20 * 1024 * 1024;
 const resumeParseWindows = new Map();
 const RESUME_PARSE_WINDOW_MS = 15 * 60 * 1000;
 const RESUME_PARSE_LIMIT = 6;
+const draftLinkWindows = new Map();
+const DRAFT_LINK_WINDOW_MS = 60 * 60 * 1000;
+const DRAFT_LINK_LIMIT = 4;
 
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -91,6 +99,9 @@ async function handleApi(request, response) {
   response.json = async (payload) => {
     const statusCode = response.statusCode || 200;
     try {
+      if (statusCode < 300 && payload?.ok && request.generatedDocuments?.length) {
+        await saveApplicationDocuments(request.body.id, request.generatedDocuments);
+      }
       await updateApplication(request.body.id, {
         deliveryStatus: statusCode < 300 && payload?.ok ? 'delivered' : 'delivery_failed',
         deliveryUpdatedAt: new Date().toISOString(),
@@ -142,6 +153,109 @@ async function handleResumeParseApi(request, response) {
   return parseResume(request, response);
 }
 
+const bearerToken = request => {
+  const match = /^Bearer\s+(.+)$/i.exec(String(request.headers.authorization || ''));
+  return match?.[1] || '';
+};
+
+const draftPayloadIsValid = draft => (
+  draft
+  && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(draft.email || '').trim())
+  && draft.formData
+  && typeof draft.formData === 'object'
+);
+
+async function handleDraftApi(request, response) {
+  const url = new URL(request.url, 'http://localhost');
+
+  if (request.method === 'GET' && url.pathname === '/api/application-drafts/resume') {
+    const token = url.searchParams.get('token') || '';
+    const draft = token ? await getDraft(token) : null;
+    return draft
+      ? sendJson(response, 200, { draft })
+      : sendJson(response, 404, { error: 'This private link is invalid or has expired.' });
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/application-drafts/link') {
+    const clientAddress = String(request.headers['x-forwarded-for'] || request.socket.remoteAddress || 'unknown').split(',')[0].trim();
+    let body;
+    try {
+      body = await readJson(request);
+    } catch (error) {
+      return sendJson(response, error.message === 'PAYLOAD_TOO_LARGE' ? 413 : 400, { error: 'The saved application data is invalid.' });
+    }
+    if (!draftPayloadIsValid(body.draft)) return sendJson(response, 400, { error: 'Enter a valid email address before requesting a link.' });
+    const rateKey = `${clientAddress}:${String(body.draft.email).trim().toLowerCase()}`;
+    const prior = draftLinkWindows.get(rateKey);
+    const window = !prior || Date.now() - prior.startedAt >= DRAFT_LINK_WINDOW_MS ? { startedAt: Date.now(), attempts: 0 } : prior;
+    window.attempts += 1;
+    draftLinkWindows.set(rateKey, window);
+    if (window.attempts > DRAFT_LINK_LIMIT) return sendJson(response, 429, { error: 'Too many link requests. Please wait before trying again.' });
+
+    let created;
+    try {
+      created = await createDraft(body.draft);
+    } catch (error) {
+      return sendJson(response, error.message === 'RESUME_TOO_LARGE' ? 413 : 500, {
+        error: error.message === 'RESUME_TOO_LARGE' ? 'The résumé is too large to save. Please upload a file smaller than 12 MB.' : 'We could not securely save your application. Please try again.',
+      });
+    }
+    const siteUrl = String(process.env.PUBLIC_SITE_URL || 'https://careers.geolabs.net').replace(/\/$/, '');
+    const applicationPath = body.draft.requisitionId
+      ? `/apply/${encodeURIComponent(body.draft.requisitionId)}`
+      : '/apply';
+    const link = `${siteUrl}${applicationPath}?resume=${encodeURIComponent(created.token)}`;
+    try {
+      await sendContinueApplicationEmail({
+        email: String(body.draft.email).trim(),
+        firstName: body.draft.formData.firstName,
+        position: body.draft.requisitionTitle || body.draft.formData.positionAppliedFor,
+        link,
+        expiresAt: created.record.expiresAt,
+      });
+    } catch (error) {
+      await deleteDraft(created.token);
+      console.error('Continue-link delivery failed:', error);
+      return sendJson(response, 502, { error: 'We could not send the private link. Please try again.' });
+    }
+    if (body.previousToken && body.previousToken !== created.token) await deleteDraft(body.previousToken);
+    return sendJson(response, 201, {
+      ok: true,
+      token: created.token,
+      expiresAt: created.record.expiresAt,
+      email: String(body.draft.email).trim(),
+    });
+  }
+
+  if (request.method === 'PUT' && url.pathname === '/api/application-drafts') {
+    const token = bearerToken(request);
+    if (!token) return sendJson(response, 401, { error: 'A private application token is required.' });
+    let body;
+    try { body = await readJson(request); } catch { return sendJson(response, 400, { error: 'Invalid saved application data.' }); }
+    if (!draftPayloadIsValid(body.draft)) return sendJson(response, 400, { error: 'Invalid saved application data.' });
+    let updated;
+    try {
+      updated = await updateDraft(token, body.draft);
+    } catch (error) {
+      return sendJson(response, error.message === 'RESUME_TOO_LARGE' ? 413 : 500, {
+        error: error.message === 'RESUME_TOO_LARGE' ? 'The résumé is too large to save. Please upload a file smaller than 12 MB.' : 'We could not update your saved application.',
+      });
+    }
+    return updated
+      ? sendJson(response, 200, { ok: true, expiresAt: updated.expiresAt })
+      : sendJson(response, 404, { error: 'This private link is invalid or has expired.' });
+  }
+
+  if (request.method === 'DELETE' && url.pathname === '/api/application-drafts') {
+    const token = bearerToken(request);
+    if (!token) return sendJson(response, 401, { error: 'A private application token is required.' });
+    await deleteDraft(token);
+    return sendJson(response, 200, { ok: true });
+  }
+
+  return sendJson(response, 405, { error: 'Method not allowed.' });
+}
+
 const parseFilters = value => {
   try {
     return value ? JSON.parse(value) : {};
@@ -157,13 +271,32 @@ async function handleAdminApplicationApi(request, response) {
   }
 
   const url = new URL(request.url, 'http://localhost');
-  const match = /^\/api\/admin\/applications(?:\/([^/]+))?(?:\/(resume))?$/.exec(url.pathname);
+  const match = /^\/api\/admin\/applications(?:\/([^/]+))?(?:\/(resume)|\/documents\/([^/]+))?$/.exec(url.pathname);
   if (!match) {
     sendJson(response, 404, { error: 'Not found.' });
     return;
   }
   const applicationId = match[1] ? decodeURIComponent(match[1]) : null;
   const resource = match[2];
+  const documentKey = match[3] ? decodeURIComponent(match[3]) : null;
+
+  if (request.method === 'GET' && documentKey && applicationId) {
+    const application = await getApplication(applicationId);
+    const document = application?.documents?.find(item => item.key === documentKey);
+    const documentPath = getApplicationDocumentPath(application, documentKey);
+    if (!document || !documentPath || !existsSync(documentPath)) {
+      sendJson(response, 404, { error: 'Application document not found.' });
+      return;
+    }
+    response.writeHead(200, {
+      'Content-Type': document.type || 'application/pdf',
+      'Content-Length': statSync(documentPath).size,
+      'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(document.filename || 'application-document.pdf')}`,
+      'Cache-Control': 'private, no-store',
+    });
+    createReadStream(documentPath).pipe(response);
+    return;
+  }
 
   if (request.method === 'GET' && resource === 'resume' && applicationId) {
     const application = await getApplication(applicationId);
@@ -234,6 +367,42 @@ async function handleAdminApplicationApi(request, response) {
   sendJson(response, 405, { error: 'Method not allowed.' });
 }
 
+async function handleJobApi(request, response, admin = false) {
+  if (admin && !getAdminSession(request)) return sendJson(response, 401, { error: 'Microsoft admin authentication is required.' });
+  const url = new URL(request.url, 'http://localhost');
+  const prefix = admin ? '/api/admin/jobs' : '/api/jobs';
+  const match = new RegExp(`^${prefix}(?:/([^/]+))?$`).exec(url.pathname);
+  if (!match) return sendJson(response, 404, { error: 'Not found.' });
+  const id = match[1] ? decodeURIComponent(match[1]) : null;
+  if (request.method === 'GET' && id) {
+    const job = await getJob(id);
+    return job && (admin || job.status === 'published') ? sendJson(response, 200, { job }) : sendJson(response, 404, { error: 'Job opening not found.' });
+  }
+  if (request.method === 'GET') {
+    const jobs = await listJobs({
+      filters: parseFilters(url.searchParams.get('filters')),
+      sortField: url.searchParams.get('sort') || '-created_date',
+      limit: url.searchParams.get('limit') || 200,
+      publishedOnly: !admin,
+    });
+    return sendJson(response, 200, { jobs });
+  }
+  if (!admin) return sendJson(response, 405, { error: 'Method not allowed.' });
+  if (request.method === 'POST' && !id) {
+    const job = await readJson(request);
+    job.id ||= randomUUID();
+    return sendJson(response, 201, { job: await createJob(job) });
+  }
+  if (request.method === 'PATCH' && id) {
+    const job = await updateJob(id, await readJson(request));
+    return job ? sendJson(response, 200, { job }) : sendJson(response, 404, { error: 'Job opening not found.' });
+  }
+  if (request.method === 'DELETE' && id) {
+    return (await deleteJob(id)) ? sendJson(response, 200, { ok: true }) : sendJson(response, 404, { error: 'Job opening not found.' });
+  }
+  return sendJson(response, 405, { error: 'Method not allowed.' });
+}
+
 function serveApplication(request, response) {
   const requestPath = new URL(request.url, 'http://localhost').pathname;
   const relativePath = requestPath === '/' ? 'index.html' : requestPath.replace(/^\/+/, '');
@@ -300,8 +469,20 @@ const server = http.createServer(async (request, response) => {
       await handleAdminApplicationApi(request, response);
       return;
     }
+    if (request.url?.startsWith('/api/admin/jobs')) {
+      await handleJobApi(request, response, true);
+      return;
+    }
+    if (request.url?.startsWith('/api/jobs')) {
+      await handleJobApi(request, response, false);
+      return;
+    }
     if (request.url?.startsWith('/api/parse-resume')) {
       await handleResumeParseApi(request, response);
+      return;
+    }
+    if (request.url?.startsWith('/api/application-drafts')) {
+      await handleDraftApi(request, response);
       return;
     }
     if (request.url?.startsWith('/api/submit-application')) {

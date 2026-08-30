@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import { appClient } from '@/api/localClient';
 import { useParams } from 'react-router-dom';
-import { CheckCircle2, ExternalLink, Cloud, Loader2, RotateCcw } from 'lucide-react';
+import { CheckCircle2, ExternalLink, Cloud, Loader2, Mail, RotateCcw, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Header from '../components/app/Header';
 import useSEO from '../hooks/useSEO';
@@ -10,7 +10,7 @@ import Stepper from '../components/app/Stepper';
 import StepShell from '../components/app/StepShell';
 import GroupedApplicationStep from '../components/app/GroupedApplicationStep';
 import { INITIAL_FORM_DATA } from '../lib/initialFormData';
-import { deleteResumeFile, getResumeFile, resumeRecordToAttachment } from '../lib/resumeStorage';
+import { deleteResumeFile, getResumeFile, resumeRecordToAttachment, saveResumeFile } from '../lib/resumeStorage';
 import { getSubmissionIssues } from '../lib/applicationValidation';
 
 import StartStep from '../components/steps/StartStep';
@@ -25,7 +25,6 @@ import MedicalStep from '../components/steps/MedicalStep';
 import AffiliationsStep from '../components/steps/AffiliationsStep';
 import CertificationStep from '../components/steps/CertificationStep';
 import EEOStep from '../components/steps/EEOStep';
-import DisabilityStep from '../components/steps/DisabilityStep';
 import VeteranStep from '../components/steps/VeteranStep';
 import AlcoholDrugStep from '../components/steps/AlcoholDrugStep';
 import ReviewStep from '../components/steps/ReviewStep';
@@ -71,6 +70,14 @@ const readSavedFormData = (rawValue) => {
   return { data, savedAt: Number(_localSavedAt) || 0 };
 };
 
+const normalizeEducationEntries = data => {
+  const blank = () => ({ institution: '', location: '', degree: '', field: '', yearCompleted: '' });
+  const entries = (Array.isArray(data?.education) ? data.education : [])
+    .filter((item, index) => index < 2 || Object.values(item || {}).some(value => String(value || '').trim()));
+  while (entries.length < 2) entries.push(blank());
+  return { ...data, education: entries };
+};
+
 const REQUIRED_FIELDS = [
   ['firstName', 'First name'],
   ['lastName', 'Last name'],
@@ -83,6 +90,7 @@ const REQUIRED_FIELDS = [
   ['preferredLocation', 'Preferred office location'],
   ['certifyInitials', 'Reference authorization initials'],
   ['medInitials', 'Medical-policy acknowledgment initials'],
+  ['fcrInitials', 'FCRA disclosure initials'],
   ['highestEducationLevel', 'Highest education level'],
 ];
 
@@ -121,7 +129,7 @@ export default function Application() {
   const [formData, setFormData] = useState(() => {
     try {
       const { data } = readSavedFormData(localStorage.getItem(storageKey));
-      return data ? { ...INITIAL_FORM_DATA, ...data } : INITIAL_FORM_DATA;
+      return data ? normalizeEducationEntries({ ...INITIAL_FORM_DATA, ...data }) : INITIAL_FORM_DATA;
     } catch { return INITIAL_FORM_DATA; }
   });
   const [submitted, setSubmitted] = useState(false);
@@ -129,14 +137,21 @@ export default function Application() {
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [fixingFromReview, setFixingFromReview] = useState(false);
 
-  // Draft DB sync state
-  const [draftId, setDraftId] = useState(null);
+  // Private cross-device draft state
+  const [resumeToken, setResumeToken] = useState(() => {
+    try { return localStorage.getItem(`${storageKey}_resumeToken`) || ''; } catch { return ''; }
+  });
   const [saveStatus, setSaveStatus] = useState('idle'); // idle | saving | saved
   const [draftRestored, setDraftRestored] = useState(false);
+  const [resumeLinkOpen, setResumeLinkOpen] = useState(false);
+  const [resumeLinkEmail, setResumeLinkEmail] = useState('');
+  const [resumeLinkStatus, setResumeLinkStatus] = useState('idle');
+  const [resumeLinkError, setResumeLinkError] = useState('');
   const saveTimerRef = useRef(null);
   const saveStatusTimerRef = useRef(null);
   const isFirstRender = useRef(true);
   const applyingExternalUpdateRef = useRef(false);
+  const serverResumeSignatureRef = useRef('');
   const latestLocalSaveRef = useRef((() => {
     try { return readSavedFormData(localStorage.getItem(storageKey)).savedAt; } catch { return 0; }
   })());
@@ -203,34 +218,79 @@ export default function Application() {
     }
   }, [requisitionId]);
 
-  // On mount: check URL for ?draft=id, or look up draft by email if already stored locally
+  const draftPayload = useCallback((attachment = null) => {
+    const { resumeAttachment: _resumeAttachment, resumeParsedPreview: _preview, ...persistableFormData } = formData;
+    return {
+      requisitionId: requisitionId || null,
+      requisitionTitle: requisition?.title || formData.positionAppliedFor || '',
+      email: String(formData.email || resumeLinkEmail || '').trim(),
+      formData: persistableFormData,
+      currentStep,
+      completedSteps,
+      activeTasks,
+      flowVersion: FLOW_VERSION,
+      savedAt: new Date().toISOString(),
+      ...(attachment ? { resumeAttachment: attachment } : {}),
+    };
+  }, [formData, requisitionId, requisition, currentStep, completedSteps, activeTasks, resumeLinkEmail]);
+
+  const attachmentToFile = attachment => {
+    const binary = atob(attachment.content);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+    return new File([bytes], attachment.filename, { type: attachment.type || 'application/octet-stream', lastModified: Date.now() });
+  };
+
+  // Restore a private server draft when a continue link is opened.
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const draftParam = urlParams.get('draft');
-
-    if (draftParam) {
-      // Restore from DB draft ID in URL
-      appClient.entities.Application.filter({ id: draftParam, isDraft: true }).then(([draft]) => {
-        if (draft?.applicationData) {
-          setFormData({ ...INITIAL_FORM_DATA, ...draft.applicationData });
-          setDraftId(draft.id);
-          setCurrentStep(restoreStep(draft.applicationData._step || 0, draft.applicationData._flowVersion));
-          setCompletedSteps(restoreCompletedSteps(draft.applicationData._completedSteps || [], draft.applicationData._flowVersion));
-          setDraftRestored(true);
+    const token = urlParams.get('resume');
+    if (!token) return;
+    let active = true;
+    fetch(`/api/application-drafts/resume?token=${encodeURIComponent(token)}`, { headers: { Accept: 'application/json' } })
+      .then(async response => {
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || 'This private link could not be opened.');
+        return result.draft;
+      })
+      .then(async draft => {
+        if (!active || !draft?.formData) return;
+        let attachment = draft.resumeAttachment || null;
+        if (attachment?.content && attachment?.filename) {
+          const file = attachmentToFile(attachment);
+          await saveResumeFile(storageKey, file);
+          serverResumeSignatureRef.current = `${attachment.filename}:${attachment.content.length}`;
         }
-      });
-    } else {
-      // Try to find existing draft by locally-stored draftId
-      const storedDraftId = localStorage.getItem(`${storageKey}_draftId`);
-      if (storedDraftId) {
-        appClient.entities.Application.filter({ id: storedDraftId, isDraft: true }).then(([draft]) => {
-          if (draft) {
-            setDraftId(storedDraftId);
-            // Draft exists — local data is up to date (already loaded from localStorage above)
-          }
+        const restored = normalizeEducationEntries({
+          ...INITIAL_FORM_DATA,
+          ...draft.formData,
+          ...(attachment ? {
+            resumeAttachment: attachment,
+            resumeFileUrl: `attached:${attachment.filename}`,
+            resumeFileName: attachment.filename,
+            resumeFileSize: Math.round((attachment.content.length * 3) / 4),
+          } : {}),
         });
-      }
-    }
+        applyingExternalUpdateRef.current = true;
+        setFormData(restored);
+        setCurrentStep(restoreStep(draft.currentStep || 1, draft.flowVersion));
+        setCompletedSteps(restoreCompletedSteps(draft.completedSteps || [], draft.flowVersion));
+        setActiveTasks(draft.activeTasks || {});
+        setResumeToken(token);
+        localStorage.setItem(`${storageKey}_resumeToken`, token);
+        setDraftRestored(true);
+        urlParams.delete('resume');
+        const cleaned = `${window.location.pathname}${urlParams.size ? `?${urlParams}` : ''}${window.location.hash}`;
+        window.history.replaceState({}, '', cleaned);
+      })
+      .catch(error => {
+        if (!active) return;
+        setResumeLinkError(error.message);
+        setResumeLinkOpen(true);
+        urlParams.delete('resume');
+        window.history.replaceState({}, '', `${window.location.pathname}${urlParams.size ? `?${urlParams}` : ''}`);
+      });
+    return () => { active = false; };
   }, []);
 
   // Persist lightweight fields synchronously after every committed edit.
@@ -293,67 +353,84 @@ export default function Application() {
     return () => window.removeEventListener('storage', handleStorage);
   }, [restoreSavedResume, storageKey]);
 
-  // Auto-save to DB (debounced) — only when email is present
+  // Once a private link exists, keep the encrypted-token draft current on the server.
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
-    if (!formData.email || currentStep === 0) return;
+    if (!resumeToken || !formData.email || currentStep === 0) return;
 
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     setSaveStatus('saving');
 
     saveTimerRef.current = setTimeout(async () => {
-      const { resumeAttachment, ...persistableFormData } = formData;
-      const payload = {
-        requisitionId: requisitionId || null,
-        requisitionTitle: requisition?.title || formData.positionAppliedFor || '',
-        firstName: formData.firstName || '',
-        lastName: formData.lastName || '',
-        email: formData.email,
-        phone: formData.phone || formData.cell || '',
-        positionAppliedFor: formData.positionAppliedFor || '',
-        resumeFileUrl: formData.resumeFileUrl || '',
-        isDraft: true,
-        draftSavedAt: new Date().toISOString(),
-        applicationData: {
-          ...persistableFormData,
-          _step: currentStep,
-          _completedSteps: completedSteps,
-          _flowVersion: FLOW_VERSION,
-        },
-      };
-
       try {
-        if (draftId) {
-          await appClient.entities.Application.update(draftId, payload);
-        } else {
-          // Check if a draft already exists for this email + requisition
-          const existing = await appClient.entities.Application.filter({
-            email: formData.email,
-            requisitionId: requisitionId || null,
-            isDraft: true,
-          });
-          if (existing[0]) {
-            await appClient.entities.Application.update(existing[0].id, payload);
-            setDraftId(existing[0].id);
-            localStorage.setItem(`${storageKey}_draftId`, existing[0].id);
-          } else {
-            const created = await appClient.entities.Application.create(payload);
-            setDraftId(created.id);
-            localStorage.setItem(`${storageKey}_draftId`, created.id);
-          }
-        }
+        const attachment = formData.resumeAttachment;
+        const signature = attachment?.content ? `${attachment.filename}:${attachment.content.length}` : '';
+        const includeAttachment = attachment && signature !== serverResumeSignatureRef.current;
+        const response = await fetch('/api/application-drafts', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${resumeToken}` },
+          body: JSON.stringify({ draft: draftPayload(includeAttachment ? attachment : null) }),
+        });
+        if (!response.ok) throw new Error(response.status === 404 ? 'EXPIRED' : 'SAVE_FAILED');
+        if (includeAttachment) serverResumeSignatureRef.current = signature;
         setSaveStatus('saved');
         setTimeout(() => setSaveStatus('idle'), 2000);
-      } catch {
+      } catch (error) {
+        if (error.message === 'EXPIRED') {
+          setResumeToken('');
+          localStorage.removeItem(`${storageKey}_resumeToken`);
+        }
         setSaveStatus('idle');
       }
     }, SAVE_DEBOUNCE_MS);
 
     return () => clearTimeout(saveTimerRef.current);
-  }, [formData, currentStep, completedSteps]);
+  }, [formData, currentStep, completedSteps, activeTasks, resumeToken, draftPayload, storageKey]);
+
+  const emailContinueLink = async () => {
+    const email = String(resumeLinkEmail || formData.email || '').trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setResumeLinkError('Enter a valid email address.');
+      return;
+    }
+    setResumeLinkStatus('sending');
+    setResumeLinkError('');
+    try {
+      let attachment = formData.resumeAttachment || null;
+      if (!attachment && formData.resumeFileUrl) {
+        const record = await getResumeFile(storageKey).catch(() => null);
+        if (record) attachment = await resumeRecordToAttachment(record);
+      }
+      const savedDraft = draftPayload(attachment);
+      const response = await fetch('/api/application-drafts/link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          previousToken: resumeToken || undefined,
+          draft: {
+            ...savedDraft,
+            email,
+            formData: { ...savedDraft.formData, email },
+          },
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || 'The private link could not be sent.');
+      setResumeToken(result.token);
+      setFormData(previous => ({ ...previous, email }));
+      localStorage.setItem(`${storageKey}_resumeToken`, result.token);
+      if (attachment?.content) serverResumeSignatureRef.current = `${attachment.filename}:${attachment.content.length}`;
+      setResumeLinkEmail(email);
+      setResumeLinkStatus('sent');
+      setSaveStatus('saved');
+    } catch (error) {
+      setResumeLinkError(error.message);
+      setResumeLinkStatus('idle');
+    }
+  };
 
   const clearDraft = () => {
     try {
@@ -362,7 +439,9 @@ export default function Application() {
       localStorage.removeItem(`${storageKey}_completed`);
       localStorage.removeItem(`${storageKey}_tasks`);
       localStorage.removeItem(`${storageKey}_flowVersion`);
-      localStorage.removeItem(`${storageKey}_draftId`);
+      const token = resumeToken;
+      localStorage.removeItem(`${storageKey}_resumeToken`);
+      if (token) fetch('/api/application-drafts', { method: 'DELETE', headers: { Authorization: `Bearer ${token}` }, keepalive: true }).catch(() => {});
       deleteResumeFile(storageKey).catch(() => {});
     } catch {}
   };
@@ -413,16 +492,17 @@ export default function Application() {
     const eeoData = {
       gender: formData.eeoGender,
       race: formData.eeoRace,
-      disabilityStatus: formData.disabilityStatus,
       veteranStatus: formData.veteranStatus,
     };
 
     const {
-      eeoGender, eeoRace, disabilityStatus, veteranStatus,
+      eeoGender, eeoRace, veteranStatus,
+      disabilityName, disabilityDate, disabilityEmployeeId, disabilityStatus,
+      disabilitySignature, disabilitySignatureDate,
       resumeAttachment, resumeParsedPreview, ...appDataClean
     } = formData;
 
-    const applicationId = draftId || crypto.randomUUID();
+    const applicationId = crypto.randomUUID();
 
     const finalPayload = {
       id: applicationId,
@@ -457,14 +537,6 @@ export default function Application() {
     const deliveryResult = await deliveryResponse.json().catch(() => ({}));
     if (!deliveryResponse.ok) {
       throw new Error(deliveryResult.error || 'We could not deliver your application to HR. Please try again.');
-    }
-
-    let record;
-    if (draftId) {
-      // Convert draft to final submission
-      record = await appClient.entities.Application.update(draftId, finalPayload);
-    } else {
-      record = await appClient.entities.Application.create(finalPayload);
     }
 
     clearDraft();
@@ -511,7 +583,6 @@ export default function Application() {
       case 5: return (
         <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={5} activeTask={activeTask} onTaskChange={setActiveTask}>
           <EEOStep {...stepProps} />
-          <DisabilityStep {...stepProps} />
           <VeteranStep {...stepProps} />
         </GroupedApplicationStep>
       );
@@ -635,15 +706,16 @@ export default function Application() {
               </div>
               {/* Auto-save indicator */}
               {currentStep > 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex items-center gap-1.5 text-[10px] text-gray-500"
-                >
-                  {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</>}
-                  {saveStatus === 'saved' && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> Saved</motion.div>}
-                  {saveStatus === 'idle' && <><Cloud className="w-3 h-3 text-green-600" /> Saved on this device</>}
-                </motion.div>
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                    {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving securely…</>}
+                    {saveStatus === 'saved' && <motion.div className="flex items-center gap-1.5" animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</motion.div>}
+                    {saveStatus === 'idle' && <><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</>}
+                  </motion.div>
+                  <button type="button" onClick={() => { setResumeLinkEmail(formData.email || ''); setResumeLinkError(''); setResumeLinkStatus('idle'); setResumeLinkOpen(true); }} className="inline-flex items-center gap-1.5 rounded-lg border border-[#A65F2A]/25 bg-[#F8F0E9] px-2.5 py-1.5 text-[10px] font-bold text-[#8A4A22] hover:bg-[#A65F2A]/10">
+                    <Mail className="h-3 w-3" /> Continue on another device
+                  </button>
+                </div>
               )}
             </motion.div>
           )}
@@ -655,10 +727,15 @@ export default function Application() {
               animate={{ opacity: 1 }}
               className="flex justify-end"
             >
-              <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
-                {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving…</>}
-                {saveStatus === 'saved' && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> Saved</motion.div>}
-                {saveStatus === 'idle' && <><Cloud className="w-3 h-3 text-green-600" /> Saved on this device</>}
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                  {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving securely…</>}
+                  {saveStatus === 'saved' && <motion.div className="flex items-center gap-1.5" animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</motion.div>}
+                  {saveStatus === 'idle' && <><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</>}
+                </div>
+                <button type="button" onClick={() => { setResumeLinkEmail(formData.email || ''); setResumeLinkError(''); setResumeLinkStatus('idle'); setResumeLinkOpen(true); }} className="inline-flex items-center gap-1.5 rounded-lg border border-[#A65F2A]/25 bg-[#F8F0E9] px-2.5 py-1.5 text-[10px] font-bold text-[#8A4A22] hover:bg-[#A65F2A]/10">
+                  <Mail className="h-3 w-3" /> Continue on another device
+                </button>
               </div>
             </motion.div>
           )}
@@ -705,6 +782,38 @@ export default function Application() {
           </div>
         </div>
       </main>
+      {resumeLinkOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm" onMouseDown={event => { if (event.target === event.currentTarget) setResumeLinkOpen(false); }}>
+          <div role="dialog" aria-modal="true" aria-labelledby="continue-link-title" className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#8A4A22]">Save and continue later</p>
+                <h2 id="continue-link-title" className="mt-1 text-xl font-extrabold tracking-tight text-slate-950">Email me a private link</h2>
+              </div>
+              <button type="button" onClick={() => setResumeLinkOpen(false)} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Close"><X className="h-4 w-4" /></button>
+            </div>
+            {resumeLinkStatus === 'sent' ? (
+              <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                  <div><p className="text-sm font-bold text-emerald-900">Private link sent</p><p className="mt-1 text-xs leading-relaxed text-emerald-800">Check <strong>{resumeLinkEmail}</strong>. Your application will now save securely and can be continued on another device.</p></div>
+                </div>
+                <button type="button" onClick={() => setResumeLinkOpen(false)} className="mt-4 w-full rounded-xl bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-800">Done</button>
+              </div>
+            ) : (
+              <>
+                <p className="mt-3 text-xs leading-relaxed text-slate-600">We’ll securely save your current progress and email a private link that expires in 30 days. Do not forward the email—anyone with the link can access your saved application.</p>
+                <label htmlFor="continue-email" className="mt-5 block text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700">Email address</label>
+                <input id="continue-email" type="email" value={resumeLinkEmail} onChange={event => setResumeLinkEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" className="mt-2 h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-950 focus:border-[#A65F2A] focus:ring-[#A65F2A]/25" />
+                {resumeLinkError && <p role="alert" className="mt-2 text-xs font-semibold text-red-700">{resumeLinkError}</p>}
+                <button type="button" onClick={emailContinueLink} disabled={resumeLinkStatus === 'sending'} className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#A65F2A] px-4 text-sm font-bold text-white shadow-lg shadow-black/10 hover:bg-[#8A4A22] disabled:cursor-wait disabled:opacity-60">
+                  {resumeLinkStatus === 'sending' ? <><Loader2 className="h-4 w-4 animate-spin" /> Sending private link…</> : <><Mail className="h-4 w-4" /> Email my link</>}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
       <AppFooter />
     </div>
   );

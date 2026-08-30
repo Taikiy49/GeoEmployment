@@ -2,17 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Users, Settings,
-  Menu, Shield, ChevronRight, LogOut, Mail, X
+  Menu, Shield, ChevronRight, LogOut, X
 } from 'lucide-react';
 import { appClient } from '@/api/localClient';
 import { BRAND_LOGO_URL } from '@/lib/brand';
 
 const BASE_NAV = [
-  { label: 'Dashboard', icon: LayoutDashboard, to: '/admin' },
-  { label: 'Job Requisitions', icon: Briefcase, to: '/admin/jobs' },
+  { label: 'Overview', icon: LayoutDashboard, to: '/admin' },
+  { label: 'Job Openings', icon: Briefcase, to: '/admin/jobs' },
   { label: 'Applications', icon: Users, to: '/admin/applications' },
-  { label: 'Email Templates', icon: Mail, to: '/admin/email-templates' },
-  { label: 'Settings', icon: Settings, to: '/admin/settings' },
+  { label: 'Access & Security', icon: Settings, to: '/admin/settings' },
 ];
 
 export default function AdminLayout({ children }) {
@@ -33,6 +32,7 @@ export default function AdminLayout({ children }) {
     return (
       <Link
         to={item.to}
+        aria-current={active ? 'page' : undefined}
         onClick={() => setMobileOpen(false)}
         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
           active
@@ -48,13 +48,14 @@ export default function AdminLayout({ children }) {
   };
 
   const Sidebar = () => (
-    <div className="flex flex-col h-full bg-[#111923] border-r border-white/10">
+    <div className="flex flex-col h-full bg-[#111923] border-r border-white/10 font-sans">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-white/10">
         <div className="flex items-center gap-3">
           <img src={BRAND_LOGO_URL} alt="Geolabs, Inc." className="w-11 h-11 object-contain" />
           <div>
-            <div className="text-sm font-black leading-tight tracking-wide text-white">HR Admin Portal</div>
+            <div className="text-base font-extrabold leading-tight text-white">HR Admin Portal</div>
+            <div className="mt-1 text-[10px] font-medium text-slate-400">Geolabs, Inc.</div>
           </div>
         </div>
       </div>
@@ -122,7 +123,7 @@ export default function AdminLayout({ children }) {
       )}
 
       {/* Main content */}
-      <div className="flex-1 lg:ml-56 flex flex-col min-h-screen">
+      <div className="min-w-0 flex-1 lg:ml-56 flex flex-col min-h-screen">
         {/* Mobile topbar */}
         <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-[#111923] border-b border-[#A65F2A]/40">
           <button onClick={() => setMobileOpen(true)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-200">
@@ -134,7 +135,7 @@ export default function AdminLayout({ children }) {
           </div>
         </div>
 
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-7xl w-full mx-auto">
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-7xl w-full mx-auto font-sans">
           {children}
         </main>
       </div>

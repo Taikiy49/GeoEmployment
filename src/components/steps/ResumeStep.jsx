@@ -224,7 +224,7 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
                 <div className="min-w-0 flex-1">
                   <h4 className="text-sm font-bold text-slate-950">Save time with resume autofill</h4>
                   <p className="mt-1 text-xs leading-relaxed text-slate-600">
-                    Gemini can extract contact information, employment, education, credentials, skills, software, and professional references for your review.
+                    Résumé autofill can extract contact information, employment, education, credentials, skills, software, and professional references for your review.
                   </p>
                 </div>
               </div>
@@ -241,7 +241,7 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
                   </button>
                   <div className="mt-3 flex items-start gap-2 text-[10px] leading-relaxed text-slate-500">
                     <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                    <span>By selecting autofill, a temporary copy is sent securely to Google Gemini only to extract application details. Nothing is applied until you review and approve it.</span>
+                    <span>By selecting autofill, a temporary copy is processed securely only to extract application details. Nothing is applied until you review and approve it.</span>
                   </div>
                 </>
               )}

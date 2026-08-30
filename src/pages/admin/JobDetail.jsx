@@ -11,6 +11,8 @@ export default function JobDetail() {
   const [req, setReq] = useState(null);
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -20,20 +22,30 @@ export default function JobDetail() {
       setReq(reqs[0]);
       setApps(applications);
       setLoading(false);
-    });
+    }).catch(() => { setError('This job opening could not be loaded.'); setLoading(false); });
   }, [id]);
 
   const handleStatusChange = async (newStatus) => {
+    setUpdating(true);
+    setError('');
     const now = new Date().toISOString();
     const history = [...(req.statusHistory || []), { status: newStatus, changedAt: now, changedBy: 'admin' }];
     const updates = { status: newStatus, statusHistory: history };
     if (newStatus === 'published') updates.publishedDate = now;
     if (newStatus === 'closed') updates.closedDate = now;
-    const updated = await appClient.entities.JobRequisition.update(id, updates);
-    setReq(updated);
+    try {
+      const updated = await appClient.entities.JobRequisition.update(id, updates);
+      if (!updated) throw new Error('Job not found');
+      setReq(updated);
+    } catch {
+      setError('The opening status could not be changed. Please try again.');
+    } finally {
+      setUpdating(false);
+    }
   };
 
   if (loading) return <AdminLayout><div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#A65F2A] rounded-full animate-spin" /></div></AdminLayout>;
+  if (error && !req) return <AdminLayout><div className="mx-auto mt-20 max-w-md rounded-2xl border border-red-200 bg-white p-6 text-center shadow-sm"><p className="text-sm font-bold text-red-700">{error}</p><button onClick={() => window.location.reload()} className="mt-3 text-xs font-bold text-[#8A4A22]">Try again</button></div></AdminLayout>;
   if (!req) return <AdminLayout><p className="text-center py-16 text-gray-500">Requisition not found.</p></AdminLayout>;
 
   const stageGroups = ['applied', 'under_review', 'phone_screen', 'interview', 'offer', 'hired'].reduce((acc, s) => {
@@ -44,6 +56,7 @@ export default function JobDetail() {
   return (
     <AdminLayout>
       <div className="max-w-4xl mx-auto space-y-5">
+        {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{error}</div>}
         {/* Header */}
         <div className="flex items-start gap-3">
           <Link to="/admin/jobs" className="p-2 rounded-xl hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors mt-0.5">
@@ -68,23 +81,17 @@ export default function JobDetail() {
                 <Pencil className="w-3 h-3 mr-1" /> Edit
               </Button>
             </Link>
-            {req.status === 'draft' && (
-              <Button size="sm" onClick={() => handleStatusChange('pending_approval')} className="rounded-xl h-9 px-4 text-xs bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200">Submit</Button>
-            )}
-            {req.status === 'pending_approval' && (
-              <Button size="sm" onClick={() => handleStatusChange('approved')} className="rounded-xl h-9 px-4 text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200">Approve</Button>
-            )}
-            {req.status === 'approved' && (
-              <Button size="sm" onClick={() => handleStatusChange('published')} className="rounded-xl h-9 px-4 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200">Publish</Button>
+            {['draft', 'pending_approval', 'approved'].includes(req.status) && (
+              <Button size="sm" disabled={updating} onClick={() => handleStatusChange('published')} className="rounded-xl h-9 px-4 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200">Publish</Button>
             )}
             {req.status === 'published' && (
-              <Button size="sm" onClick={() => handleStatusChange('paused')} className="rounded-xl h-9 px-4 text-xs bg-yellow-50 hover:bg-yellow-100 text-yellow-600 border border-yellow-200">Pause</Button>
+              <Button size="sm" disabled={updating} onClick={() => handleStatusChange('paused')} className="rounded-xl h-9 px-4 text-xs bg-yellow-50 hover:bg-yellow-100 text-yellow-600 border border-yellow-200">Pause</Button>
             )}
             {req.status === 'paused' && (
-              <Button size="sm" onClick={() => handleStatusChange('published')} className="rounded-xl h-9 px-4 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200">Resume</Button>
+              <Button size="sm" disabled={updating} onClick={() => handleStatusChange('published')} className="rounded-xl h-9 px-4 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200">Resume</Button>
             )}
             {(req.status === 'published' || req.status === 'paused') && (
-              <Button size="sm" onClick={() => handleStatusChange('closed')} className="rounded-xl h-9 px-4 text-xs bg-red-50 hover:bg-red-100 text-red-500 border border-red-200">Close</Button>
+              <Button size="sm" disabled={updating} onClick={() => handleStatusChange('closed')} className="rounded-xl h-9 px-4 text-xs bg-red-50 hover:bg-red-100 text-red-500 border border-red-200">Close</Button>
             )}
           </div>
         </div>

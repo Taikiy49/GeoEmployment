@@ -3,6 +3,7 @@ import { Users } from 'lucide-react';
 import FormSection from '../app/FormSection';
 import FormField from '../app/FormField';
 import NavigationButtons from '../app/NavigationButtons';
+import { REFERENCE_AUTHORIZATION_TEXT } from '@/lib/legalTexts';
 
 export default function ReferencesStep({ formData, setFormData, onNext, onBack }) {
   const updateRef = (index, field, value) => {
@@ -26,12 +27,18 @@ export default function ReferencesStep({ formData, setFormData, onNext, onBack }
                 <Users className="w-4 h-4 text-bronze" />
                 <h4 className="text-xs font-semibold text-[#0f172a]">Reference {i + 1} of 3</h4>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <FormField
                   label="Full Name"
                   value={ref.name}
                   onChange={(v) => updateRef(i, 'name', v)}
                   placeholder="First and last name"
+                />
+                <FormField
+                  label="Title"
+                  value={ref.title || ''}
+                  onChange={(v) => updateRef(i, 'title', v)}
+                  placeholder="e.g., Project Manager"
                 />
                 <FormField
                   label="Company / Organization"
@@ -52,7 +59,7 @@ export default function ReferencesStep({ formData, setFormData, onNext, onBack }
         </div>
         <div className="mt-5 rounded-xl border border-[#A65F2A]/20 bg-[#F8F0E9] p-4">
           <p className="text-xs leading-relaxed text-slate-700">
-            By initialing below, you authorize Geolabs, Inc. to contact the references listed above regarding your employment history and qualifications.
+            {REFERENCE_AUTHORIZATION_TEXT}
           </p>
           <div className="mt-3 max-w-[12rem]">
             <FormField

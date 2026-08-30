@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { appClient } from '@/api/localClient';
 import { Link } from 'react-router-dom';
-import { Briefcase, Users, TrendingUp, ChevronRight, AlertCircle, Zap } from 'lucide-react';
+import { Briefcase, Users, TrendingUp, ChevronRight, ClipboardCheck, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AdminLayout from '../../components/admin/AdminLayout';
 
@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [apps, setApps] = useState([]);
   const [reqs, setReqs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     Promise.all([
@@ -28,7 +29,7 @@ export default function Dashboard() {
       setApps(a);
       setReqs(r);
       setLoading(false);
-    });
+    }).catch(() => { setError('The hiring overview could not be loaded.'); setLoading(false); });
   }, []);
 
   const stageCounts = STAGE_ORDER.reduce((acc, s) => {
@@ -37,7 +38,7 @@ export default function Dashboard() {
   }, {});
 
   const activeReqs = reqs.filter(r => r.status === 'published').length;
-  const pendingApproval = reqs.filter(r => r.status === 'pending_approval').length;
+  const awaitingReview = apps.filter(a => a.stage === 'applied').length;
   const thisWeek = apps.filter(a => {
     const d = new Date(a.submittedAt || a.created_date);
     return (Date.now() - d) < 7 * 24 * 60 * 60 * 1000;
@@ -54,6 +55,7 @@ export default function Dashboard() {
       </div>
     </AdminLayout>
   );
+  if (error) return <AdminLayout><div className="mx-auto mt-20 max-w-md rounded-2xl border border-red-200 bg-white p-6 text-center shadow-sm"><p className="text-sm font-bold text-red-700">{error}</p><button onClick={() => window.location.reload()} className="mt-3 text-xs font-bold text-[#8A4A22]">Try again</button></div></AdminLayout>;
 
   return (
     <AdminLayout>
@@ -63,7 +65,7 @@ export default function Dashboard() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 rounded-full bg-[#A65F2A] animate-pulse" />
-              <span className="text-[11px] font-bold text-[#8A4A22] tracking-widest uppercase">Live Dashboard</span>
+              <span className="text-[11px] font-bold text-[#8A4A22] tracking-widest uppercase">HR workspace</span>
             </div>
             <h1 className="text-2xl font-black text-gray-900 tracking-tight">Hiring Overview</h1>
             <p className="text-sm text-gray-500 mt-0.5">Geolabs, Inc. — Applicant Tracking System</p>
@@ -76,7 +78,7 @@ export default function Dashboard() {
             { label: 'Active Applications', value: apps.length, icon: Users, color: '#3b82f6', bg: 'rgba(59,130,246,0.08)' },
             { label: 'Open Positions', value: activeReqs, icon: Briefcase, color: '#A65F2A', bg: 'rgba(245,196,0,0.08)' },
             { label: 'New This Week', value: thisWeek, icon: TrendingUp, color: '#22c55e', bg: 'rgba(34,197,94,0.08)' },
-            { label: 'Pending Approval', value: pendingApproval, icon: AlertCircle, color: '#f97316', bg: 'rgba(249,115,22,0.08)' },
+            { label: 'Awaiting Review', value: awaitingReview, icon: ClipboardCheck, color: '#f97316', bg: 'rgba(249,115,22,0.08)' },
           ].map((kpi, i) => (
             <motion.div
               key={i}
@@ -189,7 +191,7 @@ export default function Dashboard() {
             className="bg-white rounded-2xl border border-gray-200 p-5"
           >
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-sm font-bold text-gray-900">Job Requisitions</h2>
+              <h2 className="text-sm font-bold text-gray-900">Job Openings</h2>
               <Link to="/admin/jobs" className="text-[11px] text-[#8A4A22] hover:text-[#A65F2A] flex items-center gap-0.5 font-medium transition-colors">
                 Manage <ChevronRight className="w-3 h-3" />
               </Link>

@@ -20,7 +20,7 @@ try {
     });
   });
   await firstTab.reload();
-  await firstTab.getByRole('button', { name: /start an application/i }).click();
+  await firstTab.getByRole('button', { name: /begin (general )?application/i }).click();
 
   await firstTab.locator('#resume-input').setInputFiles({
     name: 'Draft-Persistence-Test.txt',
@@ -30,7 +30,7 @@ try {
   await firstTab.getByText('Resume attached and ready to send with your application.').waitFor();
   await firstTab.getByRole('button', { name: /personal information/i }).click();
   await firstTab.getByLabel('First Name').fill('Persistence');
-  await firstTab.getByRole('button', { name: /continue/i }).click();
+  await firstTab.getByRole('button', { name: 'Continue', exact: true }).click();
   await firstTab.getByText('Employment History').waitFor();
   await firstTab.getByRole('button', { name: /^back$/i }).click();
   await firstTab.getByRole('button', { name: /resume/i }).click();
@@ -68,15 +68,13 @@ try {
 
   await firstTab.getByRole('button', { name: /optional self-id/i }).click();
   await firstTab.getByText('EEO Voluntary Self-Identification Survey', { exact: true }).waitFor();
-  await firstTab.getByRole('button', { name: /disability form/i }).click();
-  await firstTab.getByText('Voluntary Self-Identification of Disability', { exact: true }).waitFor();
-  if (await firstTab.getByText('EEO Voluntary Self-Identification Survey', { exact: true }).count()) {
-    throw new Error('EEO and disability tasks rendered on the same screen.');
-  }
   await firstTab.getByRole('button', { name: /veteran status/i }).click();
   await firstTab.getByText(/Invitation to Self-Identify as a Protected Veteran/).waitFor();
-  if (await firstTab.getByText('Voluntary Self-Identification of Disability', { exact: true }).count()) {
-    throw new Error('Disability and veteran tasks rendered on the same screen.');
+  if (await firstTab.getByText('EEO Voluntary Self-Identification Survey', { exact: true }).count()) {
+    throw new Error('EEO and veteran tasks rendered on the same screen.');
+  }
+  if (await firstTab.getByRole('button', { name: /disability form/i }).count()) {
+    throw new Error('The discontinued disability self-identification task is still visible.');
   }
 
   const storedResume = await secondTab.evaluate(async () => {

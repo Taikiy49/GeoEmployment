@@ -4,10 +4,12 @@ import { join } from 'node:path';
 const dataDirectory = process.env.APPLICATION_DATA_DIR || '/var/lib/geolabs-employment-portal';
 const applicationsFile = join(dataDirectory, 'applications.json');
 const resumesDirectory = join(dataDirectory, 'resumes');
+const documentsDirectory = join(dataDirectory, 'application-documents');
 let writeQueue = Promise.resolve();
 
 const ensureStorage = async () => {
   await mkdir(resumesDirectory, { recursive: true, mode: 0o700 });
+  await mkdir(documentsDirectory, { recursive: true, mode: 0o700 });
 };
 
 const readApplications = async () => {
@@ -100,6 +102,32 @@ export async function updateApplication(id, updates) {
   });
 }
 
+export async function saveApplicationDocuments(applicationId, documents) {
+  return withWriteLock(async () => {
+    const applications = await readApplications();
+    const index = applications.findIndex(item => item.id === applicationId);
+    if (index < 0) return null;
+    const metadata = [];
+    for (const document of documents || []) {
+      if (!document?.key || !document?.content) continue;
+      const storedFilename = `${safeFilename(applicationId)}-${safeFilename(document.key)}.pdf`;
+      await writeFile(join(documentsDirectory, storedFilename), Buffer.from(document.content, 'base64'), { mode: 0o600 });
+      metadata.push({
+        key: document.key,
+        label: document.label,
+        filename: document.filename,
+        type: document.type || 'application/pdf',
+        restricted: Boolean(document.restricted),
+        storedFilename,
+        url: `/api/admin/applications/${encodeURIComponent(applicationId)}/documents/${encodeURIComponent(document.key)}`,
+      });
+    }
+    applications[index] = { ...applications[index], documents: metadata, updated_date: new Date().toISOString() };
+    await writeApplications(applications);
+    return applications[index];
+  });
+}
+
 export async function deleteApplication(id) {
   return withWriteLock(async () => {
     const applications = await readApplications();
@@ -109,6 +137,12 @@ export async function deleteApplication(id) {
     await writeApplications(next);
     if (existing?.resumeStoredFilename) {
       await unlink(join(resumesDirectory, existing.resumeStoredFilename)).catch(error => {
+        if (error.code !== 'ENOENT') throw error;
+      });
+    }
+    for (const document of existing?.documents || []) {
+      if (!document.storedFilename) continue;
+      await unlink(join(documentsDirectory, document.storedFilename)).catch(error => {
         if (error.code !== 'ENOENT') throw error;
       });
     }
@@ -140,4 +174,9 @@ export function getResumePath(application) {
   return application?.resumeStoredFilename
     ? join(resumesDirectory, application.resumeStoredFilename)
     : null;
+}
+
+export function getApplicationDocumentPath(application, key) {
+  const document = application?.documents?.find(item => item.key === key);
+  return document?.storedFilename ? join(documentsDirectory, document.storedFilename) : null;
 }

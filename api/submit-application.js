@@ -2,19 +2,20 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { buildApplicationDocx } from './generate-application-docx.js';
 import { convertDocxToPdf } from './convert-docx-to-pdf.js';
+import { splitCompliancePdfs } from './split-compliance-pdfs.js';
 
 const HR_RECIPIENTS = (
   process.env.HR_APPLICATION_EMAIL
   || 'employment@geolabs.net,tyamashita@geolabs.net'
 ).split(',').map(address => address.trim()).filter(Boolean);
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Geolabs Careers <applications@geolabs.net>';
+export const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Geolabs Careers <applications@geolabs.net>';
 const MICROSOFT_SENDER = process.env.MS_SENDER_EMAIL || 'tyamashita@geolabs.net';
 const LOGO_CID = 'geolabs-logo';
 const LOGO_SRC = `cid:${LOGO_CID}`;
 const LOGO_CONTENT = readFileSync(
   new URL('../public/geolabs-logo.png', import.meta.url),
 ).toString('base64');
-const logoAttachment = () => ({
+export const logoAttachment = () => ({
   filename: 'geolabs-logo.png',
   content: LOGO_CONTENT,
   type: 'image/png',
@@ -42,9 +43,9 @@ const join = (values) => values.filter(present).map(escapeHtml).join(' · ') || 
 const paragraph = (value) => text(value).replaceAll('\n', '<br>');
 
 const veteranLabel = (value) => ({
-  protected: 'I identify as a protected veteran',
+  protected: 'I identify as one or more of the following classifications of protected veterans',
   notProtected: 'I am not a protected veteran',
-  noAnswer: 'I do not wish to answer',
+  noAnswer: 'I do not wish to self-identify',
 })[value] || text(value);
 
 const row = (label, value) => `
@@ -138,7 +139,6 @@ const historyCards = (items, render) => {
   const restrictedRows = [
     row('Gender', text(application.eeoData?.gender)),
     row('Race / ethnicity', text(application.eeoData?.race)),
-    row('Disability self-identification', text(application.eeoData?.disabilityStatus)),
     row('Veteran self-identification', veteranLabel(application.eeoData?.veteranStatus)),
   ].join('');
 
@@ -312,7 +312,7 @@ async function sendResendEmail(payload) {
   return result;
 }
 
-async function sendEmail(payload) {
+export async function sendEmail(payload) {
   if (hasMicrosoftConfig()) return sendMicrosoftEmail(payload);
   return sendResendEmail(payload);
 }
@@ -333,13 +333,25 @@ export default async function handler(req, res) {
     const safeApplicantName = `${application.firstName}-${application.lastName}`
       .replace(/[^a-z0-9-]+/gi, '-')
       .replace(/-+/g, '-');
-    const applicationDocx = await buildApplicationDocx(application);
-    const applicationPdf = await convertDocxToPdf(applicationDocx);
-    attachments.push({
+    const mainApplicationDocx = await buildApplicationDocx(application, { mainApplicationOnly: true });
+    const applicationPdf = await convertDocxToPdf(mainApplicationDocx);
+    const completeApplication = {
+      key: 'complete-application',
+      label: 'Complete Employment Application',
       filename: `${safeApplicantName}-Geolabs-Application.pdf`,
       content: applicationPdf.toString('base64'),
       type: 'application/pdf',
-    });
+      restricted: false,
+    };
+    const complianceSourceDocx = await buildApplicationDocx(application);
+    const complianceSourcePdf = await convertDocxToPdf(complianceSourceDocx);
+    const compliancePdfs = await splitCompliancePdfs(complianceSourcePdf, safeApplicantName);
+    const generatedDocuments = [completeApplication, ...compliancePdfs.map(document => ({
+      ...document,
+      content: document.content.toString('base64'),
+    }))];
+    req.generatedDocuments = generatedDocuments;
+    attachments.push(...generatedDocuments.map(({ filename, content, type }) => ({ filename, content, type })));
     const resume = application.resumeAttachment;
     if (resume?.content && resume?.filename) {
       attachments.push({ filename: resume.filename, content: resume.content });

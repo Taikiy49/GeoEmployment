@@ -2,6 +2,7 @@ import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import FormSection from '../app/FormSection';
 import NavigationButtons from '../app/NavigationButtons';
+import { ESSENTIAL_FUNCTIONS_QUESTION, MEDICAL_AUTHORIZATION_TEXT } from '@/lib/legalTexts';
 
 export default function MedicalStep({ formData, setFormData, onNext, onBack }) {
   const update = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
@@ -29,13 +30,7 @@ export default function MedicalStep({ formData, setFormData, onNext, onBack }) {
 
             <div className="bg-[#f8fafc] border border-[#f1f5f9] rounded-lg p-4 space-y-3">
               <p className="text-xs text-[#334155] leading-relaxed">
-                After an offer of employment is made, but before employment duties begin, applicants are required to undergo a pre-employment physical examination, including drug and alcohol testing, at the Company's expense and by a Company-selected physician. The offer of employment is conditioned upon the results of such examination.
-              </p>
-              <p className="text-xs text-[#334155] leading-relaxed">
-                Employees may also be required, at any time during the course of their employment, to undergo an annual physical examination including drug and alcohol testing, conducted at the Company's expense by a Company-selected physician.
-              </p>
-              <p className="text-xs text-[#334155] leading-relaxed">
-                I authorize the physician conducting the examination, and any laboratory conducting related testing, to disclose the results of such examination and testing to Geolabs, Inc.
+                {MEDICAL_AUTHORIZATION_TEXT}
               </p>
             </div>
 
@@ -60,7 +55,7 @@ export default function MedicalStep({ formData, setFormData, onNext, onBack }) {
             <div>
               <h3 className="text-sm font-semibold text-gray-900 mb-0.5">Ability to Perform Essential Job Functions</h3>
               <p className="text-xs text-gray-500">
-                Geolabs, Inc. complies with all applicable provisions of the Americans with Disabilities Act (ADA) and will not discriminate against any qualified applicant with a disability. Reasonable accommodations will be made for known physical or mental limitations unless doing so would impose an undue hardship.
+                {ESSENTIAL_FUNCTIONS_QUESTION}
               </p>
             </div>
 
