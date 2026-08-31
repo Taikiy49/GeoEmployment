@@ -17,6 +17,7 @@
     "test:education": "node scripts/test-education-entries.mjs",
     "test:secure-drafts": "node scripts/test-secure-drafts.mjs",
     "test:continue-link": "node scripts/test-continue-link-ui.mjs",
+    "test:accessibility": "node scripts/test-accessibility.mjs",
     "typecheck": "tsc -p ./jsconfig.json",
     "preview": "vite preview",
     "start": "node server/ec2-server.js"

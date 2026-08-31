@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function FormField({
@@ -14,7 +14,9 @@ export default function FormField({
   className = '',
   disabled = false,
 }) {
-  const id = label?.toLowerCase().replace(/\s+/g, '-');
+  const generatedId = useId();
+  const id = `field-${generatedId.replace(/:/g, '')}`;
+  const hintId = hint ? `${id}-hint` : undefined;
 
   const inputClass = "w-full px-4 py-3 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A] transition-all disabled:opacity-50 disabled:cursor-not-allowed";
 
@@ -29,7 +31,7 @@ export default function FormField({
 
       {type === 'select' ? (
         <Select value={value || ''} onValueChange={onChange} disabled={disabled}>
-          <SelectTrigger id={id} aria-label={label} className="h-12 text-sm rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]">
+          <SelectTrigger id={id} aria-label={label} aria-required={required || undefined} aria-describedby={hintId} className="h-12 text-sm rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]">
             <SelectValue placeholder={placeholder || 'Select…'} />
           </SelectTrigger>
           <SelectContent className="bg-white border-gray-300 text-gray-900">
@@ -49,6 +51,8 @@ export default function FormField({
           rows={rows}
           wrap="soft"
           disabled={disabled}
+          required={required}
+          aria-describedby={hintId}
           className={`${inputClass} block min-w-0 max-w-full box-border whitespace-pre-wrap break-words resize-y`}
         />
       ) : (
@@ -59,12 +63,14 @@ export default function FormField({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
+          required={required}
+          aria-describedby={hintId}
           className={inputClass}
         />
       )}
 
       {hint && (
-        <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">{hint}</p>
+        <p id={hintId} className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">{hint}</p>
       )}
     </div>
   );

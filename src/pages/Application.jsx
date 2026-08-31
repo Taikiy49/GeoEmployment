@@ -8,6 +8,7 @@ import useSEO from '../hooks/useSEO';
 import AppFooter from '../components/app/AppFooter';
 import Stepper from '../components/app/Stepper';
 import StepShell from '../components/app/StepShell';
+import AccessibilityToolbar from '../components/app/AccessibilityToolbar';
 import GroupedApplicationStep from '../components/app/GroupedApplicationStep';
 import { INITIAL_FORM_DATA } from '../lib/initialFormData';
 import { deleteResumeFile, getResumeFile, resumeRecordToAttachment, saveResumeFile } from '../lib/resumeStorage';
@@ -595,7 +596,7 @@ export default function Application() {
     return (
       <div className="min-h-screen bg-slate-50">
         <Header />
-        <main className="max-w-2xl mx-auto px-2 py-8 text-center">
+        <main id="main-content" className="max-w-2xl mx-auto px-2 py-8 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -608,7 +609,7 @@ export default function Application() {
               transition={{ delay: 0.2, duration: 0.5, type: 'spring', stiffness: 100 }}
               className="w-20 h-20 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto mb-6"
             >
-              <CheckCircle2 className="w-10 h-10 text-green-600" />
+              <CheckCircle2 aria-hidden="true" className="w-10 h-10 text-green-600" />
             </motion.div>
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
@@ -657,7 +658,7 @@ export default function Application() {
                 href="/#open-roles"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold bg-[#A65F2A] hover:bg-[#8A4A22] text-white transition-colors"
               >
-                <ExternalLink className="w-4 h-4" /> View All Open Positions
+                <ExternalLink aria-hidden="true" className="w-4 h-4" /> View All Open Positions
               </a>
             </motion.div>
           </motion.div>
@@ -670,7 +671,7 @@ export default function Application() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Header />
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6">
+      <main id="main-content" className="w-full px-4 sm:px-6 lg:px-8 py-6">
         <div className="max-w-6xl mx-auto space-y-5">
 
           {/* Draft restored banner */}
@@ -683,12 +684,12 @@ export default function Application() {
               className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg px-5 py-3"
             >
               <motion.div animate={{ rotate: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
-                <RotateCcw className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <RotateCcw aria-hidden="true" className="w-4 h-4 text-blue-600 flex-shrink-0" />
               </motion.div>
               <p className="text-xs text-blue-700 flex-1">
                 <strong>Your progress has been restored.</strong> Pick up right where you left off.
               </p>
-              <button onClick={() => setDraftRestored(false)} className="text-blue-400 hover:text-blue-600 text-lg leading-none transition-colors">×</button>
+              <button type="button" onClick={() => setDraftRestored(false)} aria-label="Dismiss restored progress message" className="text-blue-400 hover:text-blue-600 text-lg leading-none transition-colors">×</button>
             </motion.div>
           )}
 
@@ -707,13 +708,13 @@ export default function Application() {
               {/* Auto-save indicator */}
               {currentStep > 0 && (
                 <div className="flex flex-wrap items-center justify-end gap-2">
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                  <motion.div role="status" aria-live="polite" aria-atomic="true" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-1.5 text-[10px] text-gray-500">
                     {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving securely…</>}
                     {saveStatus === 'saved' && <motion.div className="flex items-center gap-1.5" animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</motion.div>}
                     {saveStatus === 'idle' && <><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</>}
                   </motion.div>
                   <button type="button" onClick={() => { setResumeLinkEmail(formData.email || ''); setResumeLinkError(''); setResumeLinkStatus('idle'); setResumeLinkOpen(true); }} className="inline-flex items-center gap-1.5 rounded-lg border border-[#A65F2A]/25 bg-[#F8F0E9] px-2.5 py-1.5 text-[10px] font-bold text-[#8A4A22] hover:bg-[#A65F2A]/10">
-                    <Mail className="h-3 w-3" /> Continue on another device
+                    <Mail aria-hidden="true" className="h-3 w-3" /> Continue on another device
                   </button>
                 </div>
               )}
@@ -728,13 +729,13 @@ export default function Application() {
               className="flex justify-end"
             >
               <div className="flex flex-wrap items-center justify-end gap-2">
-                <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                <div role="status" aria-live="polite" aria-atomic="true" className="flex items-center gap-1.5 text-[10px] text-gray-500">
                   {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving securely…</>}
                   {saveStatus === 'saved' && <motion.div className="flex items-center gap-1.5" animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</motion.div>}
                   {saveStatus === 'idle' && <><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</>}
                 </div>
                 <button type="button" onClick={() => { setResumeLinkEmail(formData.email || ''); setResumeLinkError(''); setResumeLinkStatus('idle'); setResumeLinkOpen(true); }} className="inline-flex items-center gap-1.5 rounded-lg border border-[#A65F2A]/25 bg-[#F8F0E9] px-2.5 py-1.5 text-[10px] font-bold text-[#8A4A22] hover:bg-[#A65F2A]/10">
-                  <Mail className="h-3 w-3" /> Continue on another device
+                  <Mail aria-hidden="true" className="h-3 w-3" /> Continue on another device
                 </button>
               </div>
             </motion.div>
@@ -756,6 +757,8 @@ export default function Application() {
             </div>
           )}
 
+          <AccessibilityToolbar targetSelector="#application-step-content" contentKey={`${currentStep}-${activeTask}`} />
+
           <div className="rounded-2xl border border-slate-200 shadow-xl shadow-slate-900/5 overflow-hidden bg-white">
             {currentStep > 0 && (
               <motion.div
@@ -775,7 +778,7 @@ export default function Application() {
               </motion.div>
             )}
             <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-              <StepShell stepKey={currentStep} direction={direction}>
+              <StepShell stepKey={`${currentStep}-${activeTask}`} direction={direction}>
                 {renderStep()}
               </StepShell>
             </div>
@@ -790,7 +793,7 @@ export default function Application() {
                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#8A4A22]">Save and continue later</p>
                 <h2 id="continue-link-title" className="mt-1 text-xl font-extrabold tracking-tight text-slate-950">Email me a private link</h2>
               </div>
-              <button type="button" onClick={() => setResumeLinkOpen(false)} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Close"><X className="h-4 w-4" /></button>
+              <button type="button" onClick={() => setResumeLinkOpen(false)} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Close"><X aria-hidden="true" className="h-4 w-4" /></button>
             </div>
             {resumeLinkStatus === 'sent' ? (
               <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4">

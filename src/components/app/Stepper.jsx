@@ -32,7 +32,7 @@ export default function Stepper({
   const currentTasks = APPLICATION_STAGE_TASKS[currentStep] || [];
 
   return (
-    <div className="space-y-4">
+    <nav className="space-y-4" aria-label="Application progress">
       <div>
         <div className="mb-2.5 flex items-end justify-between gap-4">
           <div>
@@ -47,7 +47,15 @@ export default function Stepper({
               : `${progressPercent}% through application`}
           </span>
         </div>
-        <div className="h-1 overflow-hidden rounded-full bg-slate-200/80">
+        <div
+          className="h-1 overflow-hidden rounded-full bg-slate-200/80"
+          role="progressbar"
+          aria-label="Application completion"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progressPercent}
+          aria-valuetext={currentStep === STEPS.length - 1 && reviewHasBlockers ? 'Review needs attention' : `${progressPercent}% through application`}
+        >
           <div
             className="h-full rounded-full bg-[#A65F2A] transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
@@ -64,6 +72,7 @@ export default function Stepper({
               key={label}
               type="button"
               onClick={() => onStepClick(stepIndex)}
+              aria-current={isActive ? 'step' : undefined}
               className={`flex flex-none items-center gap-1.5 rounded-lg px-2.5 py-2 text-[11px] font-semibold transition-colors ${
                 isActive
                   ? 'bg-[#A65F2A] text-white'
@@ -75,7 +84,7 @@ export default function Stepper({
               <span className={`grid h-4 w-4 place-items-center rounded-full text-[9px] ${
                 isActive ? 'bg-white/20 text-white' : isCompleted ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100'
               }`}>
-                {isCompleted && !isActive ? <Check className="h-2.5 w-2.5" /> : stepIndex + 1}
+                {isCompleted && !isActive ? <Check aria-hidden="true" className="h-2.5 w-2.5" /> : stepIndex + 1}
               </span>
               {label}
             </button>
@@ -94,6 +103,7 @@ export default function Stepper({
                 key={task}
                 type="button"
                 onClick={() => onTaskClick?.(taskIndex)}
+                aria-current={taskIndex === activeTask ? 'step' : undefined}
                 className={`inline-flex items-center gap-2 rounded-lg border px-2.5 py-2 text-[11px] font-semibold transition-colors ${
                   taskIndex === activeTask
                     ? 'border-[#A65F2A] bg-[#A65F2A] text-white shadow-sm'
@@ -117,6 +127,6 @@ export default function Stepper({
           </div>
         </div>
       )}
-    </div>
+    </nav>
   );
 }
