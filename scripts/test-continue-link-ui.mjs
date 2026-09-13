@@ -23,8 +23,16 @@ try {
   await page.getByLabel('Last Name').fill('Applicant');
   await page.getByLabel('Email Address').fill('continue@example.com');
   await page.getByRole('button', { name: /Continue on another device/ }).click();
+  assert.equal(await page.getByLabel('Email address', { exact: true }).evaluate(input => document.activeElement === input), true);
+  await page.keyboard.press('Escape');
+  assert.match(await page.evaluate(() => document.activeElement.textContent), /Continue on another device/);
+  await page.getByRole('button', { name: /Continue on another device/ }).click();
+  await page.getByRole('button', { name: 'Email my link' }).focus();
+  await page.keyboard.press('Tab');
+  assert.equal(await page.getByRole('button', { name: 'Close', exact: true }).evaluate(button => document.activeElement === button), true);
   await page.getByRole('button', { name: 'Email my link' }).click();
   await page.getByText('Private link sent', { exact: true }).waitFor();
+  assert.equal(await page.getByRole('button', { name: 'Done', exact: true }).evaluate(button => document.activeElement === button), true);
   assert.equal(linkRequest.draft.email, 'continue@example.com');
   assert.equal(linkRequest.draft.formData.firstName, 'Continue');
   assert.equal(await page.evaluate(() => localStorage.getItem('geolabs_application_general_resumeToken')), 'private-test-token');

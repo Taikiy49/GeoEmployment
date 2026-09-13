@@ -15,6 +15,8 @@ const LOGO_SRC = `cid:${LOGO_CID}`;
 const LOGO_CONTENT = readFileSync(
   new URL('../public/geolabs-logo.png', import.meta.url),
 ).toString('base64');
+// Keep a margin below Graph's 4 MB request ceiling, including JSON/base64 overhead.
+export const MAX_GRAPH_MESSAGE_BYTES = 3_900_000;
 export const logoAttachment = () => ({
   filename: 'geolabs-logo.png',
   content: LOGO_CONTENT,
@@ -222,6 +224,7 @@ async function getMicrosoftAccessToken() {
     `https://login.microsoftonline.com/${encodeURIComponent(process.env.MS_TENANT_ID)}/oauth2/v2.0/token`,
     {
       method: 'POST',
+      signal: AbortSignal.timeout(25_000),
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         client_id: process.env.MS_CLIENT_ID,
@@ -244,7 +247,6 @@ async function getMicrosoftAccessToken() {
 }
 
 async function sendMicrosoftEmail(payload) {
-  const accessToken = await getMicrosoftAccessToken();
   const clientRequestId = randomUUID();
   const message = {
     subject: payload.subject,
@@ -262,24 +264,35 @@ async function sendMicrosoftEmail(payload) {
       contentId: attachment.contentId,
     })),
   };
+  const messageBody = JSON.stringify({ message, saveToSentItems: true });
+  if (Buffer.byteLength(messageBody, 'utf8') > MAX_GRAPH_MESSAGE_BYTES) {
+    throw Object.assign(new Error('The application email is too large. Your application is saved; please contact employment@geolabs.net so HR can retrieve the files from the portal.'), { code: 'EMAIL_PACKAGE_TOO_LARGE' });
+  }
+  const accessToken = await getMicrosoftAccessToken();
 
-  const response = await fetch(
+  let response;
+  try {
+   response = await fetch(
     `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(MICROSOFT_SENDER)}/sendMail`,
     {
       method: 'POST',
+      signal: AbortSignal.timeout(25_000),
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
         'client-request-id': clientRequestId,
         'return-client-request-id': 'true',
       },
-      body: JSON.stringify({ message, saveToSentItems: true }),
+      body: messageBody,
     },
   );
+  } catch (error) {
+    throw Object.assign(new Error('Email delivery could not be confirmed.', { cause: error }), { deliveryUncertain: true });
+  }
 
   if (!response.ok) {
     const result = await response.json().catch(() => ({}));
-    throw new Error(result.error?.message || 'Microsoft 365 email delivery failed.');
+    throw Object.assign(new Error(result.error?.message || 'Microsoft 365 email delivery failed.'), { deliveryUncertain: response.status >= 500 });
   }
 
   return {
@@ -291,8 +304,11 @@ async function sendMicrosoftEmail(payload) {
 }
 
 async function sendResendEmail(payload) {
-  const response = await fetch('https://api.resend.com/emails', {
+  let response;
+  try {
+   response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
+    signal: AbortSignal.timeout(25_000),
     headers: {
       Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
       'Content-Type': 'application/json',
@@ -307,8 +323,11 @@ async function sendResendEmail(payload) {
       })),
     }),
   });
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.message || 'Email delivery failed.');
+  } catch (error) {
+    throw Object.assign(new Error('Email delivery could not be confirmed.', { cause: error }), { deliveryUncertain: true });
+  }
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw Object.assign(new Error(result.message || 'Email delivery failed.'), { deliveryUncertain: response.status >= 500 });
   return result;
 }
 
@@ -317,80 +336,95 @@ export async function sendEmail(payload) {
   return sendResendEmail(payload);
 }
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed.' });
-  if (!hasMicrosoftConfig() && !process.env.RESEND_API_KEY) {
-    return res.status(503).json({ error: 'Application email delivery is not configured.' });
-  }
-
-  try {
-    const application = req.body;
-    if (!application?.firstName || !application?.lastName || !application?.email) {
-      return res.status(400).json({ error: 'First name, last name, and email are required.' });
+export function createSubmissionHandler({ buildDocx = buildApplicationDocx, convertPdf = convertDocxToPdf, splitPdfs = splitCompliancePdfs, deliver = sendEmail } = {}) {
+  return async function handler(req, res) {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed.' });
+    if (!hasMicrosoftConfig() && !process.env.RESEND_API_KEY) {
+      return res.status(503).json({ error: 'Application email delivery is not configured.' });
     }
 
-    const attachments = [logoAttachment()];
-    const safeApplicantName = `${application.firstName}-${application.lastName}`
-      .replace(/[^a-z0-9-]+/gi, '-')
-      .replace(/-+/g, '-');
-    const mainApplicationDocx = await buildApplicationDocx(application, { mainApplicationOnly: true });
-    const applicationPdf = await convertDocxToPdf(mainApplicationDocx);
-    const completeApplication = {
-      key: 'complete-application',
-      label: 'Complete Employment Application',
-      filename: `${safeApplicantName}-Geolabs-Application.pdf`,
-      content: applicationPdf.toString('base64'),
-      type: 'application/pdf',
-      restricted: false,
-    };
-    const complianceSourceDocx = await buildApplicationDocx(application);
-    const complianceSourcePdf = await convertDocxToPdf(complianceSourceDocx);
-    const compliancePdfs = await splitCompliancePdfs(complianceSourcePdf, safeApplicantName);
-    const generatedDocuments = [completeApplication, ...compliancePdfs.map(document => ({
-      ...document,
-      content: document.content.toString('base64'),
-    }))];
-    req.generatedDocuments = generatedDocuments;
-    attachments.push(...generatedDocuments.map(({ filename, content, type }) => ({ filename, content, type })));
-    const resume = application.resumeAttachment;
-    if (resume?.content && resume?.filename) {
-      attachments.push({ filename: resume.filename, content: resume.content });
-    }
-
-    const hrResult = await sendEmail({
-      from: FROM_EMAIL,
-      to: HR_RECIPIENTS,
-      reply_to: application.email,
-      subject: `Application: ${application.firstName} ${application.lastName} — ${application.requisitionTitle || application.positionAppliedFor || 'General Application'}`,
-      html: buildHrEmail(application),
-      attachments,
-    });
-
-    let confirmationSent = true;
     try {
-      await sendEmail({
-        from: FROM_EMAIL,
-        to: [application.email],
-        reply_to: 'employment@geolabs.net',
-        subject: `Application received — ${application.requisitionTitle || application.positionAppliedFor || 'Geolabs, Inc.'}`,
-        html: buildApplicantEmail(application),
-        attachments: [logoAttachment()],
-      });
-    } catch {
-      confirmationSent = false;
-    }
+      const application = req.body;
+      if (!application?.firstName || !application?.lastName || !application?.email) {
+        return res.status(400).json({ error: 'First name, last name, and email are required.' });
+      }
 
-    return res.status(200).json({
-      ok: true,
-      applicationId: application.id,
-      hrMessageId: hrResult.id,
-      emailProvider: hrResult.provider || 'resend',
-      confirmationSent,
-    });
-  } catch (error) {
-    console.error('Application delivery failed:', error);
-    return res.status(502).json({ error: 'We could not deliver your application. Please try again.' });
-  }
+      const attachments = [logoAttachment()];
+      const safeApplicantName = `${application.firstName}-${application.lastName}`
+        .replace(/[^a-z0-9-]+/gi, '-')
+        .replace(/-+/g, '-');
+      const mainApplicationDocx = await buildDocx(application, { mainApplicationOnly: true });
+      const applicationPdf = await convertPdf(mainApplicationDocx);
+      const completeApplication = {
+        key: 'complete-application',
+        label: 'Complete Employment Application',
+        filename: `${safeApplicantName}-Geolabs-Application.pdf`,
+        content: applicationPdf.toString('base64'),
+        type: 'application/pdf',
+        restricted: false,
+      };
+      const complianceSourceDocx = await buildDocx(application, { omitFooter: true });
+      const complianceSourcePdf = await convertPdf(complianceSourceDocx);
+      const compliancePdfs = await splitPdfs(complianceSourcePdf, safeApplicantName);
+      const generatedDocuments = [completeApplication, ...compliancePdfs.map(document => ({
+        ...document,
+        content: document.content.toString('base64'),
+      }))];
+      req.generatedDocuments = generatedDocuments;
+      // The HR portal must retain the package even if the email service is unavailable.
+      if (req.saveGeneratedDocuments) await req.saveGeneratedDocuments(generatedDocuments);
+      attachments.push(...generatedDocuments.map(({ filename, content, type }) => ({ filename, content, type })));
+      const resume = application.resumeAttachment;
+      if (resume?.content && resume?.filename) {
+        attachments.push({ filename: resume.filename, content: resume.content, type: resume.type || 'application/octet-stream' });
+      }
+
+      if (req.beforeHrDelivery) await req.beforeHrDelivery();
+      const hrResult = await deliver({
+        from: FROM_EMAIL,
+        to: HR_RECIPIENTS,
+        reply_to: application.email,
+        subject: `Application: ${application.firstName} ${application.lastName} — ${application.requisitionTitle || application.positionAppliedFor || 'General Application'}`,
+        html: buildHrEmail(application),
+        attachments,
+      });
+      if (req.saveDeliveryReceipt) {
+        try { await req.saveDeliveryReceipt(hrResult); }
+        catch (error) { console.error('Application delivery receipt could not be saved:', error); }
+      }
+
+      let confirmationSent = true;
+      try {
+        await deliver({
+          from: FROM_EMAIL,
+          to: [application.email],
+          reply_to: 'employment@geolabs.net',
+          subject: `Application received — ${application.requisitionTitle || application.positionAppliedFor || 'Geolabs, Inc.'}`,
+          html: buildApplicantEmail(application),
+          attachments: [logoAttachment()],
+        });
+      } catch {
+        confirmationSent = false;
+      }
+
+      return res.status(200).json({
+        ok: true,
+        applicationId: application.id,
+        hrMessageId: hrResult.id,
+        emailProvider: hrResult.provider || 'resend',
+        confirmationSent,
+      });
+    } catch (error) {
+      console.error('Application delivery failed:', error);
+      if (error.deliveryUncertain) return res.status(502).json({
+        code: 'DELIVERY_REVIEW_REQUIRED', applicationId: req.body?.id,
+        error: 'Your application is saved, but we could not confirm email delivery. Please contact employment@geolabs.net with your application reference instead of submitting another application.',
+      });
+      if (error.code === 'EMAIL_PACKAGE_TOO_LARGE') return res.status(413).json({ code: error.code, applicationId: req.body?.id, error: error.message });
+      return res.status(502).json({ error: 'We could not deliver your application. Please try again.' });
+    }
+  };
 }
 
+export default createSubmissionHandler();
 export { buildHrEmail, buildApplicantEmail };

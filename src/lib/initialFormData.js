@@ -1,6 +1,8 @@
+import { localDateValue } from './localDate.js';
+
 export const INITIAL_FORM_DATA = {
   // Application info
-  applicationDate: new Date().toISOString().split('T')[0],
+  applicationDate: localDateValue(),
   positionAppliedFor: '',
   preferredLocation: '',
   referredBy: '',

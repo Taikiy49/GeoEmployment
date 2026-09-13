@@ -18,12 +18,35 @@ const EMP_TYPES = [
 ];
 
 const EMPTY_FORM = {
+  id: '', statusHistory: [], publishedDate: '',
   title: '', department: '', office: '', employmentType: 'full_time',
   description: '', requiredQualifications: '', preferredQualifications: '',
   salaryMin: '', salaryMax: '', applicationDeadline: '', headcount: 1,
   hiringManagerEmail: '', recruiterEmail: '', internalNotes: '',
   screeningQuestions: [], status: 'draft',
 };
+
+// Keep field components stable so typing does not remount the input and lose focus.
+const Field = ({ label, required = false, children, hint = '' }) => (
+  <label className="block">
+    <span className="block text-[11px] font-medium text-[#334155] mb-1.5">
+      {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+    </span>
+    {children}
+    {hint && <span className="block text-[10px] text-[#64748b] mt-1">{hint}</span>}
+  </label>
+);
+
+const Select = ({ value, onChange, options, placeholder = '' }) => (
+  <select
+    value={value}
+    onChange={e => onChange(e.target.value)}
+    className="w-full h-9 px-3 text-sm rounded-lg border border-[#e2e8f0] bg-white focus:outline-none focus:ring-1 focus:ring-bronze focus:border-bronze"
+  >
+    {placeholder && <option value="">{placeholder}</option>}
+    {options.map(o => <option key={o.value || o} value={o.value || o}>{o.label || o}</option>)}
+  </select>
+);
 
 export default function JobEditor() {
   const { id } = useParams();
@@ -36,12 +59,20 @@ export default function JobEditor() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let active = true;
     if (!isNew) {
       appClient.entities.JobRequisition.filter({ id }).then(([req]) => {
+        if (!active) return;
         if (req) setForm({ ...EMPTY_FORM, ...req });
+        else setError('This job opening could not be found. Return to Job Openings to choose another.');
+        setLoading(false);
+      }).catch(() => {
+        if (!active) return;
+        setError('This job opening could not be loaded. Please try again.');
         setLoading(false);
       });
     }
+    return () => { active = false; };
   }, [id, isNew]);
 
   const update = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
@@ -65,7 +96,7 @@ export default function JobEditor() {
     update('screeningQuestions', qs);
   };
 
-  const save = async (targetStatus) => {
+  const save = async (targetStatus = '') => {
     setSaving(true);
     setError('');
     const now = new Date().toISOString();
@@ -101,32 +132,11 @@ export default function JobEditor() {
 
   if (loading) return <AdminLayout><div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-bronze/30 border-t-bronze rounded-full animate-spin" /></div></AdminLayout>;
 
-  const Field = ({ label, required, children, hint }) => (
-    <div>
-      <label className="block text-[11px] font-medium text-[#334155] mb-1.5">
-        {label}{required && <span className="text-red-500 ml-0.5">*</span>}
-      </label>
-      {children}
-      {hint && <p className="text-[10px] text-[#94a3b8] mt-1">{hint}</p>}
-    </div>
-  );
-
-  const Select = ({ value, onChange, options, placeholder }) => (
-    <select
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      className="w-full h-9 px-3 text-sm rounded-lg border border-[#e2e8f0] bg-white focus:outline-none focus:ring-1 focus:ring-bronze focus:border-bronze"
-    >
-      {placeholder && <option value="">{placeholder}</option>}
-      {options.map(o => <option key={o.value || o} value={o.value || o}>{o.label || o}</option>)}
-    </select>
-  );
-
   return (
     <AdminLayout>
       <div className="max-w-3xl mx-auto space-y-5">
         <div className="flex items-center gap-3">
-          <Link to="/admin/jobs" className="p-1.5 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]">
+          <Link to="/admin/jobs" aria-label="Back to job openings" className="p-1.5 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]">
             <ChevronLeft className="w-4 h-4" />
           </Link>
           <h1 className="text-xl font-bold text-navy">{isNew ? 'New Job Opening' : 'Edit Job Opening'}</h1>
@@ -207,6 +217,7 @@ export default function JobEditor() {
                 <div className="flex items-start gap-3">
                   <div className="flex-1 space-y-2">
                     <Input
+                      aria-label={`Screening question ${idx + 1}`}
                       value={q.question}
                       onChange={e => updateQuestion(idx, 'question', e.target.value)}
                       placeholder="Enter your screening question..."
@@ -214,6 +225,7 @@ export default function JobEditor() {
                     />
                     <div className="flex items-center gap-3">
                       <select
+                        aria-label={`Answer type for question ${idx + 1}`}
                         value={q.type}
                         onChange={e => updateQuestion(idx, 'type', e.target.value)}
                         className="h-7 px-2 text-xs rounded border border-[#e2e8f0] bg-white"
@@ -234,6 +246,7 @@ export default function JobEditor() {
                     </div>
                     {q.type === 'multiple_choice' && (
                       <Input
+                        aria-label={`Choices for question ${idx + 1}`}
                         value={(q.choices || []).join(', ')}
                         onChange={e => updateQuestion(idx, 'choices', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
                         placeholder="Choice 1, Choice 2, Choice 3"
@@ -241,7 +254,7 @@ export default function JobEditor() {
                       />
                     )}
                   </div>
-                  <button onClick={() => removeQuestion(idx)} className="p-1.5 rounded hover:bg-red-50 text-[#94a3b8] hover:text-red-500 transition-colors">
+                  <button aria-label={`Remove question ${idx + 1}`} onClick={() => removeQuestion(idx)} className="p-1.5 rounded hover:bg-red-50 text-[#94a3b8] hover:text-red-500 transition-colors">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>

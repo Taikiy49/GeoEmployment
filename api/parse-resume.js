@@ -1,7 +1,7 @@
 import { extname } from 'node:path';
 import { convertOfficeDocumentToPdf } from './convert-docx-to-pdf.js';
+import { MAX_RESUME_BYTES, RESUME_SIZE_ERROR } from '../src/lib/resumeLimits.js';
 
-const MAX_RESUME_BYTES = 2.5 * 1024 * 1024;
 const GEMINI_MODEL = process.env.GEMINI_RESUME_MODEL || 'gemini-2.5-flash';
 const ALLOWED_TYPES = new Set([
   'application/pdf',
@@ -396,7 +396,7 @@ export default async function handler(request, response) {
     });
   } catch (error) {
     if (error.message === 'INVALID_RESUME_SIZE') {
-      return response.status(400).json({ error: 'Please attach a resume no larger than 2.5 MB.' });
+      return response.status(400).json({ error: RESUME_SIZE_ERROR });
     }
     if (error.message === 'UNSUPPORTED_RESUME') {
       return response.status(400).json({ error: 'Please attach a PDF, DOC, DOCX, or TXT resume.' });

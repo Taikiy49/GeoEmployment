@@ -148,6 +148,8 @@ export default function Application() {
   const [resumeLinkEmail, setResumeLinkEmail] = useState('');
   const [resumeLinkStatus, setResumeLinkStatus] = useState('idle');
   const [resumeLinkError, setResumeLinkError] = useState('');
+  const resumeDialogRef = useRef(null);
+  const submissionIdRef = useRef('');
   const saveTimerRef = useRef(null);
   const saveStatusTimerRef = useRef(null);
   const isFirstRender = useRef(true);
@@ -156,6 +158,43 @@ export default function Application() {
   const latestLocalSaveRef = useRef((() => {
     try { return readSavedFormData(localStorage.getItem(storageKey)).savedAt; } catch { return 0; }
   })());
+
+  useEffect(() => {
+    if (!resumeLinkOpen) return;
+    const trigger = document.activeElement;
+    const dialog = resumeDialogRef.current;
+    const getControls = () => [...dialog.querySelectorAll('button:not([disabled]), input:not([disabled]), a[href]')];
+    (dialog.querySelector('input') || getControls()[0])?.focus();
+    const onKeyDown = event => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setResumeLinkOpen(false);
+      }
+      if (event.key === 'Tab') {
+        const controls = getControls();
+        const first = controls[0];
+        const last = controls.at(-1);
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    dialog.addEventListener('keydown', onKeyDown);
+    return () => {
+      dialog.removeEventListener('keydown', onKeyDown);
+      if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus();
+    };
+  }, [resumeLinkOpen]);
+
+  useEffect(() => {
+    if (resumeLinkOpen && resumeLinkStatus === 'sent') {
+      resumeDialogRef.current?.querySelector('[data-continue-done]')?.focus();
+    }
+  }, [resumeLinkOpen, resumeLinkStatus]);
 
   const restoreSavedResume = useCallback(async (baseData = null) => {
     try {
@@ -440,6 +479,7 @@ export default function Application() {
       localStorage.removeItem(`${storageKey}_completed`);
       localStorage.removeItem(`${storageKey}_tasks`);
       localStorage.removeItem(`${storageKey}_flowVersion`);
+      localStorage.removeItem(`${storageKey}_submissionId`);
       const token = resumeToken;
       localStorage.removeItem(`${storageKey}_resumeToken`);
       if (token) fetch('/api/application-drafts', { method: 'DELETE', headers: { Authorization: `Bearer ${token}` }, keepalive: true }).catch(() => {});
@@ -503,7 +543,13 @@ export default function Application() {
       resumeAttachment, resumeParsedPreview, ...appDataClean
     } = formData;
 
-    const applicationId = crypto.randomUUID();
+    // A lost response or refresh must retry the same submission, not send another email.
+    if (!submissionIdRef.current) {
+      try { submissionIdRef.current = localStorage.getItem(`${storageKey}_submissionId`) || ''; } catch {}
+      submissionIdRef.current ||= crypto.randomUUID();
+      try { localStorage.setItem(`${storageKey}_submissionId`, submissionIdRef.current); } catch {}
+    }
+    const applicationId = submissionIdRef.current;
 
     const finalPayload = {
       id: applicationId,
@@ -537,11 +583,13 @@ export default function Application() {
     });
     const deliveryResult = await deliveryResponse.json().catch(() => ({}));
     if (!deliveryResponse.ok) {
-      throw new Error(deliveryResult.error || 'We could not deliver your application to HR. Please try again.');
+      const message = deliveryResult.error || 'We could not deliver your application to HR. Please try again.';
+      throw new Error(deliveryResult.applicationId ? `${message} Application reference: ${deliveryResult.applicationId}` : message);
     }
 
     clearDraft();
-    setSubmittedId(applicationId);
+    submissionIdRef.current = '';
+    setSubmittedId(deliveryResult.applicationId || applicationId);
     setConfirmationSent(Boolean(deliveryResult.confirmationSent));
     setSubmitted(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -561,7 +609,7 @@ export default function Application() {
       case 1: return (
         <GroupedApplicationStep onBack={goBack} onNext={goNext} stepIndex={1} activeTask={activeTask} onTaskChange={setActiveTask}>
           <ResumeStep {...stepProps} resumeStorageKey={storageKey} />
-          <ApplicationInfoStep {...stepProps} requisition={requisition} />
+          <ApplicationInfoStep {...stepProps} />
           <GeneralInfoStep {...stepProps} />
         </GroupedApplicationStep>
       );
@@ -596,7 +644,7 @@ export default function Application() {
     return (
       <div className="min-h-screen bg-slate-50">
         <Header />
-        <main id="main-content" className="max-w-2xl mx-auto px-2 py-8 text-center">
+        <main id="main-content" tabIndex={-1} className="max-w-2xl mx-auto px-2 py-8 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -671,7 +719,7 @@ export default function Application() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Header />
-      <main id="main-content" className="w-full px-4 sm:px-6 lg:px-8 py-6">
+      <main id="main-content" tabIndex={-1} className="w-full px-4 sm:px-6 lg:px-8 py-6">
         <div className="max-w-6xl mx-auto space-y-5">
 
           {/* Draft restored banner */}
@@ -787,7 +835,7 @@ export default function Application() {
       </main>
       {resumeLinkOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm" onMouseDown={event => { if (event.target === event.currentTarget) setResumeLinkOpen(false); }}>
-          <div role="dialog" aria-modal="true" aria-labelledby="continue-link-title" className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
+          <div ref={resumeDialogRef} role="dialog" aria-modal="true" aria-labelledby="continue-link-title" className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#8A4A22]">Save and continue later</p>
@@ -801,7 +849,7 @@ export default function Application() {
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
                   <div><p className="text-sm font-bold text-emerald-900">Private link sent</p><p className="mt-1 text-xs leading-relaxed text-emerald-800">Check <strong>{resumeLinkEmail}</strong>. Your application will now save securely and can be continued on another device.</p></div>
                 </div>
-                <button type="button" onClick={() => setResumeLinkOpen(false)} className="mt-4 w-full rounded-xl bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-800">Done</button>
+                <button type="button" data-continue-done onClick={() => setResumeLinkOpen(false)} className="mt-4 w-full rounded-xl bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-800">Done</button>
               </div>
             ) : (
               <>

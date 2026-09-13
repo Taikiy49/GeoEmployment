@@ -510,7 +510,7 @@ export async function buildApplicationDocx(application, options = {}) {
     body(checkedAnswer((eeo.race || data.eeoRace) === 'Native Hawaiian or Other Pacific Islander (not Hispanic or Latino)', 'Native Hawaiian or Other Pacific Islander (not Hispanic or Latino) — A person having origins in any of the peoples of Hawaii, Guam, Samoa, or other Pacific Islands.')),
     body(checkedAnswer((eeo.race || data.eeoRace) === 'Asian (not Hispanic or Latino)', 'Asian (not Hispanic or Latino) — A person having origins in any of the original peoples of the Far East, Southeast Asia, or the Indian Subcontinent (for example, Cambodia, China, India, Japan, Korea, Malaysia, Pakistan, the Philippines, Thailand, and Vietnam).')),
     body(checkedAnswer((eeo.race || data.eeoRace) === 'Native American or Alaska Native (not Hispanic or Latino)', 'Native American or Alaska Native (not Hispanic or Latino) — A person having origins in any of the original peoples of North and South America (including Central America), and who maintains tribal affiliation or community attachment.')),
-    body(checkedAnswer((eeo.race || data.eeoRace) === 'Two or More Races (not Hispanic or Latino)', 'Two or More Races (not Hispanic or Latino) — All persons who identify with more than one of the above five races.')),
+    body(checkedAnswer((eeo.race || data.eeoRace) === 'Two or More Races (not Hispanic or Latino)', 'Two or More Races (not Hispanic or Latino) — All persons who identify with more than one of the above five races. (For the purpose of this group, identifying as Hispanic or Latino and only one of the listed five race groups does not qualify)')),
     body(checkedAnswer((eeo.race || data.eeoRace) === 'I do not wish to disclose.', 'I do not wish to disclose.')),
     responseTable([
       ['Name', data.eeoName],
@@ -540,7 +540,8 @@ export async function buildApplicationDocx(application, options = {}) {
 
   children.push(
     sectionHeading('12. Alcohol & Drug Testing Program', false, true),
-    subheading(ALCOHOL_DRUG_PROGRAM_TEXT.split('\n\n')[0]),
+    subheading('Agreement of Applicant to Comply with Geolabs, Inc. Alcohol and Drug Testing Program'),
+    body('(To be completed by all applicants for all positions)', { alignment: AlignmentType.LEFT }),
     policyTextBox(ALCOHOL_DRUG_PROGRAM_TEXT.split('\n\n').slice(1, -1)),
     notice(ALCOHOL_DRUG_PROGRAM_TEXT.split('\n\n').at(-1), true),
     body(checkedAnswer(data.drugTestAgreed, 'I have read, understand, and agree to comply with the Alcohol & Drug Testing Program described above. I agree this constitutes a condition of my employment application and any future employment with Geolabs, Inc.'), { alignment: AlignmentType.JUSTIFIED, after: 70, line: 240 }),
@@ -702,7 +703,10 @@ export async function buildApplicationDocx(application, options = {}) {
         },
       },
       headers: { default: header },
-      footers: { default: footer },
+      // The temporary source used to split compliance forms must not contain
+      // packet page numbers. A painted-over footer is still read by assistive
+      // tools and can obscure answers near the bottom of a page.
+      footers: options.omitFooter ? {} : { default: footer },
       children,
     }],
   });

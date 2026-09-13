@@ -19,6 +19,8 @@ import {
 } from './application-store.js';
 import { createJob, deleteJob, getJob, listJobs, updateJob } from './job-store.js';
 import { createDraft, deleteDraft, getDraft, updateDraft } from './draft-store.js';
+import { normalizeSubmission } from './submission-validation.js';
+import { RESUME_SIZE_ERROR } from '../src/lib/resumeLimits.js';
 
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
 const port = Number(process.env.PORT || 3000);
@@ -29,6 +31,19 @@ const RESUME_PARSE_LIMIT = 6;
 const draftLinkWindows = new Map();
 const DRAFT_LINK_WINDOW_MS = 60 * 60 * 1000;
 const DRAFT_LINK_LIMIT = 4;
+const submissionWindows = new Map();
+const clientAddress = request => String(request.headers['x-real-ip']
+  || String(request.headers['x-forwarded-for'] || '').split(',').at(-1)?.trim()
+  || request.socket.remoteAddress || 'unknown');
+const rateLimitExceeded = (windows, key, duration, limit) => {
+  const now = Date.now();
+  for (const [entry, window] of windows) if (now - window.startedAt >= duration) windows.delete(entry);
+  if (!windows.has(key) && windows.size >= 10000) return true;
+  const window = windows.get(key) || { startedAt: now, attempts: 0 };
+  window.attempts += 1;
+  windows.set(key, window);
+  return window.attempts > limit;
+};
 
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -70,67 +85,84 @@ async function readJson(request) {
   }
 }
 
-async function handleApi(request, response) {
+async function handleApi(request, response, submit, inFlightSubmissions) {
+  if (request.method !== 'POST') return sendJson(response, 405, { error: 'Method not allowed.' });
   try {
-    request.body = await readJson(request);
+    request.body = normalizeSubmission(await readJson(request));
   } catch (error) {
     return sendJson(
       response,
-      error.message === 'PAYLOAD_TOO_LARGE' ? 413 : 400,
-      { error: error.message === 'PAYLOAD_TOO_LARGE' ? 'Upload is too large.' : 'Invalid request.' },
+      error.message === 'PAYLOAD_TOO_LARGE' ? 413 : error.status || 400,
+      { error: error.message === 'PAYLOAD_TOO_LARGE' ? 'Upload is too large.' : error.message },
     );
   }
 
-  request.body.id ||= randomUUID();
-  if (!request.body.firstName || !request.body.lastName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(request.body.email || '')) {
-    return sendJson(response, 400, { error: 'First name, last name, and a valid email address are required.' });
-  }
+  const id = request.body.id;
+  if (inFlightSubmissions.has(id)) return sendJson(response, 409, { code: 'SUBMISSION_IN_PROGRESS', error: 'This application is already being submitted. Please wait a moment before trying again.' });
+  inFlightSubmissions.add(id);
   try {
-    await upsertSubmittedApplication(request.body, 'processing');
-  } catch (error) {
-    console.error('Application persistence failed:', error);
-    return sendJson(response, 500, { error: 'We could not securely save your application. Please try again.' });
-  }
-
-  response.status = (statusCode) => {
-    response.statusCode = statusCode;
-    return response;
-  };
-  response.json = async (payload) => {
-    const statusCode = response.statusCode || 200;
-    try {
-      if (statusCode < 300 && payload?.ok && request.generatedDocuments?.length) {
-        await saveApplicationDocuments(request.body.id, request.generatedDocuments);
+    const existing = await getApplication(id);
+    if (existing) {
+      if (existing.submissionFingerprint !== request.body.submissionFingerprint) {
+        return sendJson(response, 409, { code: 'APPLICATION_ID_CONFLICT', error: 'An application with this reference is already saved. Please contact employment@geolabs.net if you need to change it.' });
       }
-      await updateApplication(request.body.id, {
-        deliveryStatus: statusCode < 300 && payload?.ok ? 'delivered' : 'delivery_failed',
-        deliveryUpdatedAt: new Date().toISOString(),
-        ...(payload?.hrMessageId ? { hrMessageId: payload.hrMessageId } : {}),
-        ...(payload?.emailProvider ? { emailProvider: payload.emailProvider } : {}),
-        ...(payload?.confirmationSent !== undefined ? { confirmationSent: payload.confirmationSent } : {}),
+      if (existing.deliveryStatus === 'delivered') return sendJson(response, 200, {
+        ok: true, applicationId: id, confirmationSent: Boolean(existing.confirmationSent),
       });
-    } catch (error) {
-      console.error('Application delivery status update failed:', error);
+      if (['sending', 'delivery_uncertain'].includes(existing.deliveryStatus)) return sendJson(response, 409, {
+        code: 'DELIVERY_REVIEW_REQUIRED', applicationId: id,
+        error: 'Your application is saved, but we could not confirm email delivery. Please contact employment@geolabs.net with your application reference instead of submitting another application.',
+      });
+      // Resume an interrupted delivery without overwriting HR changes or the signed record.
+      request.body = { ...existing, resumeAttachment: request.body.resumeAttachment };
     }
-    sendJson(response, statusCode, payload);
-    return response;
-  };
+    if (rateLimitExceeded(submissionWindows, clientAddress(request), 15 * 60 * 1000, 10)) {
+      return sendJson(response, 429, { error: 'Too many submission attempts. Please wait a few minutes before trying again.' });
+    }
+    try {
+      if (!existing) await upsertSubmittedApplication(request.body, 'processing');
+      else await updateApplication(id, { deliveryStatus: 'processing' });
+    } catch (error) {
+      console.error('Application persistence failed:', error);
+      return sendJson(response, 500, { error: 'We could not securely save your application. Please try again.' });
+    }
+    request.saveGeneratedDocuments = documents => saveApplicationDocuments(id, documents);
+    request.beforeHrDelivery = () => updateApplication(id, { deliveryStatus: 'sending', deliveryUpdatedAt: new Date().toISOString() });
+    request.saveDeliveryReceipt = receipt => updateApplication(id, {
+      deliveryStatus: 'delivered', deliveryUpdatedAt: new Date().toISOString(),
+      hrMessageId: receipt.id, emailProvider: receipt.provider || 'resend', confirmationSent: false,
+    });
 
-  return submitApplication(request, response);
+    response.status = (statusCode) => {
+      response.statusCode = statusCode;
+      return response;
+    };
+    response.json = async (payload) => {
+      const statusCode = response.statusCode || 200;
+      try {
+        await updateApplication(request.body.id, {
+          deliveryStatus: payload?.code === 'DELIVERY_REVIEW_REQUIRED' ? 'delivery_uncertain' : statusCode < 300 && payload?.ok ? 'delivered' : 'delivery_failed',
+          deliveryUpdatedAt: new Date().toISOString(),
+          ...(payload?.hrMessageId ? { hrMessageId: payload.hrMessageId } : {}),
+          ...(payload?.emailProvider ? { emailProvider: payload.emailProvider } : {}),
+          ...(payload?.confirmationSent !== undefined ? { confirmationSent: payload.confirmationSent } : {}),
+        });
+      } catch (error) {
+        console.error('Application delivery status update failed:', error);
+      }
+      sendJson(response, statusCode, payload);
+      return response;
+    };
+
+    return await submit(request, response);
+  } finally {
+    inFlightSubmissions.delete(id);
+  }
 }
 
 async function handleResumeParseApi(request, response) {
-  const now = Date.now();
-  const clientAddress = String(request.headers['x-forwarded-for'] || request.socket.remoteAddress || 'unknown')
-    .split(',')[0]
-    .trim();
-  const previous = resumeParseWindows.get(clientAddress);
-  const window = !previous || now - previous.startedAt >= RESUME_PARSE_WINDOW_MS
-    ? { startedAt: now, attempts: 0 }
-    : previous;
-  window.attempts += 1;
-  resumeParseWindows.set(clientAddress, window);
-  if (window.attempts > RESUME_PARSE_LIMIT) {
+  if (request.method !== 'POST') return sendJson(response, 405, { error: 'Method not allowed.' });
+  if (rateLimitExceeded(resumeParseWindows, clientAddress(request), RESUME_PARSE_WINDOW_MS, RESUME_PARSE_LIMIT)) {
     return sendJson(response, 429, { error: 'Too many resume-analysis attempts. Please wait a few minutes or continue manually.' });
   }
   try {
@@ -160,12 +192,14 @@ const bearerToken = request => {
 
 const draftPayloadIsValid = draft => (
   draft
+  && !Array.isArray(draft)
   && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(draft.email || '').trim())
   && draft.formData
   && typeof draft.formData === 'object'
+  && !Array.isArray(draft.formData)
 );
 
-async function handleDraftApi(request, response) {
+async function handleDraftApi(request, response, sendContinueEmail) {
   const url = new URL(request.url, 'http://localhost');
 
   if (request.method === 'GET' && url.pathname === '/api/application-drafts/resume') {
@@ -177,27 +211,24 @@ async function handleDraftApi(request, response) {
   }
 
   if (request.method === 'POST' && url.pathname === '/api/application-drafts/link') {
-    const clientAddress = String(request.headers['x-forwarded-for'] || request.socket.remoteAddress || 'unknown').split(',')[0].trim();
     let body;
     try {
       body = await readJson(request);
     } catch (error) {
       return sendJson(response, error.message === 'PAYLOAD_TOO_LARGE' ? 413 : 400, { error: 'The saved application data is invalid.' });
     }
-    if (!draftPayloadIsValid(body.draft)) return sendJson(response, 400, { error: 'Enter a valid email address before requesting a link.' });
-    const rateKey = `${clientAddress}:${String(body.draft.email).trim().toLowerCase()}`;
-    const prior = draftLinkWindows.get(rateKey);
-    const window = !prior || Date.now() - prior.startedAt >= DRAFT_LINK_WINDOW_MS ? { startedAt: Date.now(), attempts: 0 } : prior;
-    window.attempts += 1;
-    draftLinkWindows.set(rateKey, window);
-    if (window.attempts > DRAFT_LINK_LIMIT) return sendJson(response, 429, { error: 'Too many link requests. Please wait before trying again.' });
+    if (!draftPayloadIsValid(body?.draft)) return sendJson(response, 400, { error: 'Enter a valid email address before requesting a link.' });
+    if (rateLimitExceeded(draftLinkWindows, `email:${String(body.draft.email).trim().toLowerCase()}`, DRAFT_LINK_WINDOW_MS, DRAFT_LINK_LIMIT)
+      || rateLimitExceeded(draftLinkWindows, `ip:${clientAddress(request)}`, DRAFT_LINK_WINDOW_MS, 12)) {
+      return sendJson(response, 429, { error: 'Too many link requests. Please wait before trying again.' });
+    }
 
     let created;
     try {
       created = await createDraft(body.draft);
     } catch (error) {
       return sendJson(response, error.message === 'RESUME_TOO_LARGE' ? 413 : 500, {
-        error: error.message === 'RESUME_TOO_LARGE' ? 'The résumé is too large to save. Please upload a file smaller than 12 MB.' : 'We could not securely save your application. Please try again.',
+        error: error.message === 'RESUME_TOO_LARGE' ? RESUME_SIZE_ERROR : 'We could not securely save your application. Please try again.',
       });
     }
     const siteUrl = String(process.env.PUBLIC_SITE_URL || 'https://careers.geolabs.net').replace(/\/$/, '');
@@ -206,7 +237,7 @@ async function handleDraftApi(request, response) {
       : '/apply';
     const link = `${siteUrl}${applicationPath}?resume=${encodeURIComponent(created.token)}`;
     try {
-      await sendContinueApplicationEmail({
+      await sendContinueEmail({
         email: String(body.draft.email).trim(),
         firstName: body.draft.formData.firstName,
         position: body.draft.requisitionTitle || body.draft.formData.positionAppliedFor,
@@ -232,13 +263,13 @@ async function handleDraftApi(request, response) {
     if (!token) return sendJson(response, 401, { error: 'A private application token is required.' });
     let body;
     try { body = await readJson(request); } catch { return sendJson(response, 400, { error: 'Invalid saved application data.' }); }
-    if (!draftPayloadIsValid(body.draft)) return sendJson(response, 400, { error: 'Invalid saved application data.' });
+    if (!draftPayloadIsValid(body?.draft)) return sendJson(response, 400, { error: 'Invalid saved application data.' });
     let updated;
     try {
       updated = await updateDraft(token, body.draft);
     } catch (error) {
       return sendJson(response, error.message === 'RESUME_TOO_LARGE' ? 413 : 500, {
-        error: error.message === 'RESUME_TOO_LARGE' ? 'The résumé is too large to save. Please upload a file smaller than 12 MB.' : 'We could not update your saved application.',
+        error: error.message === 'RESUME_TOO_LARGE' ? RESUME_SIZE_ERROR : 'We could not update your saved application.',
       });
     }
     return updated
@@ -349,7 +380,9 @@ async function handleAdminApplicationApi(request, response) {
   if (request.method === 'PATCH' && applicationId) {
     try {
       const updates = await readJson(request);
-      const application = await updateApplication(applicationId, updates);
+      if (!updates || typeof updates !== 'object' || Array.isArray(updates)) return sendJson(response, 400, { error: 'Invalid update.' });
+      const editableFields = new Set(['stage', 'status', 'stageHistory', 'auditTrail', 'recruiterNotes', 'assignedTo', 'rating', 'tags']);
+      const application = await updateApplication(applicationId, Object.fromEntries(Object.entries(updates).filter(([key]) => editableFields.has(key))));
       if (!application) sendJson(response, 404, { error: 'Application not found.' });
       else sendJson(response, 200, { application });
     } catch (error) {
@@ -374,9 +407,14 @@ async function handleJobApi(request, response, admin = false) {
   const match = new RegExp(`^${prefix}(?:/([^/]+))?$`).exec(url.pathname);
   if (!match) return sendJson(response, 404, { error: 'Not found.' });
   const id = match[1] ? decodeURIComponent(match[1]) : null;
+  const publicJob = job => Object.fromEntries([
+    'id', 'externalId', 'title', 'department', 'office', 'employmentType', 'status', 'publishedDate',
+    'description', 'requiredQualifications', 'preferredQualifications', 'salaryMin', 'salaryMax',
+    'applicationDeadline', 'screeningQuestions', 'created_date', 'updated_date',
+  ].filter(key => Object.hasOwn(job, key)).map(key => [key, job[key]]));
   if (request.method === 'GET' && id) {
     const job = await getJob(id);
-    return job && (admin || job.status === 'published') ? sendJson(response, 200, { job }) : sendJson(response, 404, { error: 'Job opening not found.' });
+    return job && (admin || job.status === 'published') ? sendJson(response, 200, { job: admin ? job : publicJob(job) }) : sendJson(response, 404, { error: 'Job opening not found.' });
   }
   if (request.method === 'GET') {
     const jobs = await listJobs({
@@ -385,16 +423,24 @@ async function handleJobApi(request, response, admin = false) {
       limit: url.searchParams.get('limit') || 200,
       publishedOnly: !admin,
     });
-    return sendJson(response, 200, { jobs });
+    return sendJson(response, 200, { jobs: admin ? jobs : jobs.map(publicJob) });
   }
   if (!admin) return sendJson(response, 405, { error: 'Method not allowed.' });
   if (request.method === 'POST' && !id) {
     const job = await readJson(request);
+    if (!job || typeof job !== 'object' || Array.isArray(job) || typeof job.title !== 'string' || !job.title.trim()) {
+      return sendJson(response, 400, { error: 'A job title is required.' });
+    }
     job.id ||= randomUUID();
+    if (typeof job.id !== 'string' || !/^[a-z0-9][a-z0-9_-]{0,127}$/i.test(job.id)) return sendJson(response, 400, { error: 'Invalid job reference.' });
+    if (await getJob(job.id)) return sendJson(response, 409, { error: 'This job reference already exists.' });
     return sendJson(response, 201, { job: await createJob(job) });
   }
   if (request.method === 'PATCH' && id) {
-    const job = await updateJob(id, await readJson(request));
+    const updates = await readJson(request);
+    if (!updates || typeof updates !== 'object' || Array.isArray(updates)) return sendJson(response, 400, { error: 'Invalid job update.' });
+    if (updates.title !== undefined && (typeof updates.title !== 'string' || !updates.title.trim())) return sendJson(response, 400, { error: 'A job title is required.' });
+    const job = await updateJob(id, updates);
     return job ? sendJson(response, 200, { job }) : sendJson(response, 404, { error: 'Job opening not found.' });
   }
   if (request.method === 'DELETE' && id) {
@@ -404,12 +450,14 @@ async function handleJobApi(request, response, admin = false) {
 }
 
 function serveApplication(request, response) {
+  if (!['GET', 'HEAD'].includes(request.method)) return sendJson(response, 405, { error: 'Method not allowed.' });
   const requestPath = new URL(request.url, 'http://localhost').pathname;
   const relativePath = requestPath === '/' ? 'index.html' : requestPath.replace(/^\/+/, '');
   const normalizedPath = normalize(relativePath).replace(/^(\.\.(\/|\\|$))+/, '');
   let filePath = join(root, normalizedPath);
 
-  if (!existsSync(filePath) || requestPath.endsWith('/')) {
+  if (!existsSync(filePath) || !statSync(filePath).isFile() || requestPath.endsWith('/')) {
+    if (extname(requestPath) || requestPath.startsWith('/assets/')) return sendJson(response, 404, { error: 'File not found.' });
     filePath = join(root, 'index.html');
   }
 
@@ -417,7 +465,7 @@ function serveApplication(request, response) {
   const fileSize = statSync(filePath).size;
   const baseHeaders = {
     'Content-Type': contentTypes[extension] || 'application/octet-stream',
-    'Cache-Control': extension === '.html' ? 'no-cache' : 'public, max-age=31536000, immutable',
+    'Cache-Control': extension === '.html' ? 'no-cache' : requestPath.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'public, max-age=3600',
     'Accept-Ranges': 'bytes',
   };
   const range = request.headers.range;
@@ -460,8 +508,21 @@ function serveApplication(request, response) {
   else createReadStream(filePath).pipe(response);
 }
 
-const server = http.createServer(async (request, response) => {
+export function createPortalServer({ submit = submitApplication, sendContinueEmail = sendContinueApplicationEmail } = {}) {
+  const inFlightSubmissions = new Set();
+  return http.createServer(async (request, response) => {
   try {
+    response.setHeader('X-Content-Type-Options', 'nosniff');
+    response.setHeader('Referrer-Policy', 'no-referrer');
+    const pathname = new URL(request.url, 'http://localhost').pathname;
+    if (pathname === '/healthz' && ['GET', 'HEAD'].includes(request.method)) {
+      return sendJson(response, 200, { ok: true, release: process.env.RELEASE_COMMIT || 'development' });
+    }
+    if (pathname.startsWith('/api/admin/') && !['GET', 'HEAD'].includes(request.method) && request.headers.origin) {
+      let originHost;
+      try { originHost = new URL(request.headers.origin).host; } catch { /* Invalid origins are rejected below. */ }
+      if (originHost !== request.headers.host) return sendJson(response, 403, { error: 'This admin request must come from the portal.' });
+    }
     if (request.url?.startsWith('/auth/')) {
       if (await handleAdminAuth(request, response)) return;
     }
@@ -477,18 +538,19 @@ const server = http.createServer(async (request, response) => {
       await handleJobApi(request, response, false);
       return;
     }
-    if (request.url?.startsWith('/api/parse-resume')) {
+    if (pathname === '/api/parse-resume') {
       await handleResumeParseApi(request, response);
       return;
     }
     if (request.url?.startsWith('/api/application-drafts')) {
-      await handleDraftApi(request, response);
+      await handleDraftApi(request, response, sendContinueEmail);
       return;
     }
-    if (request.url?.startsWith('/api/submit-application')) {
-      await handleApi(request, response);
+    if (pathname === '/api/submit-application') {
+      await handleApi(request, response, submit, inFlightSubmissions);
       return;
     }
+    if (pathname.startsWith('/api/')) return sendJson(response, 404, { error: 'Not found.' });
     if (new URL(request.url, 'http://localhost').pathname.startsWith('/admin') && !getAdminSession(request)) {
       const returnTo = new URL(request.url, 'http://localhost').pathname;
       response.writeHead(302, {
@@ -500,12 +562,32 @@ const server = http.createServer(async (request, response) => {
     }
     serveApplication(request, response);
   } catch (error) {
+    if (error.code === 'DUPLICATE_JOB') return sendJson(response, 409, { error: 'This job reference already exists.' });
+    if (error instanceof URIError || ['INVALID_JSON', 'PAYLOAD_TOO_LARGE'].includes(error.message)) {
+      return sendJson(response, error.message === 'PAYLOAD_TOO_LARGE' ? 413 : 400, { error: error.message === 'PAYLOAD_TOO_LARGE' ? 'Upload is too large.' : 'Invalid request.' });
+    }
     console.error(error);
     if (!response.headersSent) sendJson(response, 500, { error: 'Internal server error.' });
     else response.end();
   }
 });
+}
 
-server.listen(port, '127.0.0.1', () => {
-  console.log(`Geolabs employment portal listening on 127.0.0.1:${port}`);
-});
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  const server = createPortalServer().listen(port, '127.0.0.1', () => {
+    console.log(`Geolabs employment portal listening on 127.0.0.1:${port}`);
+  });
+  let stopping = false;
+  const stop = () => {
+    if (stopping) return;
+    stopping = true;
+    // Finish in-flight document/email work during a planned service restart.
+    server.close(() => process.exit(0));
+    setTimeout(() => {
+      server.closeAllConnections();
+      process.exit(1);
+    }, 350_000).unref();
+  };
+  process.on('SIGTERM', stop);
+  process.on('SIGINT', stop);
+}

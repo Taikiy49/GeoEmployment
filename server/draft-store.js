@@ -1,6 +1,7 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { MAX_RESUME_BYTES } from '../src/lib/resumeLimits.js';
 
 const dataDirectory = process.env.APPLICATION_DATA_DIR || '/var/lib/geolabs-employment-portal';
 const draftsFile = join(dataDirectory, 'application-drafts.json');
@@ -23,7 +24,8 @@ const readDrafts = async () => {
   await ensureStorage();
   try {
     const parsed = JSON.parse(await readFile(draftsFile, 'utf8'));
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) throw new Error('Invalid saved application storage format.');
+    return parsed;
   } catch (error) {
     if (error.code === 'ENOENT') return [];
     throw error;
@@ -51,12 +53,12 @@ const removeResume = record => record?.resumeStoredFilename
 
 const saveResume = async (draftId, attachment, existing) => {
   if (!attachment?.content || !attachment?.filename) return existing || null;
-  if (Buffer.byteLength(attachment.content, 'base64') > 12 * 1024 * 1024) {
+  if (Buffer.byteLength(attachment.content, 'base64') > MAX_RESUME_BYTES) {
     throw new Error('RESUME_TOO_LARGE');
   }
-  if (existing?.storedFilename) await removeResume({ resumeStoredFilename: existing.storedFilename });
   const storedFilename = `${safeFilename(draftId)}-${safeFilename(attachment.filename)}`;
   await writeFile(join(resumesDirectory, storedFilename), Buffer.from(attachment.content, 'base64'), { mode: 0o600 });
+  if (existing?.storedFilename && existing.storedFilename !== storedFilename) await removeResume({ resumeStoredFilename: existing.storedFilename });
   return {
     filename: attachment.filename,
     type: attachment.type || 'application/octet-stream',
@@ -65,10 +67,17 @@ const saveResume = async (draftId, attachment, existing) => {
 };
 
 const activeDrafts = drafts => drafts.filter(record => new Date(record.expiresAt).getTime() > Date.now());
+const pruneExpired = async drafts => {
+  const active = activeDrafts(drafts);
+  for (const record of drafts) {
+    if (!active.includes(record)) await removeResume({ resumeStoredFilename: record.resume?.storedFilename });
+  }
+  return active;
+};
 
 export async function createDraft(payload) {
   return withWriteLock(async () => {
-    const drafts = activeDrafts(await readDrafts());
+    const drafts = await pruneExpired(await readDrafts());
     const token = randomBytes(32).toString('base64url');
     const now = new Date().toISOString();
     const id = randomUUID();
@@ -109,11 +118,11 @@ export async function getDraft(token, { includeResume = true } = {}) {
 
 export async function updateDraft(token, payload) {
   return withWriteLock(async () => {
-    const drafts = activeDrafts(await readDrafts());
+    const drafts = await pruneExpired(await readDrafts());
     const index = drafts.findIndex(item => item.tokenHash === hashToken(token));
     if (index < 0) return null;
     const existing = drafts[index];
-    const resume = await saveResume(existing.id, payload.resumeAttachment, existing.resume);
+    const resume = payload.resumeAttachment === null ? null : await saveResume(existing.id, payload.resumeAttachment, existing.resume);
     const { resumeAttachment: _attachment, ...draftPayload } = payload;
     drafts[index] = {
       ...existing,
@@ -123,6 +132,7 @@ export async function updateDraft(token, payload) {
       resume,
     };
     await writeDrafts(drafts);
+    if (payload.resumeAttachment === null) await removeResume({ resumeStoredFilename: existing.resume?.storedFilename });
     return drafts[index];
   });
 }

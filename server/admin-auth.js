@@ -26,7 +26,9 @@ const parseCookies = request => Object.fromEntries(
       const separator = part.indexOf('=');
       return separator < 0
         ? [part, '']
-        : [part.slice(0, separator), decodeURIComponent(part.slice(separator + 1))];
+        : [part.slice(0, separator), (() => {
+          try { return decodeURIComponent(part.slice(separator + 1)); } catch { return ''; }
+        })()];
     }),
 );
 
@@ -62,12 +64,12 @@ const createSession = user => {
 
 export function getAdminSession(request) {
   const token = parseCookies(request)[SESSION_COOKIE];
-  const [payload, signature] = String(token || '').split('.');
-  if (!payload || !signature || !sessionSecret() || !safeEqual(signature, sign(payload))) return null;
+  const [payload, signature, extra] = String(token || '').split('.');
+  if (!payload || !signature || extra !== undefined || !sessionSecret() || !safeEqual(signature, sign(payload))) return null;
 
   try {
     const session = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
-    if (session.exp <= Math.floor(Date.now() / 1000)) return null;
+    if (!Number.isFinite(session.exp) || session.exp <= Math.floor(Date.now() / 1000) || session.role !== 'admin') return null;
     if (!allowedEmails().has(String(session.email || '').toLowerCase())) return null;
     return session;
   } catch {
@@ -94,7 +96,8 @@ const sendAuthError = (response, statusCode, title, message) => {
 
 async function finishMicrosoftLogin(request, response, url) {
   const cookies = parseCookies(request);
-  if (!url.searchParams.get('code') || !safeEqual(url.searchParams.get('state'), cookies[STATE_COOKIE])) {
+  if (!url.searchParams.get('code') || !url.searchParams.get('state') || !cookies[STATE_COOKIE]
+    || !safeEqual(url.searchParams.get('state'), cookies[STATE_COOKIE])) {
     sendAuthError(response, 400, 'Sign-in could not be verified', 'Please return to the admin portal and try signing in again.');
     return;
   }
@@ -103,6 +106,7 @@ async function finishMicrosoftLogin(request, response, url) {
     `https://login.microsoftonline.com/${encodeURIComponent(process.env.MS_TENANT_ID)}/oauth2/v2.0/token`,
     {
       method: 'POST',
+      signal: AbortSignal.timeout(25_000),
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         client_id: process.env.MS_CLIENT_ID,
@@ -121,7 +125,7 @@ async function finishMicrosoftLogin(request, response, url) {
 
   const profileResponse = await fetch(
     'https://graph.microsoft.com/v1.0/me?$select=displayName,mail,userPrincipalName',
-    { headers: { Authorization: `Bearer ${token.access_token}` } },
+    { headers: { Authorization: `Bearer ${token.access_token}` }, signal: AbortSignal.timeout(25_000) },
   );
   const profile = await profileResponse.json().catch(() => ({}));
   if (!profileResponse.ok) throw new Error(profile.error?.message || 'Microsoft profile lookup failed.');

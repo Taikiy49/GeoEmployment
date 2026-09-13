@@ -4,6 +4,7 @@ import FormSection from '../app/FormSection';
 import NavigationButtons from '../app/NavigationButtons';
 import { deleteResumeFile, saveResumeFile, blobToBase64 } from '@/lib/resumeStorage';
 import { countResumeValues, mergeResumeAutofill, summarizeResumeData } from '@/lib/resumeAutofill';
+import { MAX_RESUME_BYTES, RESUME_SIZE_ERROR } from '@/lib/resumeLimits';
 
 const ACCEPTED_TYPES = [
   'application/pdf',
@@ -11,7 +12,6 @@ const ACCEPTED_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'text/plain',
 ];
-const MAX_SIZE = 2.5 * 1024 * 1024;
 
 export default function ResumeStep({ formData, setFormData, onNext, onBack, resumeStorageKey }) {
   const [file, setFile] = useState(null);
@@ -38,8 +38,8 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
       setStatus('error');
       return;
     }
-    if (f.size > MAX_SIZE) {
-      setErrorMsg('File exceeds the 2.5 MB limit.');
+    if (f.size > MAX_RESUME_BYTES) {
+      setErrorMsg(RESUME_SIZE_ERROR);
       setStatus('error');
       return;
     }
@@ -184,7 +184,7 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
                 Drag & drop your resume here
               </p>
               <p className="text-xs text-[#64748b] mt-1">
-                or click to browse · PDF, DOC, DOCX, TXT · Max 2.5 MB
+                or click to browse · PDF, DOC, DOCX, TXT · Max 2 MB
               </p>
             </>
           )}

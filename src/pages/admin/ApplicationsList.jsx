@@ -3,6 +3,7 @@ import { appClient } from '@/api/localClient';
 import { Link } from 'react-router-dom';
 import { Search, ChevronRight, RefreshCw } from 'lucide-react';
 import AdminLayout from '../../components/admin/AdminLayout';
+import DeliveryStatus from '../../components/admin/DeliveryStatus';
 import { StageBadge } from './Dashboard';
 
 const STAGES = ['all', 'applied', 'under_review', 'phone_screen', 'interview', 'offer', 'hired', 'rejected', 'withdrawn'];
@@ -68,6 +69,7 @@ export default function ApplicationsList() {
             <div className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
+                aria-label="Search applications"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search name, email, position..."
@@ -75,6 +77,7 @@ export default function ApplicationsList() {
               />
             </div>
             <select
+              aria-label="Filter by job"
               value={jobFilter}
               onChange={e => setJobFilter(e.target.value)}
               className="h-10 px-3 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30"
@@ -87,6 +90,7 @@ export default function ApplicationsList() {
             {STAGES.map(s => (
               <button
                 key={s}
+                aria-pressed={stageFilter === s}
                 onClick={() => setStageFilter(s)}
                 className={`px-3 py-2 rounded-xl text-[11px] font-semibold border transition-all ${
                   stageFilter === s
@@ -137,6 +141,7 @@ export default function ApplicationsList() {
                           <div>
                             <div className="font-semibold text-gray-900 text-sm">{app.firstName} {app.lastName}</div>
                             <div className="text-[10px] text-gray-400">{app.email}</div>
+                            <DeliveryStatus application={app} compact />
                           </div>
                         </div>
                       </td>

@@ -14,6 +14,7 @@ EnvironmentFile=-/etc/geolabs-employment-portal.env
 ExecStart=/usr/bin/node server/ec2-server.js
 Restart=always
 RestartSec=5
+TimeoutStopSec=360
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full

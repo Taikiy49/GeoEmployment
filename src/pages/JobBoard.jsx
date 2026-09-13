@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { appClient } from '@/api/localClient';
 import { Link } from 'react-router-dom';
 import { MapPin, Clock, Briefcase, ChevronRight, Search, Users, Award, TrendingUp, Heart, Star, Shield, FileText } from 'lucide-react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { motion, useInView, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Header from '../components/app/Header';
 import useSEO from '../hooks/useSEO';
 import AppFooter from '../components/app/AppFooter';
@@ -123,14 +123,20 @@ export default function JobBoard() {
   const [search, setSearch] = useState('');
   const [deptFilter, setDeptFilter] = useState('all');
   const [hoveredJob, setHoveredJob] = useState(null);
+  const [loadError, setLoadError] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const videoRef = useRef(null);
+  const [videoPaused, setVideoPaused] = useState(Boolean(reduceMotion));
 
-
+  useEffect(() => {
+    if (reduceMotion) videoRef.current?.pause();
+  }, [reduceMotion]);
 
   useEffect(() => {
     appClient.entities.JobRequisition.filter({ status: 'published' }, '-publishedDate', 100).then(j => {
       setJobs(j);
       setLoading(false);
-    });
+    }).catch(() => { setLoadError(true); setLoading(false); });
   }, []);
 
   useEffect(() => {
@@ -152,15 +158,18 @@ export default function JobBoard() {
   return (
     <div className="min-h-screen bg-slate-50 font-inter overflow-x-clip">
       <Header />
-
+      <main id="main-content" tabIndex={-1}>
       <section className="relative flex min-h-[calc(100svh-4rem)] items-center overflow-hidden bg-slate-950 text-white">
         <video
+          ref={videoRef}
           className="absolute inset-0 h-full w-full object-cover object-center"
-          autoPlay
+          autoPlay={!reduceMotion}
+          onPlay={() => setVideoPaused(false)}
+          onPause={() => setVideoPaused(true)}
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           aria-hidden="true"
         >
           <source src="/geolabs-cover.mp4?v=20260730-2" type="video/mp4" />
@@ -205,6 +214,16 @@ export default function JobBoard() {
             ))}
           </div>
         </div>
+        <button
+          type="button"
+          className="absolute bottom-3 right-4 rounded-lg border border-white/40 bg-[#111923]/80 px-3 py-2 text-xs font-semibold text-white hover:bg-[#111923]"
+          onClick={() => {
+            if (videoPaused) videoRef.current?.play().catch(() => {});
+            else videoRef.current?.pause();
+          }}
+        >
+          {videoPaused ? 'Play background video' : 'Pause background video'}
+        </button>
       </section>
 
       {/* ── OPEN ROLES ── */}
@@ -260,6 +279,7 @@ export default function JobBoard() {
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
+                aria-label="Search open positions"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search positions, departments, locations…"
@@ -271,6 +291,7 @@ export default function JobBoard() {
                 <motion.button
                   key={d}
                   onClick={() => setDeptFilter(d)}
+                  aria-pressed={deptFilter === d}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   className={`px-4 py-2.5 rounded-lg text-xs font-bold border transition-all whitespace-nowrap ${
@@ -285,6 +306,7 @@ export default function JobBoard() {
             </div>
           </motion.div>
 
+          {loadError && <p role="alert" className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Open positions could not be loaded. Please refresh the page or use the General Application above.</p>}
           {/* Job cards */}
           {loading ? (
             <div className="space-y-3">
@@ -409,6 +431,7 @@ export default function JobBoard() {
         </div>
       </section>
 
+      </main>
       <AppFooter />
     </div>
   );

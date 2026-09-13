@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '../../components/admin/AdminLayout';
+import DeliveryStatus from '../../components/admin/DeliveryStatus';
 import { StageBadge } from './Dashboard';
 
 const STAGES = ['applied', 'under_review', 'phone_screen', 'interview', 'offer', 'hired', 'rejected', 'withdrawn'];
@@ -34,17 +35,26 @@ export default function ApplicationDetail() {
   const [updatingStage, setUpdatingStage] = useState(false);
 
   useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setApp(null);
     Promise.all([
       appClient.entities.Application.filter({ id }),
       appClient.auth.me(),
     ]).then(([apps, u]) => {
+      if (!active) return;
       if (apps[0]) {
         setApp(apps[0]);
         setNotes(apps[0].recruiterNotes || []);
       }
       setUser(u);
       setLoading(false);
+    }).catch(() => {
+      if (!active) return;
+      setActionError('The application could not be loaded. Please refresh and try again.');
+      setLoading(false);
     });
+    return () => { active = false; };
   }, [id]);
 
   const handleStageChangeConfirmed = async () => {
@@ -109,12 +119,13 @@ export default function ApplicationDetail() {
   const formData = app?.applicationData || {};
 
   if (loading) return <AdminLayout><div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-bronze/30 border-t-bronze rounded-full animate-spin" /></div></AdminLayout>;
-  if (!app) return <AdminLayout><p className="text-center py-16 text-[#64748b]">Application not found.</p></AdminLayout>;
+  if (!app) return <AdminLayout><p role="status" className="text-center py-16 text-[#64748b]">{actionError || 'Application not found.'}</p></AdminLayout>;
 
   return (
     <AdminLayout>
       <div className="max-w-5xl mx-auto space-y-5">
         {actionError && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{actionError}</div>}
+        <DeliveryStatus application={app} />
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -122,7 +133,7 @@ export default function ApplicationDetail() {
           transition={{ duration: 0.4 }}
           className="flex items-start gap-3"
         >
-          <Link to="/admin/applications" className="p-1.5 rounded-lg hover:bg-[#f1f5f9] text-[#64748b] mt-1">
+          <Link to="/admin/applications" aria-label="Back to applications" className="p-1.5 rounded-lg hover:bg-[#f1f5f9] text-[#64748b] mt-1">
             <ChevronLeft className="w-4 h-4" />
           </Link>
           <div className="flex-1">
@@ -345,6 +356,7 @@ export default function ApplicationDetail() {
               </div>
               <div className="flex gap-2">
                 <Textarea
+                  aria-label="Recruiter note"
                   value={newNote}
                   onChange={e => setNewNote(e.target.value)}
                   placeholder="Add a recruiter note..."
@@ -352,6 +364,7 @@ export default function ApplicationDetail() {
                   className="text-sm flex-1"
                 />
                 <Button
+                  aria-label="Save recruiter note"
                   onClick={handleAddNote}
                   disabled={savingNote || !newNote.trim()}
                   className="rounded-lg px-4 h-auto bg-bronze hover:bg-bronze-dark text-white self-end"

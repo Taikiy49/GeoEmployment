@@ -1,10 +1,12 @@
+import assert from 'node:assert/strict';
 import { writeFile } from 'node:fs/promises';
 import { buildApplicationDocx } from '../api/generate-application-docx.js';
 import { convertDocxToPdf } from '../api/convert-docx-to-pdf.js';
+import { extractPageTexts } from '../api/split-compliance-pdfs.js';
 
 const outputPath = process.argv[2] || '/var/tmp/geolabs-application-render-test.pdf';
 const application = {
-  applicationId: 'PDF-RENDER-TEST',
+  id: 'PDF-RENDER-TEST',
   submittedAt: '2026-07-31T12:00:00-10:00',
   applicationDate: '2026-07-31',
   firstName: 'PDF',
@@ -16,8 +18,8 @@ const application = {
   city: 'Waipahu',
   state: 'HI',
   zip: '96797',
-  position: 'Engineering Technician or Trainee (Field)',
-  location: 'Waipahu, HI',
+  positionAppliedFor: 'Engineering Technician or Trainee (Field)',
+  preferredLocation: 'Waipahu, HI',
   availableStartDate: '2026-08-15',
   driverLicense: 'Yes — Hawaiʻi Class 3',
   referredBy: 'Geolabs, Inc. website',
@@ -55,22 +57,28 @@ const application = {
     { name: 'Reference Two', company: 'Example Laboratory', phone: '(808) 555-0122' },
     { name: 'Reference Three', company: 'Example Construction', phone: '(808) 555-0123' },
   ],
-  referenceAuthorization: true,
-  referenceInitials: 'PRT',
-  medicalAcknowledgment: true,
-  medicalInitials: 'PRT',
+  certifyInitials: 'PRT',
+  medInitials: 'PRT',
+  fcrInitials: 'PRT',
+  canPerformDuties: true,
+  certificationAgreed: true,
   certificationSignature: 'PDF Render Test',
   certificationDate: '2026-07-31',
-  drugPolicyAcknowledgment: true,
-  drugPolicySignature: 'PDF Render Test',
-  drugPolicyDate: '2026-07-31',
-  eeoGender: 'I do not wish to answer',
-  eeoRace: 'I do not wish to answer',
-  disabilityStatus: 'I do not wish to answer',
+  drugTestAgreed: true,
+  drugTestSignature: 'PDF Render Test',
+  drugTestDate: '2026-07-31',
+  eeoGender: '',
+  eeoRace: 'I do not wish to disclose.',
   veteranStatus: 'noAnswer',
 };
 
-const docx = await buildApplicationDocx(application);
+// Match the submitted record shape: form responses live in applicationData.
+const docx = await buildApplicationDocx({ ...application, applicationData: application }, { mainApplicationOnly: true });
 const pdf = await convertDocxToPdf(docx);
+const pdfText = (await extractPageTexts(pdf)).join(' ');
+assert.match(pdfText, /example materials laboratory/);
+assert.match(pdfText, /prepared samples, recorded test results/);
+assert.match(pdfText, /civil engineering/);
+assert.doesNotMatch(pdfText, /voluntary self-identification of disability/);
 await writeFile(outputPath, pdf);
 console.log(`${outputPath} (${pdf.length} bytes)`);

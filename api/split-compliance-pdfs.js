@@ -1,4 +1,7 @@
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 const SECTION_DEFINITIONS = [
@@ -56,6 +59,21 @@ const findLastPage = (pages, marker) => {
   return found;
 };
 
+async function embedFooterFont(document) {
+  const directory = process.env.PDF_FONT_DIR || '/usr/local/share/fonts/geolabs-arial';
+  let fontBytes;
+  try {
+    fontBytes = await readFile(join(directory, 'Arial.TTF'));
+  } catch (error) {
+    // Developer machines without the optional production font installation can
+    // still run splitting tests. An explicitly configured directory must work.
+    if (error.code !== 'ENOENT' || process.env.PDF_FONT_DIR) throw error;
+    return document.embedFont(StandardFonts.Helvetica);
+  }
+  document.registerFontkit(fontkit);
+  return document.embedFont(fontBytes, { subset: true });
+}
+
 async function copyPageRange(source, start, end, metadata) {
   if (start < 0 || end < start || end >= source.getPageCount()) {
     throw new Error(`Invalid PDF page range for ${metadata.label}.`);
@@ -64,16 +82,17 @@ async function copyPageRange(source, start, end, metadata) {
   const indices = Array.from({ length: end - start + 1 }, (_, offset) => start + offset);
   const pages = await output.copyPages(source, indices);
   pages.forEach(page => output.addPage(page));
-  const footerFont = await output.embedFont(StandardFonts.Helvetica);
+  const footerFont = await embedFooterFont(output);
   const footerTextColor = rgb(71 / 255, 85 / 255, 105 / 255);
   pages.forEach((page, index) => {
     const { width } = page.getSize();
-    // Mask the source packet footer before drawing the standalone form footer.
-    page.drawRectangle({ x: 0, y: 0, width, height: 66, color: rgb(1, 1, 1) });
-    page.drawLine({ start: { x: 54, y: 39 }, end: { x: width - 54, y: 39 }, thickness: 0.5, color: rgb(221 / 255, 227 / 255, 233 / 255) });
+    // The source is generated without a footer. Do not cover source content:
+    // white rectangles leave old page numbers in the PDF's accessible text and
+    // can hide legitimate responses at the bottom of a densely filled page.
+    page.drawLine({ start: { x: 54, y: 44 }, end: { x: width - 54, y: 44 }, thickness: 0.5, color: rgb(221 / 255, 227 / 255, 233 / 255) });
     const text = `Geolabs, Inc.  •  Confidential  •  Page ${index + 1} of ${pages.length}`;
     const textWidth = footerFont.widthOfTextAtSize(text, 7.5);
-    page.drawText(text, { x: (width - textWidth) / 2, y: 19, size: 7.5, font: footerFont, color: footerTextColor });
+    page.drawText(text, { x: (width - textWidth) / 2, y: 29, size: 7.5, font: footerFont, color: footerTextColor });
   });
   output.setTitle(metadata.label);
   output.setAuthor('Geolabs, Inc.');

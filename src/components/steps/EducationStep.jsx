@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { GraduationCap, Plus, Trash2 } from 'lucide-react';
 import FormSection from '../app/FormSection';
 import FormField from '../app/FormField';
@@ -18,6 +18,7 @@ const EDUCATION_LEVELS = [
 ].map(([value, label]) => ({ value, label }));
 
 export default function EducationStep({ formData, setFormData, onNext, onBack }) {
+  const id = useId();
   const emptyEducation = () => ({ institution: '', location: '', degree: '', field: '', yearCompleted: '' });
   const education = [...(Array.isArray(formData.education) ? formData.education : [])];
   while (education.length < 2) education.push(emptyEducation());
@@ -75,11 +76,11 @@ export default function EducationStep({ formData, setFormData, onNext, onBack })
         </div>
         <div className="space-y-5">
           {education.map((edu, i) => (
-            <div key={i} className="bg-[#f8fafc] rounded-lg border border-[#e2e8f0] p-4 sm:p-4">
+            <div key={i} role="group" aria-labelledby={`${id}-education-${i}`} className="bg-[#f8fafc] rounded-lg border border-[#e2e8f0] p-4 sm:p-4">
               <div className="flex items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-2">
                   <GraduationCap className="w-4 h-4 text-bronze" />
-                  <h4 className="text-xs font-semibold text-[#0f172a]">Education {i + 1}</h4>
+                  <h4 id={`${id}-education-${i}`} className="text-xs font-semibold text-[#0f172a]">Education {i + 1}</h4>
                 </div>
                 {education.length > 2 && (
                   <button

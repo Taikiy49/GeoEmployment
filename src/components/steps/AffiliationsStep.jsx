@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import FormSection from '../app/FormSection';
 import NavigationButtons from '../app/NavigationButtons';
 
@@ -6,6 +6,7 @@ export default function AffiliationsStep({ formData, setFormData, onNext, onBack
   const update = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
   const value = formData.affiliations || '';
   const maxRecommended = 800;
+  const id = useId();
 
   return (
     <div>
@@ -39,12 +40,14 @@ export default function AffiliationsStep({ formData, setFormData, onNext, onBack
           {/* Main textarea */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-medium text-gray-700">
+              <label htmlFor={`${id}-affiliations`} className="text-xs font-medium text-gray-700">
                 Professional Affiliations, Licenses & Memberships
               </label>
               <span className="text-[10px] text-gray-400">You may write in bullet form.</span>
             </div>
             <textarea
+              id={`${id}-affiliations`}
+              aria-describedby={`${id}-hint`}
               rows={6}
               value={value}
               onChange={e => update('affiliations', e.target.value)}
@@ -52,7 +55,7 @@ export default function AffiliationsStep({ formData, setFormData, onNext, onBack
               className="w-full px-3 py-2.5 text-sm border border-[#e2e8f0] rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-bronze/30 focus:border-bronze"
             />
             <div className="flex items-center justify-between">
-              <p className="text-[10px] text-gray-400">Focus on credentials and memberships that support your application for this role.</p>
+              <p id={`${id}-hint`} className="text-[10px] text-gray-400">Focus on credentials and memberships that support your application for this role.</p>
               <span className={`text-[10px] ${value.length > maxRecommended ? 'text-amber-500' : 'text-gray-400'}`}>
                 {value.length} / {maxRecommended} recommended
               </span>

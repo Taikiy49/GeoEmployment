@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useId, useMemo } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import FormSection from '../app/FormSection';
 import FormField from '../app/FormField';
@@ -13,6 +13,7 @@ import {
 
 export default function CertificationStep({ formData, setFormData, onNext, onBack }) {
   const update = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
+  const id = useId();
 
   const sig = formData.certificationSignature || '';
   const signatureLooksValid = useMemo(() => {
@@ -31,10 +32,10 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
           {/* FCRA Disclosure */}
           <div className="bg-white border border-[#e2e8f0] rounded-xl p-4 space-y-4">
             <div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-0.5">Fair Credit Reporting Act Disclosure</h3>
+              <h3 id={`${id}-fcra-title`} className="text-sm font-semibold text-gray-900 mb-0.5">Fair Credit Reporting Act Disclosure</h3>
               <p className="text-xs text-gray-500">Initial below to acknowledge that you have read and understand this disclosure.</p>
             </div>
-            <div className="bg-[#f8fafc] border border-[#f1f5f9] rounded-lg p-4 space-y-3 max-h-48 overflow-y-auto">
+            <div role="region" aria-labelledby={`${id}-fcra-title`} tabIndex={0} className="bg-[#f8fafc] border border-[#f1f5f9] rounded-lg p-4 space-y-3 max-h-48 overflow-y-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bronze">
               <p className="text-xs text-[#334155] leading-relaxed">
                 {FCRA_DISCLOSURE_TEXT}
               </p>
@@ -43,9 +44,12 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
               </p>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-700">Applicant's Initials <span className="text-red-500">*</span></label>
+              <label htmlFor={`${id}-initials`} className="text-xs font-medium text-gray-700">Applicant's Initials <span className="text-red-500">*</span></label>
               <div className="flex items-center gap-3">
                 <input
+                  id={`${id}-initials`}
+                  required
+                  aria-describedby={`${id}-initials-hint`}
                   type="text"
                   value={(formData.fcrInitials || '').toUpperCase()}
                   onChange={e => update('fcrInitials', e.target.value)}
@@ -53,7 +57,7 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
                   maxLength={4}
                   className="w-24 h-9 px-3 text-sm border border-[#e2e8f0] rounded-lg focus:outline-none focus:ring-2 focus:ring-bronze/30 focus:border-bronze text-center font-semibold tracking-widest"
                 />
-                <p className="text-xs text-gray-400">Enter 2–4 letters to confirm you have read the above disclosure.</p>
+                <p id={`${id}-initials-hint`} className="text-xs text-gray-400">Enter 2–4 letters to confirm you have read the above disclosure.</p>
               </div>
             </div>
           </div>
@@ -119,8 +123,11 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
               <div className="space-y-1">
-                <label className="text-xs font-medium text-gray-700">Applicant's Signature <span className="text-red-500">*</span></label>
+                <label htmlFor={`${id}-signature`} className="text-xs font-medium text-gray-700">Applicant's Signature <span className="text-red-500">*</span></label>
                 <input
+                  id={`${id}-signature`}
+                  required
+                  aria-describedby={`${id}-signature-hint`}
                   type="text"
                   value={sig}
                   onChange={e => update('certificationSignature', e.target.value)}
@@ -128,7 +135,7 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
                   autoComplete="name"
                   className="w-full h-9 px-3 text-sm border border-[#e2e8f0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]"
                 />
-                <p className="text-[10px] text-gray-400">
+                <p id={`${id}-signature-hint`} className="text-[10px] text-gray-400">
                   By typing your name, you acknowledge this as your electronic signature.
                   {!signatureLooksValid && sig.trim().length > 0 && (
                     <span className="text-amber-500"> (Tip: enter first and last name)</span>

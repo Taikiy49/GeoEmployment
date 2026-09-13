@@ -28,7 +28,7 @@ export default function EmailTemplates() {
   const [activeTab, setActiveTab] = useState('stage');
 
   const load = () => {
-    appClient.entities.EmailTemplate.list('-created_date', 100).then(t => {
+    appClient.entities.EmailTemplate.list().then(t => {
       setTemplates(t);
       setLoading(false);
     });

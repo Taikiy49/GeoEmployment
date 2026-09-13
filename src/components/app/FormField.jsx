@@ -3,13 +3,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 export default function FormField({
   label,
-  hint,
-  required,
+  hint = '',
+  required = false,
   type = 'text',
   value,
   onChange,
-  placeholder,
-  options,
+  placeholder = '',
+  options = [],
   rows = 3,
   className = '',
   disabled = false,

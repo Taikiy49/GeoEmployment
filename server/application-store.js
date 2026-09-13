@@ -1,5 +1,5 @@
 import { mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 
 const dataDirectory = process.env.APPLICATION_DATA_DIR || '/var/lib/geolabs-employment-portal';
 const applicationsFile = join(dataDirectory, 'applications.json');
@@ -16,7 +16,8 @@ const readApplications = async () => {
   await ensureStorage();
   try {
     const parsed = JSON.parse(await readFile(applicationsFile, 'utf8'));
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) throw new Error('Invalid application storage format.');
+    return parsed;
   } catch (error) {
     if (error.code === 'ENOENT') return [];
     throw error;
@@ -42,6 +43,10 @@ const safeFilename = value => String(value || 'resume')
   .replace(/^-|-$/g, '')
   .slice(0, 140) || 'resume';
 
+const storedPath = (directory, filename) => typeof filename === 'string' && filename
+  && filename !== '.' && filename !== '..' && basename(filename) === filename && !filename.includes('\\')
+  ? join(directory, filename) : null;
+
 const saveResume = async (applicationId, attachment) => {
   if (!attachment?.content || !attachment?.filename) return null;
   const filename = `${safeFilename(applicationId)}-${safeFilename(attachment.filename)}`;
@@ -61,7 +66,8 @@ export async function upsertSubmittedApplication(application, deliveryStatus = '
     const existing = existingIndex >= 0 ? applications[existingIndex] : null;
     const now = new Date().toISOString();
     const resume = await saveResume(application.id, application.resumeAttachment);
-    const { resumeAttachment: _resumeAttachment, ...applicationWithoutAttachment } = application;
+    const { resumeAttachment: _resumeAttachment, documents: _documents, resumeStoredFilename: _stored,
+      resumeFileUrl: _url, resumeFileName: _name, resumeContentType: _type, ...applicationWithoutAttachment } = application;
     const next = {
       ...(existing || {}),
       ...applicationWithoutAttachment,
@@ -135,14 +141,16 @@ export async function deleteApplication(id) {
     const next = applications.filter(item => item.id !== id);
     if (next.length === applications.length) return false;
     await writeApplications(next);
-    if (existing?.resumeStoredFilename) {
-      await unlink(join(resumesDirectory, existing.resumeStoredFilename)).catch(error => {
+    const resumePath = getResumePath(existing);
+    if (resumePath) {
+      await unlink(resumePath).catch(error => {
         if (error.code !== 'ENOENT') throw error;
       });
     }
     for (const document of existing?.documents || []) {
-      if (!document.storedFilename) continue;
-      await unlink(join(documentsDirectory, document.storedFilename)).catch(error => {
+      const documentPath = storedPath(documentsDirectory, document.storedFilename);
+      if (!documentPath) continue;
+      await unlink(documentPath).catch(error => {
         if (error.code !== 'ENOENT') throw error;
       });
     }
@@ -171,12 +179,10 @@ export async function getApplication(id) {
 }
 
 export function getResumePath(application) {
-  return application?.resumeStoredFilename
-    ? join(resumesDirectory, application.resumeStoredFilename)
-    : null;
+  return storedPath(resumesDirectory, application?.resumeStoredFilename);
 }
 
 export function getApplicationDocumentPath(application, key) {
   const document = application?.documents?.find(item => item.key === key);
-  return document?.storedFilename ? join(documentsDirectory, document.storedFilename) : null;
+  return storedPath(documentsDirectory, document?.storedFilename);
 }

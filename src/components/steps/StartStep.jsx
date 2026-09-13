@@ -115,7 +115,7 @@ function JobPanel({ job }) {
   );
 }
 
-export default function StartStep({ onNext, requisition, onBack }) {
+export default function StartStep({ onNext, requisition }) {
   const [jobs, setJobs] = useState([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
 

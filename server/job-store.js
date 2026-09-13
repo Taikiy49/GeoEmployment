@@ -5,18 +5,20 @@ import { seedJobs } from '../src/lib/appData.js';
 const dataDirectory = process.env.APPLICATION_DATA_DIR || '/var/lib/geolabs-employment-portal';
 const jobsFile = join(dataDirectory, 'job-requisitions.json');
 let writeQueue = Promise.resolve();
+let initialization;
 
 const ensureStorage = () => mkdir(dataDirectory, { recursive: true, mode: 0o700 });
 const readJobs = async () => {
   await ensureStorage();
   try {
     const parsed = JSON.parse(await readFile(jobsFile, 'utf8'));
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) throw new Error('Invalid job storage format.');
+    return parsed;
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
-    const initial = seedJobs();
-    await writeJobs(initial);
-    return initial;
+    initialization ||= writeJobs(seedJobs()).finally(() => { initialization = null; });
+    await initialization;
+    return JSON.parse(await readFile(jobsFile, 'utf8'));
   }
 };
 const writeJobs = async jobs => {
@@ -50,6 +52,7 @@ export async function getJob(id) {
 export async function createJob(job) {
   return withWriteLock(async () => {
     const jobs = await readJobs();
+    if (jobs.some(existing => existing.id === job.id)) throw Object.assign(new Error('Job reference already exists.'), { code: 'DUPLICATE_JOB' });
     const now = new Date().toISOString();
     const next = { ...job, id: job.id, created_date: job.created_date || now, updated_date: now };
     jobs.push(next);

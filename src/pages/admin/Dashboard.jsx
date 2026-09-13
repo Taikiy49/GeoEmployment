@@ -41,11 +41,12 @@ export default function Dashboard() {
   const awaitingReview = apps.filter(a => a.stage === 'applied').length;
   const thisWeek = apps.filter(a => {
     const d = new Date(a.submittedAt || a.created_date);
-    return (Date.now() - d) < 7 * 24 * 60 * 60 * 1000;
+    const age = Date.now() - d.getTime();
+    return age >= 0 && age < 7 * 24 * 60 * 60 * 1000;
   }).length;
 
   const recentApps = [...apps].sort((a, b) =>
-    new Date(b.submittedAt || b.created_date) - new Date(a.submittedAt || a.created_date)
+    new Date(b.submittedAt || b.created_date).getTime() - new Date(a.submittedAt || a.created_date).getTime()
   ).slice(0, 8);
 
   if (loading) return (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import FormSection from '../app/FormSection';
 import NavigationButtons from '../app/NavigationButtons';
@@ -6,6 +6,7 @@ import { ESSENTIAL_FUNCTIONS_QUESTION, MEDICAL_AUTHORIZATION_TEXT } from '@/lib/
 
 export default function MedicalStep({ formData, setFormData, onNext, onBack }) {
   const update = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
+  const id = useId();
 
   return (
     <div>
@@ -35,9 +36,12 @@ export default function MedicalStep({ formData, setFormData, onNext, onBack }) {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-700">Applicant's Initials <span className="text-red-500">*</span></label>
+              <label htmlFor={`${id}-initials`} className="text-xs font-medium text-gray-700">Applicant's Initials <span className="text-red-500">*</span></label>
               <div className="flex items-center gap-3">
                 <input
+                  id={`${id}-initials`}
+                  required
+                  aria-describedby={`${id}-initials-hint`}
                   type="text"
                   placeholder="e.g., TY"
                   value={formData.medInitials || ''}
@@ -45,7 +49,7 @@ export default function MedicalStep({ formData, setFormData, onNext, onBack }) {
                   maxLength={4}
                   className="w-24 h-9 px-3 text-sm border border-[#e2e8f0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A] text-center font-semibold tracking-widest"
                 />
-                <p className="text-xs text-gray-400">Your initials confirm you have read and understood the above policy.</p>
+                <p id={`${id}-initials-hint`} className="text-xs text-gray-400">Your initials confirm you have read and understood the above policy.</p>
               </div>
             </div>
           </div>

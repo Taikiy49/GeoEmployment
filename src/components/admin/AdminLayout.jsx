@@ -114,6 +114,7 @@ export default function AdminLayout({ children }) {
             <Sidebar />
           </aside>
           <button
+            aria-label="Close navigation"
             onClick={() => setMobileOpen(false)}
             className="absolute top-4 left-60 z-50 p-2 rounded-lg bg-[#111923] border border-white/10 text-white"
           >
@@ -126,7 +127,7 @@ export default function AdminLayout({ children }) {
       <div className="min-w-0 flex-1 lg:ml-56 flex flex-col min-h-screen">
         {/* Mobile topbar */}
         <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-[#111923] border-b border-[#A65F2A]/40">
-          <button onClick={() => setMobileOpen(true)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-200">
+          <button aria-label="Open navigation" aria-expanded={mobileOpen} onClick={() => setMobileOpen(true)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-200">
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2">
