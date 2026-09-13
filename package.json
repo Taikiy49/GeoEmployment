@@ -25,8 +25,8 @@
     "test:server": "node scripts/test-server-integration.mjs",
     "test:submission": "node scripts/test-submission-ui.mjs",
     "test:email-limits": "node scripts/test-email-size-limits.mjs",
-    "test:unit": "npm run test:server && npm run test:email-limits && npm run test:secure-drafts && npm run test:jobs && npm run test:education && npm run test:resume-autofill && npm run test:compliance-pdfs",
-    "test:browser": "npm run test:accessibility && npm run test:draft && npm run test:continue-link && npm run test:submission && npm run test:admin && npm run test:admin-server",
+    "test:unit": "npm run test:server && npm run test:email-limits && npm run test:secure-drafts && npm run test:jobs && npm run test:resume-autofill && npm run test:compliance-pdfs",
+    "test:browser": "npm run test:accessibility && npm run test:education && npm run test:draft && npm run test:continue-link && npm run test:submission && npm run test:admin && npm run test:admin-server",
     "typecheck": "tsc -p ./jsconfig.json",
     "preview": "vite preview",
     "start": "node server/ec2-server.js"
