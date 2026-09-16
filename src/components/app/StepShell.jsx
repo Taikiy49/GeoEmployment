@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useIsPresent, useReducedMotion } from 'framer-motion';
 
-function StepContent({ children, direction, reduceMotion }) {
+function StepContent({ children, reduceMotion }) {
   const isPresent = useIsPresent();
   const contentRef = useRef(null);
   // With AnimatePresence mode="wait", the incoming section mounts after the
@@ -9,6 +9,11 @@ function StepContent({ children, direction, reduceMotion }) {
   const focusContent = useCallback((node) => {
     contentRef.current = node;
     node?.focus({ preventScroll: true });
+    // On phones, bring the task into view after navigation instead of making
+    // applicants scroll past the job context and progress rail on every step.
+    if (node?.closest('.portal-application__workspace') && window.matchMedia('(max-width: 639px)').matches) {
+      node.scrollIntoView({ block: 'start', behavior: 'instant' });
+    }
   }, []);
   useEffect(() => {
     if (contentRef.current) contentRef.current.inert = !isPresent;
@@ -22,10 +27,10 @@ function StepContent({ children, direction, reduceMotion }) {
       aria-label="Current application section"
       aria-hidden={!isPresent || undefined}
       tabIndex={-1}
-      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, x: direction > 0 ? 60 : -60, scale: 0.95 }}
-      animate={{ opacity: 1, x: 0, scale: 1 }}
-      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: direction > 0 ? -60 : 60, scale: 0.95 }}
-      transition={{ duration: reduceMotion ? 0 : 0.35, ease: 'easeOut' }}
+      initial={{ opacity: reduceMotion ? 1 : 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: reduceMotion ? 1 : 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.12, ease: 'easeOut' }}
       className="min-h-[400px] focus:outline-none"
     >
       {children}
@@ -33,12 +38,12 @@ function StepContent({ children, direction, reduceMotion }) {
   );
 }
 
-export default function StepShell({ children, stepKey, direction }) {
+export default function StepShell({ children, stepKey }) {
   const reduceMotion = useReducedMotion();
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      <StepContent key={stepKey} direction={direction} reduceMotion={reduceMotion}>
+      <StepContent key={stepKey} reduceMotion={reduceMotion}>
         {children}
       </StepContent>
     </AnimatePresence>

@@ -22,6 +22,7 @@ The Geolabs Employment Portal is the production careers and hiring application f
 - Secure emailed “continue application” links for another browser or device
 - Applicant confirmation email after successful submission
 - Read-aloud controls for each application section
+- Responsive, keyboard-friendly layouts with clearer progress navigation and readable fields
 
 ### HR experience
 
@@ -35,7 +36,7 @@ The Geolabs Employment Portal is the production careers and hiring application f
 
 ## Accessibility
 
-The applicant flow uses native form controls, programmatic labels, unique field IDs, keyboard-visible focus states, progress semantics, live status announcements, and focus movement when sections change. It also respects the operating system’s reduced-motion preference.
+The applicant flow uses native inputs and accessible authored select controls, programmatic labels, unique field IDs, keyboard-visible focus states, progress semantics, live status announcements, and focus movement when sections change. It also respects the operating system’s reduced-motion preference. The careers video includes a pause control and starts paused when reduced motion is enabled. Résumé uploads have an explicit keyboard-operable file-picker button; long-answer fields grow with their content without cutting off stored answers.
 
 Applicants may use standard assistive technology such as Windows Narrator, Voice Access, macOS VoiceOver, and operating-system dictation. An in-portal **Read this section aloud** control uses the browser’s speech service and provides pause, resume, restart, and stop controls. The portal does not send text to its own speech API; a browser or operating-system voice may use an online service. Applicants should avoid read-aloud on shared speakers when entering private information. Unsupported browsers show a clear fallback message.
 
@@ -57,6 +58,19 @@ npm run test:accessibility
 - Microsoft Graph/Resend-backed transactional email delivery
 - PDF generation and LibreOffice-based document conversion
 - Local server-side JSON storage under the configured application data directory
+
+## Interface design
+
+The public careers site and application use an understated Geolabs visual system: bronze accents, deep blue-green text, clear section rules, and real project footage. Desktop applications have a persistent step rail; narrow screens use compact, scrollable progress navigation. Job searches and department filters are reflected in the URL, with explicit loading, empty, error, and retry states.
+
+- `DESIGN.md` records the visual direction, exact design tokens, typography, and accessibility decisions.
+- `UX-CONTRACT.md` records shared component ownership and expected workflow behavior.
+- `src/styles/portal.css` is the canonical shared public-interface token and component stylesheet.
+- `src/styles/careers.css` and `src/styles/application-start.css` hold page-specific composition.
+- Barlow Semi Condensed and Source Sans 3 are version-pinned, self-hosted font packages. Public pages do not depend on a third-party font service. Generated application PDFs continue to use Arial; the web refresh does not change their layout or required wording.
+- `premium-ui.json` defines the design audit scope and its required regression commands.
+
+The HR portal retains its own established layout and typography. Shared accessibility fixes must preserve both public and administrative workflows.
 
 ## Repository layout
 
@@ -168,11 +182,17 @@ npm run test:compliance-pdfs
 npm run test:server
 npm run test:email-limits
 npm run test:submission
+npm run test:design-ui
+npm run test:public-auth
 ```
 
 Some browser tests expect Google Chrome at `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`. Override that path with `CHROME_PATH` when needed. Override the preview URL with `TEST_BASE_URL`.
 
 `npm run test:unit` groups isolated backend, résumé, and document-splitting checks. `npm run test:browser` groups browser workflows, including an authenticated admin browser against the real server with isolated storage. These use synthetic data and intercepted email delivery; they do not send real messages. GitHub Actions runs these checks on pushes and pull requests. PDF layout tests require LibreOffice; actual Arial verification also requires the fonts below.
+
+The responsive design suite checks 375px, 768px, and 1280px viewports, focus behavior, menu geometry, readable fields, long answers, saved progress, and incomplete-submission recovery. Set `TEST_SCREENSHOT_DIR` to a temporary directory to retain synthetic screenshots for visual review. Real-device screen-reader and dictation checks remain a separate manual release check.
+
+The public-auth routing suite verifies that delayed or unavailable administrator sign-in services do not block careers or application pages, while protected HR pages continue to require administrator access.
 
 ### PDF fonts and rendering
 

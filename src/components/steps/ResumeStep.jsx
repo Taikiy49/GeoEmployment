@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Sparkles, ShieldCheck, X } from 'lucide-react';
+import { Upload, FileText, FileSearch, CheckCircle2, AlertCircle, Loader2, ShieldCheck, X } from 'lucide-react';
 import FormSection from '../app/FormSection';
 import NavigationButtons from '../app/NavigationButtons';
 import { deleteResumeFile, saveResumeFile, blobToBase64 } from '@/lib/resumeStorage';
@@ -120,20 +120,12 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
-          className={`
-            border-2 border-dashed rounded-xl p-4 text-center transition-all cursor-pointer
-            ${dragOver
-              ? 'border-[#A65F2A] bg-[#F8F0E9]'
-              : file
-                ? 'border-success bg-success-soft'
-                : 'border-[#cbd5e1] bg-[#f8fafc] hover:border-[#A65F2A] hover:bg-[#FBF5F0]'
-            }
-          `}
-          onClick={() => document.getElementById('resume-input').click()}
+          className={`portal-upload ${dragOver ? 'is-dragging' : ''}`}
         >
           <input
             id="resume-input"
             type="file"
+            aria-label="Upload resume"
             accept=".pdf,.doc,.docx,.txt"
             className="hidden"
             onChange={(e) => {
@@ -145,8 +137,8 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
           {file || formData.resumeFileUrl ? (
             <div className="flex items-center justify-center gap-3">
               <FileText className={`w-8 h-8 ${status === 'success' ? 'text-success' : 'text-[#A65F2A]'}`} />
-              <div className="text-left">
-                <p className="text-sm font-medium text-[#0f172a]">{file ? file.name : formData.resumeFileName || 'Resume uploaded'}</p>
+              <div className="text-left min-w-0 break-words">
+                <p className="text-base font-medium text-[#0f172a]">{file ? file.name : formData.resumeFileName || 'Resume uploaded'}</p>
                 <p className="text-[10px] text-[#64748b]">
                   {file
                     ? `${(file.size / 1024).toFixed(1)} KB`
@@ -156,6 +148,8 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
                 </p>
               </div>
               <button
+                type="button"
+                aria-label="Remove resume"
                 onClick={(e) => {
                   e.stopPropagation();
                   setFile(null);
@@ -172,7 +166,7 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
                     resumeAttachment: null,
                   }));
                 }}
-                className="ml-2 p-1 rounded-full hover:bg-[#f1f5f9]"
+                className="portal-button portal-button--secondary shrink-0"
               >
                 <X className="w-4 h-4 text-[#64748b]" />
               </button>
@@ -180,18 +174,21 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
           ) : (
             <>
               <Upload className="w-10 h-10 text-[#94a3b8] mx-auto mb-3" />
-              <p className="text-sm font-medium text-[#334155]">
+              <p className="text-base font-medium text-[#334155]">
                 Drag & drop your resume here
               </p>
-              <p className="text-xs text-[#64748b] mt-1">
-                or click to browse · PDF, DOC, DOCX, TXT · Max 2 MB
+              <p className="text-sm text-[#64748b] mt-1">
+                PDF, DOC, DOCX, TXT · Max 2 MB
               </p>
             </>
           )}
+          <button type="button" onClick={() => document.getElementById('resume-input')?.click()} disabled={status === 'uploading'} className="portal-button portal-button--secondary mt-4">
+            <Upload aria-hidden="true" size={16} /> {file || formData.resumeFileUrl ? 'Choose a different resume' : 'Choose resume file'}
+          </button>
         </div>
 
         {status === 'uploading' && (
-          <div className="mt-4 flex items-center justify-center gap-2 text-xs font-medium text-[#8A4A22]">
+          <div role="status" className="mt-4 flex items-center justify-center gap-2 text-sm font-medium text-[#8A4A22]">
             <Loader2 className="h-4 w-4 animate-spin" />
             Attaching and saving your resume…
           </div>
@@ -199,14 +196,14 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
 
         {/* Status messages */}
         {status === 'error' && (
-          <div className="mt-4 flex items-start gap-2 p-4 rounded-lg bg-red-50 border border-red-200">
+          <div role="alert" className="mt-4 flex items-start gap-2 p-4 rounded-lg bg-red-50 border border-red-200">
             <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
             <p className="text-xs text-red-700">{errorMsg}</p>
           </div>
         )}
 
         {status === 'success' && (
-          <div className="mt-4 flex items-start gap-2 p-4 rounded-lg bg-emerald-50 border border-emerald-200">
+          <div role="status" className="mt-4 flex items-start gap-2 p-4 rounded-lg bg-emerald-50 border border-emerald-200">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
             <p className="text-xs text-emerald-800">
               Resume attached and ready to send with your application.
@@ -215,11 +212,11 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
         )}
 
         {status === 'success' && (
-          <div className="mt-5 overflow-hidden rounded-xl border border-[#A65F2A]/25 bg-gradient-to-br from-[#fffaf6] to-white">
+          <div className="portal-autofill">
             <div className="p-4 sm:p-5">
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#A65F2A] text-white shadow-sm">
-                  <Sparkles className="h-4 w-4" />
+                <div className="mt-1 shrink-0 text-slate-600">
+                  <FileSearch aria-hidden="true" className="h-5 w-5" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <h4 className="text-sm font-bold text-slate-950">Save time with resume autofill</h4>
@@ -234,9 +231,9 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
                   <button
                     type="button"
                     onClick={analyzeResume}
-                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#8A4A22] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#743d1b] sm:w-auto"
+                    className="portal-button portal-button--primary mt-4"
                   >
-                    <Sparkles className="h-4 w-4" />
+                    <FileSearch aria-hidden="true" className="h-4 w-4" />
                     Autofill from this resume
                   </button>
                   <div className="mt-3 flex items-start gap-2 text-[10px] leading-relaxed text-slate-500">

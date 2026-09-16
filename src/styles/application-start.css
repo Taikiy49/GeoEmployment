@@ -1,0 +1,121 @@
+.application-start {
+  color: var(--portal-ink);
+  font-family: var(--portal-font-body);
+}
+
+.application-start__intro-grid,
+.application-start__details-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, 1fr);
+  column-gap: clamp(28px, 5vw, 72px);
+  align-items: start;
+}
+
+.application-start__intro-grid { padding: 8px 0 36px; }
+
+.portal-theme .application-start__title {
+  max-width: 18ch;
+  margin: 12px 0 16px;
+  color: var(--portal-ink);
+  font-family: var(--portal-font-display);
+  font-size: clamp(38px, 4.6vw, 62px);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.018em;
+  overflow-wrap: anywhere;
+}
+
+.application-start__intro {
+  max-width: 55ch;
+  margin: 18px 0 24px;
+  color: var(--portal-muted);
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.application-start__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.application-start__actions .portal-button { gap: 10px; }
+.application-start__time-note { margin-top: 14px; color: var(--portal-muted); font-size: 14px; line-height: 1.5; }
+.application-start__preparation { margin-top: 4px; padding: 24px; border-top: 3px solid var(--portal-bronze); background: var(--portal-paper); }
+
+.portal-theme .application-start h3 {
+  color: var(--portal-ink);
+  font-family: var(--portal-font-display);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.application-start__checklist,
+.application-start__benefits { margin: 16px 0; padding-left: 18px; list-style: disc; }
+.application-start__checklist li,
+.application-start__benefits li { margin: 9px 0; color: var(--portal-muted); font-size: 16px; line-height: 1.45; }
+.application-start__checklist li::marker { color: var(--portal-bronze); }
+.application-start__save-note { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--portal-line); color: var(--portal-muted); font-size: 14px; line-height: 1.5; }
+.application-start__details-grid { padding-top: 32px; border-top: 1px solid var(--portal-line); }
+.application-start__section-intro { margin: 10px 0 20px; color: var(--portal-muted); font-size: 16px; line-height: 1.55; }
+.application-start__company h3 { margin-top: 10px; }
+.application-start__company h4 { margin-top: 24px; color: var(--portal-ink); font-size: 16px; font-weight: 600; }
+.application-start__disclosures { border-top: 1px solid var(--portal-line); }
+.application-start__disclosure { border-color: var(--portal-line); }
+
+.portal-theme .application-start__trigger {
+  min-height: 56px;
+  padding: 19px 0;
+  gap: 18px;
+  color: var(--portal-ink);
+  font-family: var(--portal-font-body);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+
+.portal-theme .application-start__trigger:hover { color: var(--portal-bronze); text-decoration: none; }
+.portal-theme .application-start__trigger:active { color: var(--portal-bronze-hover); }
+.application-start__trigger:focus-visible { outline: 2px solid var(--portal-bronze); outline-offset: 5px; border-radius: 2px; }
+.application-start__trigger > svg { color: var(--portal-muted); }
+.application-start__job-meta { display: flex; flex-wrap: wrap; column-gap: 14px; row-gap: 3px; color: var(--portal-muted); font-size: 14px; font-weight: 400; line-height: 1.45; }
+.application-start__job-heading .application-start__job-meta { margin-top: 6px; }
+.application-start__disclosure-content { padding: 0 22px 22px 0; color: var(--portal-muted); font-size: 16px; line-height: 1.6; }
+.application-start__disclosure-content > * + * { margin-top: 20px; }
+.application-start__disclosure-content h4 { margin-bottom: 6px; color: var(--portal-ink); font-size: 16px; font-weight: 600; }
+.application-start__job-copy { white-space: pre-line; overflow-wrap: anywhere; }
+.application-start__company-details { font-size: 13px; line-height: 1.6; }
+.application-start__legal { padding-top: 16px; border-top: 1px solid var(--portal-line); font-size: 13px; line-height: 1.55; }
+.application-start__deadline { font-weight: 600; }
+.application-start__load-state { display: flex; align-items: center; gap: 10px; min-height: 160px; padding: 22px 0; border-top: 1px solid var(--portal-line); color: var(--portal-muted); font-size: 16px; line-height: 1.5; }
+.application-start__load-state--error { flex-direction: column; align-items: flex-start; justify-content: center; }
+.application-start__loading-icon { flex-shrink: 0; animation: application-start-spin 1s linear infinite; }
+.application-start__applicant-information { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--portal-line); }
+.application-start__applicant-information > h3 { margin-bottom: 18px; }
+.application-start__applicant-information .application-start__disclosure-content { max-width: 78ch; }
+.application-start__contact-link { display: block; width: fit-content; margin-top: 10px; color: var(--portal-bronze); text-decoration: underline; text-underline-offset: 3px; }
+.application-start__contact-link:hover { color: var(--portal-bronze-hover); }
+.application-start__contact-link:focus-visible { outline: 2px solid var(--portal-bronze); outline-offset: 4px; }
+
+@keyframes application-start-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 760px) {
+  .application-start__intro-grid,
+  .application-start__details-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .application-start__intro-grid { padding-bottom: 28px; }
+  .application-start__preparation { margin-top: 0; padding: 20px; }
+  .application-start__details-grid { padding-top: 26px; }
+  .application-start__company { padding-top: 24px; border-top: 1px solid var(--portal-line); }
+  .portal-theme .application-start__title { font-size: clamp(36px, 9.5vw, 48px); }
+  .application-start__intro { margin: 14px 0 20px; font-size: 17px; }
+  .application-start__actions { align-items: stretch; }
+  .application-start__actions .portal-button--primary { width: 100%; }
+  .application-start__disclosure-content { padding-right: 0; }
+  .application-start__applicant-information { margin-top: 28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .application-start__loading-icon { animation: none; }
+  .application-start__trigger,
+  .application-start__trigger > svg { transition: none; }
+  .application-start__disclosure > [data-state] { animation: none; }
+}

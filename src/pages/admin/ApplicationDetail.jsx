@@ -361,7 +361,7 @@ export default function ApplicationDetail() {
                   onChange={e => setNewNote(e.target.value)}
                   placeholder="Add a recruiter note..."
                   rows={2}
-                  className="text-sm flex-1"
+                  className="text-sm flex-1 resize-none"
                 />
                 <Button
                   aria-label="Save recruiter note"

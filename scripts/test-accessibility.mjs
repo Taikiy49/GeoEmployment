@@ -140,7 +140,7 @@ try {
   assert.equal(await spokenCount(), navigationIndex + 1, 'Navigation must cancel the old section.');
   assert.equal(await page.getByRole('progressbar').getAttribute('aria-valuenow'), '17');
 
-  await page.getByRole('button', { name: /^2 Position$/ }).click();
+  await page.getByRole('button', { name: 'Position', exact: true }).click();
   await auditCurrentSection(page, 'Application Information');
 
   await page.getByRole('button', { name: /Personal information/ }).click();
@@ -223,7 +223,7 @@ try {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.getByRole('button', { name: /EEO survey/ }).click();
   await auditCurrentSection(page, 'EEO Voluntary Self-Identification Survey');
-  await page.getByRole('button', { name: /^7 Review$/ }).click();
+  await page.getByRole('button', { name: 'Review', exact: true }).click();
   await auditCurrentSection(page, 'Review & Submit');
   await read().click();
   const unmountedCount = await spokenCount();

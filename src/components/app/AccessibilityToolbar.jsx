@@ -182,30 +182,30 @@ export default function AccessibilityToolbar({ targetSelector, contentKey }) {
   return (
     <section
       aria-label="Application accessibility tools"
-      className="mb-4 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm"
+      className="portal-accessibility"
       data-read-aloud-ignore
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="portal-accessibility__inner">
         <div>
-          <h2 className="text-sm font-bold text-slate-900">Accessibility tools</h2>
-          <p className="mt-0.5 text-xs leading-relaxed text-slate-600">
+          <h2>Accessibility tools</h2>
+          <p>
             Read the current section, including entered answers, using your browser’s speech tools.
           </p>
         </div>
 
         {supported ? (
           <div ref={controlsRef} className="flex flex-wrap items-center gap-2">
-            <button ref={primaryButtonRef} type="button" onClick={start} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#A65F2A] px-3 py-2 text-xs font-bold text-white hover:bg-[#8A4A22] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A65F2A] focus-visible:ring-offset-2">
+            <button ref={primaryButtonRef} type="button" onClick={start} className="portal-button portal-button--secondary">
               {state === 'idle' ? <CirclePlay aria-hidden="true" className="h-4 w-4" /> : <RotateCcw aria-hidden="true" className="h-4 w-4" />}
               {primaryLabel}
             </button>
             {state !== 'idle' && (
               <>
-                <button type="button" onClick={togglePause} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A65F2A] focus-visible:ring-offset-2">
+                <button type="button" onClick={togglePause} className="portal-button portal-button--secondary">
                   {state === 'paused' ? <CirclePlay aria-hidden="true" className="h-4 w-4" /> : <CirclePause aria-hidden="true" className="h-4 w-4" />}
                   {state === 'paused' ? 'Resume' : 'Pause'}
                 </button>
-                <button type="button" onClick={() => stop()} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A65F2A] focus-visible:ring-offset-2">
+                <button type="button" onClick={() => stop()} className="portal-button portal-button--secondary">
                   <Square aria-hidden="true" className="h-3.5 w-3.5" /> Stop
                 </button>
               </>

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { appClient } from '@/api/localClient';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft, Pencil, Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { ReqStatusBadge } from './Dashboard';
 
@@ -76,10 +77,8 @@ export default function JobDetail() {
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Link to={`/admin/jobs/${id}/edit`}>
-              <Button variant="outline" size="sm" className="rounded-xl h-9 px-4 text-xs border-gray-200 bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-900">
-                <Pencil className="w-3 h-3 mr-1" /> Edit
-              </Button>
+            <Link to={`/admin/jobs/${id}/edit`} className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'rounded-xl h-9 px-4 text-xs border-gray-200 bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-900')}>
+              <Pencil className="w-3 h-3 mr-1" /> Edit
             </Link>
             {['draft', 'pending_approval', 'approved'].includes(req.status) && (
               <Button size="sm" disabled={updating} onClick={() => handleStatusChange('published')} className="rounded-xl h-9 px-4 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200">Publish</Button>

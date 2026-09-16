@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { appClient } from '@/api/localClient';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ChevronLeft, Plus, Trash2, Save, Send } from 'lucide-react';
@@ -190,13 +191,13 @@ export default function JobEditor() {
         <section className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5 space-y-4">
           <h2 className="text-sm font-semibold text-navy border-b border-[#f1f5f9] pb-3">Job Description</h2>
           <Field label="Job Description" required>
-            <Textarea value={form.description} onChange={e => update('description', e.target.value)} rows={6} placeholder="Describe the role, responsibilities, and team..." className="text-sm" />
+            <Textarea value={form.description} onChange={e => update('description', e.target.value)} rows={6} placeholder="Describe the role, responsibilities, and team..." className="text-sm resize-none" />
           </Field>
           <Field label="Required Qualifications">
-            <Textarea value={form.requiredQualifications} onChange={e => update('requiredQualifications', e.target.value)} rows={4} placeholder="List required education, experience, certifications..." className="text-sm" />
+            <Textarea value={form.requiredQualifications} onChange={e => update('requiredQualifications', e.target.value)} rows={4} placeholder="List required education, experience, certifications..." className="text-sm resize-none" />
           </Field>
           <Field label="Preferred Qualifications">
-            <Textarea value={form.preferredQualifications} onChange={e => update('preferredQualifications', e.target.value)} rows={3} placeholder="Nice-to-have qualifications..." className="text-sm" />
+            <Textarea value={form.preferredQualifications} onChange={e => update('preferredQualifications', e.target.value)} rows={3} placeholder="Nice-to-have qualifications..." className="text-sm resize-none" />
           </Field>
         </section>
 
@@ -267,15 +268,15 @@ export default function JobEditor() {
         <section className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5 space-y-4">
           <h2 className="text-sm font-semibold text-navy border-b border-[#f1f5f9] pb-3">Internal Notes</h2>
           <Field label="Notes (not visible to applicants)" hint="Budget notes, hiring context, sourcing strategy, etc.">
-            <Textarea value={form.internalNotes} onChange={e => update('internalNotes', e.target.value)} rows={3} className="text-sm" />
+            <Textarea value={form.internalNotes} onChange={e => update('internalNotes', e.target.value)} rows={3} className="text-sm resize-none" />
           </Field>
         </section>
 
         {/* Actions */}
         {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">{error}</div>}
         <div className="flex flex-col-reverse items-stretch justify-between gap-3 pt-2 sm:flex-row sm:items-center">
-          <Link to="/admin/jobs">
-            <Button variant="outline" className="rounded-full px-5 h-9 text-sm">Cancel</Button>
+          <Link to="/admin/jobs" className={cn(buttonVariants({ variant: 'outline' }), 'rounded-full px-5 h-9 text-sm')}>
+            Cancel
           </Link>
           <div className="flex gap-2">
             <Button onClick={() => save()} disabled={saving} variant="outline" className="rounded-full px-5 h-9 text-sm">

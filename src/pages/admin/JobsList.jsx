@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { appClient } from '@/api/localClient';
 import { Link } from 'react-router-dom';
 import { Plus, Search, Eye, Pencil, Briefcase, RefreshCw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { ReqStatusBadge } from './Dashboard';
 
@@ -56,10 +57,8 @@ export default function JobsList() {
             <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Job Openings</h1>
             <p className="text-sm text-gray-500 mt-0.5">{reqs.length} total · {reqs.filter(r => r.status === 'published').length} published</p>
           </div>
-          <Link to="/admin/jobs/new">
-            <Button className="rounded-xl px-5 h-10 text-sm bg-[#A65F2A] hover:bg-[#8A4A22] text-white font-bold shadow-lg shadow-[#A65F2A]/20">
-              <Plus className="w-4 h-4 mr-1.5" /> New Opening
-            </Button>
+          <Link to="/admin/jobs/new" className={cn(buttonVariants(), 'rounded-xl px-5 h-10 text-sm bg-[#A65F2A] hover:bg-[#8A4A22] text-white font-bold shadow-lg shadow-[#A65F2A]/20')}>
+            <Plus className="w-4 h-4 mr-1.5" /> New Opening
           </Link>
         </div>
 

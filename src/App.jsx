@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -23,32 +24,25 @@ import AdminSettings from './pages/admin/AdminSettings';
 // Protects admin routes — only admin role can enter
 const AdminRoute = ({ children }) => {
   const { user, isAuthenticated, isLoadingAuth } = useAuth();
-  if (isLoadingAuth) return null;
-  if (!isAuthenticated || user?.role !== 'admin') {
-    appClient.auth.redirectToLogin('/');
-    return null;
-  }
-  return children;
-};
-
-const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
-  const isLegacyAdminDomain = typeof window !== 'undefined' && (window.location.hostname === 'admin.geolabs.net' || window.location.hostname.startsWith("admin."));
-
-  if (isLoadingPublicSettings || isLoadingAuth) {
+  const canAccess = isAuthenticated && user?.role === 'admin';
+  useEffect(() => {
+    if (!isLoadingAuth && !canAccess) appClient.auth.redirectToLogin('/');
+  }, [isLoadingAuth, canAccess]);
+  if (isLoadingAuth) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+      <div role="status" className="fixed inset-0 flex items-center justify-center">
+        <div aria-hidden="true" className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+        <span className="sr-only">Checking administrator access…</span>
       </div>
     );
   }
+  return canAccess ? children : null;
+};
 
-  if (authError) {
-    if (authError.type === 'auth_required') {
-      navigateToLogin();
-      return null;
-    }
-  }
+const AppRoutes = () => {
+  // Administrator session availability must never gate the public application.
+  // Only AdminRoute waits for authentication or initiates a login redirect.
+  const isLegacyAdminDomain = typeof window !== 'undefined' && (window.location.hostname === 'admin.geolabs.net' || window.location.hostname.startsWith("admin."));
 
   return (
     <Routes>
@@ -75,7 +69,7 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
-          <AuthenticatedApp />
+          <AppRoutes />
         </Router>
         <Toaster />
       </QueryClientProvider>
