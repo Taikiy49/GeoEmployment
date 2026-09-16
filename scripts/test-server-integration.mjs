@@ -208,6 +208,15 @@ try {
   await request('/api/admin/applications/http-valid', { method: 'DELETE', auth: true });
   await request('/api/admin/applications/http-valid/resume', { auth: true, status: 404 });
   await request('/assets/missing-test.js', { status: 404 });
+  const fontAssets = await readdir(new URL('../dist/assets/', import.meta.url));
+  for (const extension of ['woff', 'woff2']) {
+    const font = fontAssets.find(name => name.endsWith(`.${extension}`));
+    assert.ok(font, `The production build must contain its self-hosted ${extension} fonts.`);
+    const response = await request(`/assets/${font}`, { method: 'HEAD' });
+    assert.equal(response.headers.get('content-type'), `font/${extension}`);
+    assert.match(response.headers.get('cache-control'), /immutable/);
+    assert.ok(Number(response.headers.get('content-length')) > 0);
+  }
   await request('/api/admin/jobs/%FF', { auth: true, status: 400 });
   console.log(`Server HTTP integration passed: ${checks} requests covering auth, validation, duplicate submits, email routing, saved PDFs/resumes, failure recovery, drafts, and jobs. No external email or production data used.`);
 } finally {

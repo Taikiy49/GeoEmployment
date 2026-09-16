@@ -57,6 +57,8 @@ const contentTypes = {
   '.svg': 'image/svg+xml',
   '.txt': 'text/plain; charset=utf-8',
   '.webmanifest': 'application/manifest+json',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
   '.xml': 'application/xml; charset=utf-8',
 };
 

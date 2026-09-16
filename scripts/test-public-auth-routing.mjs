@@ -56,6 +56,9 @@ async function testCase(sessionMode, pathname, isAdmin = false) {
     if (isAdmin) {
       if (sessionMode === 'admin') {
         await page.getByRole('heading', { name: 'Job Openings', exact: true }).waitFor();
+        // The heading mounts before the data-fetch effect. Wait for its result,
+        // not a machine-speed-dependent request counter immediately on mount.
+        await page.getByRole('link', { name: job.title, exact: true }).waitFor();
         assert.ok(adminRequests > 0, 'An authorized admin can load the protected store.');
         assert.equal(loginRequests, 0);
       } else if (sessionMode === 'pending') {
