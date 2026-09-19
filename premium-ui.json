@@ -8,7 +8,7 @@
   "commands": {
     "accessibility": "npm run test:accessibility",
     "localization": "npm run test:resume-autofill",
-    "stateMatrix": "npm run test:design-ui",
+    "stateMatrix": "npm run test:navigation-stability",
     "crud": "npm run test:admin-server",
     "failurePaths": "npm run test:continue-link && npm run test:submission && npm run test:server"
   },

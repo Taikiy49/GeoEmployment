@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { appClient } from '@/api/localClient';
-import { ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import '@/styles/application-start.css';
+import {
+  ArrowRight, ArrowLeft, Clock, ChevronDown, ChevronUp,
+  MapPin, Briefcase, Check, ShieldCheck
+} from 'lucide-react';
 
 const EMP_LABELS = {
   full_time: 'Full-time',
@@ -12,199 +13,255 @@ const EMP_LABELS = {
   internship: 'Internship',
 };
 
-function JobMetadata({ job }) {
+function CollapsibleCard({ title, children }) {
+  const [open, setOpen] = useState(false);
   return (
-    <span className="application-start__job-meta">
-      {job.department && <span>{job.department}</span>}
-      {job.office && <span>{job.office}</span>}
-      {job.employmentType && <span>{EMP_LABELS[job.employmentType] || job.employmentType}</span>}
-      {job.salaryMin && job.salaryMax && (
-        <span>${Number(job.salaryMin).toLocaleString('en-US')}–${Number(job.salaryMax).toLocaleString('en-US')}/yr</span>
+    <div className="border-b border-slate-200 last:border-b-0">
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between gap-4 py-3.5 text-left hover:text-[#8A4A22] transition-colors"
+      >
+        <span className="text-[11px] font-bold text-slate-600 uppercase tracking-[0.12em]">{title}</span>
+        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="pb-4 pr-8 text-xs text-slate-500 leading-relaxed">
+          {children}
+        </div>
       )}
-    </span>
+    </div>
   );
 }
 
-function JobPanel({ job, selected = false }) {
-  // A date-only deadline should not move to the previous day in Hawaii.
-  const deadline = job.applicationDeadline
-    ? new Date(`${String(job.applicationDeadline).slice(0, 10)}T12:00:00`)
-    : null;
+function JobPanel({ job }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <AccordionItem value={String(job.id || 'selected-position')} className="application-start__disclosure">
-      <AccordionTrigger className="application-start__trigger">
-        <span className="application-start__job-heading">
-          <span>{selected ? 'Position details' : job.title}</span>
-          {!selected && <JobMetadata job={job} />}
+    <div className={`border rounded-xl overflow-hidden transition-all ${open ? 'border-[#A65F2A]/40 shadow-sm' : 'border-gray-200'}`}>
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="w-full text-left px-3 py-3 flex items-start justify-between gap-4 hover:bg-gray-50 transition-colors"
+      >
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold text-gray-900">{job.title}</div>
+          <div className="flex flex-wrap items-center gap-2 mt-1.5">
+            {job.department && (
+              <span className="text-[11px] text-gray-500 flex items-center gap-1">
+                <Briefcase className="w-3 h-3" /> {job.department}
+              </span>
+            )}
+            {job.office && (
+              <span className="text-[11px] text-gray-500 flex items-center gap-1">
+                <MapPin className="w-3 h-3" /> {job.office}
+              </span>
+            )}
+            {job.employmentType && (
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#A65F2A]/10 text-[#8A4A22] border border-[#A65F2A]/20">
+                {EMP_LABELS[job.employmentType] || job.employmentType}
+              </span>
+            )}
+            {job.salaryMin && job.salaryMax && (
+              <span className="text-[10px] text-gray-400">
+                ${Number(job.salaryMin).toLocaleString()}–${Number(job.salaryMax).toLocaleString()}/yr
+              </span>
+            )}
+          </div>
+        </div>
+        <span className="mt-1 flex-shrink-0 text-gray-400">
+          {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </span>
-      </AccordionTrigger>
-      <AccordionContent className="application-start__disclosure-content">
-        <p className="application-start__company-details">
-          GEOLABS, INC. · Geotechnical Engineering and Drilling Services<br />
-          94-429 Koaki Street, Suite 200 · Waipahu, Hawaii 96797<br />
-          Telephone: (808) 841-5064 · hawaii@geolabs.net · Hawaii · California
-        </p>
-        {job.description && <p className="application-start__job-copy">{job.description}</p>}
-        {job.requiredQualifications && (
-          <div>
-            <h4>Requirements</h4>
-            <p className="application-start__job-copy">{job.requiredQualifications}</p>
-          </div>
-        )}
-        {job.preferredQualifications && (
-          <div>
-            <h4>Preferred Qualifications</h4>
-            <p className="application-start__job-copy">{job.preferredQualifications}</p>
-          </div>
-        )}
-        {deadline && !Number.isNaN(deadline.getTime()) && (
-          <p className="application-start__deadline">
-            Application deadline: {deadline.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+      </button>
+
+      {open && (
+        <div className="px-3 pb-5 border-t border-gray-100 bg-white space-y-3 pt-4">
+          <p className="text-[11px] text-gray-400">
+            GEOLABS, INC. · Geotechnical Engineering and Drilling Services<br />
+            94-429 Koaki Street, Suite 200 · Waipahu, Hawaii 96797<br />
+            Telephone: (808) 841-5064 · hawaii@geolabs.net · Hawaii · California
           </p>
-        )}
-        <p className="application-start__legal">
-          EQUAL OPPORTUNITY EMPLOYER: All qualified applicants and employees are treated fairly and without regard to race, color, religion, sex, or national origin, or other protected characteristics, in accordance with Title VII of the Civil Rights Act of 1964 and other applicable state and federal employment laws.
-        </p>
-      </AccordionContent>
-    </AccordionItem>
+
+          {job.description && (
+            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{job.description}</p>
+          )}
+
+          {job.requiredQualifications && (
+            <div>
+              <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Requirements</h4>
+              <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{job.requiredQualifications}</p>
+            </div>
+          )}
+
+          {job.preferredQualifications && (
+            <div>
+              <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Preferred Qualifications</h4>
+              <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{job.preferredQualifications}</p>
+            </div>
+          )}
+
+          {job.applicationDeadline && (
+            <p className="text-[11px] text-gray-400 flex items-center gap-1.5">
+              <Clock className="w-3 h-3" /> Application deadline: {new Date(job.applicationDeadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </p>
+          )}
+
+          <p className="text-[10px] text-gray-400 italic pt-1 border-t border-gray-100">
+            EQUAL OPPORTUNITY EMPLOYER: All qualified applicants and employees are treated fairly and without regard to race, color, religion, sex, or national origin, or other protected characteristics, in accordance with Title VII of the Civil Rights Act of 1964 and other applicable state and federal employment laws.
+          </p>
+        </div>
+      )}
+    </div>
   );
 }
 
 export default function StartStep({ onNext, requisition }) {
   const [jobs, setJobs] = useState([]);
-  const [loadingJobs, setLoadingJobs] = useState(!requisition);
-  const [jobsError, setJobsError] = useState('');
-  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [loadingJobs, setLoadingJobs] = useState(true);
 
   useEffect(() => {
-    if (requisition) {
+    // Only load the job board list when there's no specific requisition
+    if (!requisition) {
+      appClient.entities.JobRequisition.filter({ status: 'published' }, '-publishedDate', 50)
+        .then(j => { setJobs(j); setLoadingJobs(false); });
+    } else {
       setLoadingJobs(false);
-      setJobsError('');
-      return;
     }
-    let active = true;
-    setLoadingJobs(true);
-    setJobsError('');
-    const timeout = setTimeout(() => {
-      if (!active) return;
-      active = false;
-      setLoadingJobs(false);
-      setJobsError('The list of openings is taking longer than expected. Try again, or begin a general application.');
-    }, 15000);
-    appClient.entities.JobRequisition.filter({ status: 'published' }, '-publishedDate', 50)
-      .then(results => {
-        if (!active) return;
-        setJobs(Array.isArray(results) ? results : []);
-        setLoadingJobs(false);
-      })
-      .catch(() => {
-        if (!active) return;
-        setJobsError('We could not load the current openings. Try again, or begin a general application.');
-        setLoadingJobs(false);
-      })
-      .finally(() => clearTimeout(timeout));
-    return () => {
-      active = false;
-      clearTimeout(timeout);
-    };
-  }, [requisition, loadAttempt]);
+  }, [requisition]);
 
   return (
-    <div className="application-start">
-      <div className="application-start__intro-grid">
-        <section aria-labelledby="application-welcome-title">
-          <p className="portal-eyebrow">{requisition ? 'Employment application' : 'General employment application'}</p>
-          <h1 id="application-welcome-title" className="application-start__title">{requisition?.title || 'General Application'}</h1>
-          {requisition && <JobMetadata job={requisition} />}
-          <p className="application-start__intro">
-            {requisition
-              ? 'Take the next step toward joining our employee-owned geotechnical engineering and drilling team.'
-              : 'Interested in joining Geolabs, Inc. but do not see the right opening? Tell us about your experience and our HR team will consider where you may fit.'}
-          </p>
-          <div className="application-start__actions">
-            <button type="button" onClick={onNext} className="portal-button portal-button--primary">
-              {requisition ? 'Begin Application' : 'Begin General Application'}
-              <ArrowRight size={18} aria-hidden="true" />
-            </button>
-            {requisition && (
-              <a href="/" className="portal-button portal-button--secondary">
-                <ArrowLeft size={18} aria-hidden="true" /> Back to Jobs
-              </a>
-            )}
+    <div className="max-w-5xl mx-auto py-2 sm:py-4">
+      <div className="mb-8 border-b border-slate-200 pb-7">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A65F2A]">
+          {requisition ? 'Employment application' : 'General employment application'}
+        </p>
+        <h2 className="mt-2 text-2xl sm:text-3xl font-bold tracking-[-0.025em] text-slate-950">
+          {requisition?.title || 'General Application'}
+        </h2>
+        <p className="mt-3 max-w-3xl text-sm sm:text-base leading-relaxed text-slate-600">
+          {requisition
+            ? 'Take the next step toward joining our employee-owned geotechnical engineering and drilling team.'
+            : 'Interested in joining Geolabs, Inc. but do not see the right opening? Tell us about your experience and our HR team will consider where you may fit.'}
+        </p>
+        {requisition && (
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-slate-500">
+            {requisition.department && <span className="flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5 text-[#A65F2A]" />{requisition.department}</span>}
+            {requisition.office && <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-[#A65F2A]" />{requisition.office}</span>}
+            {requisition.employmentType && <span>{EMP_LABELS[requisition.employmentType] || requisition.employmentType}</span>}
           </div>
-          <p className="application-start__time-note">Allow about 15–20 minutes. You can save your progress and return later.</p>
-        </section>
-        <aside className="application-start__preparation" aria-labelledby="application-preparation-title">
-          <h3 id="application-preparation-title">Before you begin</h3>
-          <ul className="application-start__checklist">
-            <li>Have your work and education history ready.</li>
-            <li>Gather contact details for your professional references.</li>
-            <li>You can attach a résumé to help fill in your application. PDF, DOC, DOCX or TXT; 2 MB or smaller.</li>
-          </ul>
-          <p className="application-start__save-note">Progress saves in this browser. During the application, you can request a private email link to continue on another device.</p>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(16rem,0.8fr)] gap-6 items-start">
+        {/* LEFT: CTA + Job listings */}
+        <div className="space-y-6">
+
+          {/* Hero CTA */}
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-white to-[#F8F0E9]/70 p-6 sm:p-8 shadow-sm">
+            <div className="absolute -right-16 -top-20 h-52 w-52 rounded-full bg-[#A65F2A]/10 blur-3xl" />
+            <div className="relative">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A65F2A]">Why Geolabs, Inc.</p>
+            <h3 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Own a stake in the work you help build.</h3>
+            <p className="mt-3 max-w-xl text-sm text-slate-600 leading-relaxed">
+              Work alongside experienced engineers and field teams on infrastructure that matters, with the long-term benefits of employee ownership.
+            </p>
+            <ul className="mt-5 grid gap-2 sm:grid-cols-2">
+              {['Hands-on field and lab experience', 'Opportunities to work with professional engineers', 'Competitive benefits and ESOP participation'].map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs text-slate-700">
+                  <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#A65F2A]" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-7 flex flex-col sm:flex-row sm:items-center gap-3">
+                {requisition && (
+                  <a
+                    href="/"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 bg-white hover:bg-slate-50 text-slate-600 text-sm font-semibold rounded-xl transition-all"
+                  >
+                    <ArrowLeft className="w-4 h-4" /> Back to Jobs
+                  </a>
+                )}
+                <button
+                 onClick={onNext}
+                 className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#A65F2A] hover:bg-[#8A4A22] text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-black/15"
+                >
+                  {requisition ? 'Begin Application' : 'Begin General Application'}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+            </div>
+            </div>
+          </div>
+
+          {/* Current Openings */}
+          {!requisition && (
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-800">Current Openings</h3>
+                <p className="text-xs text-gray-400 mt-0.5">Expand each position to review responsibilities and requirements.</p>
+              </div>
+              {loadingJobs ? (
+                <div className="space-y-2">
+                  {[1, 2, 3].map(i => <div key={i} className="h-14 bg-gray-100 rounded-xl animate-pulse" />)}
+                </div>
+              ) : jobs.length === 0 ? (
+                <div className="border border-gray-200 rounded-xl p-4 text-center text-sm text-gray-400">
+                  No open positions at this time. Check back soon.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {jobs.map(job => <JobPanel key={job.id} job={job} />)}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT: supporting details */}
+        <aside className="space-y-5 lg:sticky lg:top-6">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div className="flex items-center gap-2 text-slate-900">
+              <Clock className="h-4 w-4 text-[#A65F2A]" />
+              <h3 className="text-sm font-semibold">Before you begin</h3>
+            </div>
+            <dl className="mt-4 space-y-3 text-xs">
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Estimated time</dt><dd className="font-semibold text-slate-800">15–20 minutes</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Progress</dt><dd className="font-semibold text-slate-800">Saved automatically</dd></div>
+              <div className="flex justify-between gap-4"><dt className="text-slate-500">Privacy</dt><dd className="font-semibold text-slate-800">Confidential</dd></div>
+            </dl>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">Benefits include</h3>
+            <ul className="mt-3 space-y-2">
+              {[
+                'Employee Stock Ownership Plan',
+                'Medical, dental, drug and vision',
+                'Paid time off and holidays',
+                '401(k), life insurance and FSA',
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-2 text-xs text-slate-600">
+                  <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#A65F2A]" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white px-5">
+            <div className="flex items-center gap-2 pt-4 text-slate-500">
+              <ShieldCheck className="h-4 w-4 text-[#A65F2A]" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em]">Applicant information</span>
+            </div>
+            <CollapsibleCard title="Equal employment opportunity">
+              Geolabs, Inc. provides equal employment opportunities without regard to any status protected by applicable federal, state, and local laws.
+            </CollapsibleCard>
+            <CollapsibleCard title="Accessibility & accommodations">
+              Reasonable accommodations are available to qualified applicants. Contact the HR Department if assistance is needed during the application process.
+            </CollapsibleCard>
+          </div>
         </aside>
       </div>
-
-      <div className="application-start__details-grid">
-        <section aria-labelledby="application-openings-title">
-          <h3 id="application-openings-title">{requisition ? 'About this position' : 'Current Openings'}</h3>
-          <p className="application-start__section-intro">
-            {requisition ? 'Review the responsibilities and qualifications before you begin.' : 'Expand each position to review responsibilities and requirements.'}
-          </p>
-          {requisition ? (
-            <Accordion type="multiple" className="application-start__disclosures"><JobPanel job={requisition} selected /></Accordion>
-          ) : loadingJobs ? (
-            <div className="application-start__load-state" role="status">
-              <Loader2 size={18} className="application-start__loading-icon" aria-hidden="true" /> Loading current openings…
-            </div>
-          ) : jobsError ? (
-            <div className="application-start__load-state application-start__load-state--error">
-              <p role="alert">{jobsError}</p>
-              <button type="button" className="portal-button portal-button--secondary" onClick={() => setLoadAttempt(attempt => attempt + 1)}>Retry openings</button>
-            </div>
-          ) : jobs.length === 0 ? (
-            <p className="application-start__load-state" role="status">No open positions at this time. You can still begin a general application.</p>
-          ) : (
-            <Accordion type="multiple" className="application-start__disclosures">{jobs.map(job => <JobPanel key={job.id} job={job} />)}</Accordion>
-          )}
-        </section>
-        <section className="application-start__company" aria-labelledby="application-company-title">
-          <p className="portal-eyebrow">Why Geolabs, Inc.</p>
-          <h3 id="application-company-title">Own a stake in the work you help build.</h3>
-          <p className="application-start__section-intro">Work alongside experienced engineers and field teams on infrastructure that matters, with the long-term benefits of employee ownership.</p>
-          <ul className="application-start__benefits">
-            <li>Hands-on field and lab experience</li>
-            <li>Opportunities to work with professional engineers</li>
-            <li>Competitive benefits and ESOP participation</li>
-          </ul>
-          <h4>Benefits include</h4>
-          <ul className="application-start__benefits">
-            <li>Employee Stock Ownership Plan</li>
-            <li>Medical, dental, drug and vision</li>
-            <li>Paid time off and holidays</li>
-            <li>401(k), life insurance and FSA</li>
-          </ul>
-        </section>
-      </div>
-
-      <section className="application-start__applicant-information" aria-labelledby="application-information-title">
-        <h3 id="application-information-title">Applicant information</h3>
-        <Accordion type="multiple" className="application-start__disclosures">
-          <AccordionItem value="equal-opportunity" className="application-start__disclosure">
-            <AccordionTrigger className="application-start__trigger">Equal employment opportunity</AccordionTrigger>
-            <AccordionContent className="application-start__disclosure-content">
-              Geolabs, Inc. provides equal employment opportunities without regard to any status protected by applicable federal, state, and local laws.
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="accessibility" className="application-start__disclosure">
-            <AccordionTrigger className="application-start__trigger">Accessibility &amp; accommodations</AccordionTrigger>
-            <AccordionContent className="application-start__disclosure-content">
-              Reasonable accommodations are available to qualified applicants. Contact the HR Department if assistance is needed during the application process.
-              <a href="mailto:employment@geolabs.net" className="application-start__contact-link">employment@geolabs.net</a>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </section>
     </div>
   );
 }

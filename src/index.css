@@ -125,11 +125,15 @@
     width: 100%;
     min-width: 0;
     max-width: 100%;
-    overflow-x: clip;
+    overflow-x: clip !important;
     overflow-y: auto;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     word-break: break-word;
+  }
+
+  textarea::-webkit-scrollbar:horizontal {
+    height: 0;
   }
 
   ::selection {

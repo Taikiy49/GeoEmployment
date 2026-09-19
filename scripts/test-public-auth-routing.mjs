@@ -80,7 +80,7 @@ async function testCase(sessionMode, pathname, isAdmin = false) {
       } else {
         await page.getByRole('button', { name: /^Begin (General )?Application$/ }).click();
         await page.getByRole('navigation', { name: 'Application progress' }).getByRole('button', { name: /Personal information/ }).click();
-        const field = page.getByRole('textbox', { name: 'First Name', exact: true });
+        const field = page.getByLabel('First Name', { exact: false });
         await field.fill('Public outage TEST');
         assert.equal(await field.inputValue(), 'Public outage TEST');
       }

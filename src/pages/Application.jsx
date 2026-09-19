@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import { appClient } from '@/api/localClient';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { CheckCircle2, ExternalLink, Cloud, Loader2, Mail, RotateCcw, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Header from '../components/app/Header';
@@ -29,11 +29,6 @@ import EEOStep from '../components/steps/EEOStep';
 import VeteranStep from '../components/steps/VeteranStep';
 import AlcoholDrugStep from '../components/steps/AlcoholDrugStep';
 import ReviewStep from '../components/steps/ReviewStep';
-
-function scrollToApplicationTop() {
-  const instant = window.matchMedia('(prefers-reduced-motion: reduce), (max-width: 639px)').matches;
-  window.scrollTo({ top: 0, behavior: instant ? 'instant' : 'smooth' });
-}
 
 const SAVE_DEBOUNCE_MS = 2500;
 const FLOW_VERSION = 'simple-v3';
@@ -505,7 +500,6 @@ export default function Application() {
 
   const goToStep = useCallback((step) => {
     setCurrentStep(step);
-    scrollToApplicationTop();
   }, []);
 
   const goNext = useCallback(() => {
@@ -614,7 +608,6 @@ export default function Application() {
   const submissionIssues = getSubmissionIssues(formData, REQUIRED_FIELDS);
   const setActiveTask = taskIndex => {
     setActiveTasks(previous => ({ ...previous, [currentStep]: taskIndex }));
-    scrollToApplicationTop();
   };
 
   const renderStep = () => {
@@ -656,29 +649,74 @@ export default function Application() {
 
   if (submitted) {
     return (
-      <div className="portal-theme portal-application">
+      <div className="min-h-screen bg-slate-50">
         <Header />
-        <main id="main-content" tabIndex={-1} className="portal-confirmation">
-          <div className="portal-confirmation__surface">
-            <CheckCircle2 aria-hidden="true" size={36} className="portal-confirmation__check" />
-            <p className="portal-eyebrow">Application received</p>
-            <h1>Thank you, {formData.firstName}.</h1>
-            <p className="portal-confirmation__intro">
-              Your application for <strong>{requisition?.title || formData.positionAppliedFor || 'this position'}</strong> has been received. Our HR team will review your information and contact you if your experience matches the role.
-            </p>
-            <div className="portal-confirmation__record">
-              <h2>Confirmation details</h2>
-              <p>
+        <main id="main-content" tabIndex={-1} className="max-w-2xl mx-auto px-2 py-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-900/5 p-4 sm:p-5"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.5, type: 'spring', stiffness: 100 }}
+              className="w-20 h-20 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto mb-6"
+            >
+              <CheckCircle2 aria-hidden="true" className="w-10 h-10 text-green-600" />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3, duration: 0.4 }}
+              className="inline-flex items-center gap-2 bg-[#A65F2A]/10 border border-[#A65F2A]/20 rounded-lg px-4 py-1.5 mb-4"
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-[#A65F2A]" />
+              <span className="text-xs font-bold text-[#8A4A22] tracking-widest uppercase">Application Received</span>
+            </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.4 }}
+              className="text-3xl font-bold text-gray-900 mb-3 tracking-tight"
+            >
+              You're in the pipeline!
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.4 }}
+              className="text-sm text-gray-600 leading-relaxed mb-6"
+            >
+              Thank you, <strong className="text-gray-900">{formData.firstName}</strong>. Your application for <strong className="text-[#A65F2A]">{requisition?.title || formData.positionAppliedFor || 'this position'}</strong> has been received and our team will review it shortly.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
+              className="bg-gray-50 rounded-xl border border-gray-200 p-4 mb-8 text-left"
+            >
+              <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Confirmation details</div>
+              <div className="text-xs text-gray-600">
                 {confirmationSent ? 'Confirmation sent to:' : 'Applicant email:'}{' '}
-                <strong>{formData.email}</strong>
-              </p>
-              <p>Application ID: <code>{submittedId}</code></p>
-            </div>
-            <a href="/#open-roles" className="portal-button portal-button--primary">
-              View All Open Positions <ExternalLink aria-hidden="true" size={16} />
-            </a>
-            <p className="portal-confirmation__help">Questions? <a href="mailto:employment@geolabs.net">Contact our HR team</a>.</p>
-          </div>
+                <strong className="text-gray-900">{formData.email}</strong>
+              </div>
+              <div className="text-xs text-gray-500 mt-1">Application ID: <code className="font-mono text-[#A65F2A] text-[11px]">{submittedId}</code></div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.4 }}
+            >
+              <Link
+                to="/#open-roles"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold bg-[#A65F2A] hover:bg-[#8A4A22] text-white transition-colors"
+              >
+                <ExternalLink aria-hidden="true" className="w-4 h-4" /> View All Open Positions
+              </Link>
+            </motion.div>
+          </motion.div>
         </main>
         <AppFooter />
       </div>
@@ -686,11 +724,11 @@ export default function Application() {
   }
 
   return (
-    <div className="portal-theme portal-application">
+    <div className="min-h-screen bg-slate-50">
       <div ref={applicationSurfaceRef}>
       <Header />
-      <main id="main-content" tabIndex={-1} className="portal-application__main">
-        <div className="portal-application__container">
+      <main id="main-content" tabIndex={-1} className="w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-6xl mx-auto space-y-5">
 
           {/* Draft restored banner */}
           {draftRestored && (
@@ -701,9 +739,9 @@ export default function Application() {
               transition={{ duration: 0.3 }}
               className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg px-5 py-3"
             >
-              <div>
+              <motion.div animate={{ rotate: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
                 <RotateCcw aria-hidden="true" className="w-4 h-4 text-blue-600 flex-shrink-0" />
-              </div>
+              </motion.div>
               <p className="text-xs text-blue-700 flex-1">
                 <strong>Your progress has been restored.</strong> Pick up right where you left off.
               </p>
@@ -711,24 +749,52 @@ export default function Application() {
             </motion.div>
           )}
 
-          {currentStep > 0 && (
-            <div className="portal-application__context">
-              <div>
-                <p className="portal-eyebrow">Employment application</p>
-                <h1>{requisition?.title || 'General Application'}</h1>
-                {requisition && <p className="portal-application__location">{requisition.department} · {requisition.office || 'Geolabs, Inc.'}</p>}
+          {/* Job context banner */}
+          {requisition && currentStep > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-center gap-3 bg-white rounded-lg border border-gray-200 px-5 py-3 shadow-sm"
+            >
+              <div className="flex-1">
+                <div className="text-xs font-bold text-gray-900">{requisition.title}</div>
+                <div className="text-[11px] text-gray-600">{requisition.department} · {requisition.office || 'Geolabs, Inc.'}</div>
               </div>
-              <div className="portal-application__save">
-                <div role="status" aria-live="polite" aria-atomic="true" className="portal-save-status">
-                  {saveStatus === 'saving'
-                    ? <><Loader2 aria-hidden="true" size={14} className="animate-spin" /> Saving progress…</>
-                    : <><Cloud aria-hidden="true" size={14} /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</>}
+              {/* Auto-save indicator */}
+              {currentStep > 0 && (
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <motion.div role="status" aria-live="polite" aria-atomic="true" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                    {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving securely…</>}
+                    {saveStatus === 'saved' && <motion.div className="flex items-center gap-1.5" animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</motion.div>}
+                    {saveStatus === 'idle' && <><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</>}
+                  </motion.div>
+                  <button type="button" onClick={() => { setResumeLinkEmail(formData.email || ''); setResumeLinkError(''); setResumeLinkStatus('idle'); setResumeLinkOpen(true); }} className="inline-flex items-center gap-1.5 rounded-lg border border-[#A65F2A]/25 bg-[#F8F0E9] px-2.5 py-1.5 text-[10px] font-bold text-[#8A4A22] hover:bg-[#A65F2A]/10">
+                    <Mail aria-hidden="true" className="h-3 w-3" /> Continue on another device
+                  </button>
                 </div>
-                <button type="button" onClick={() => { setResumeLinkEmail(formData.email || ''); setResumeLinkError(''); setResumeLinkStatus('idle'); setResumeLinkOpen(true); }} className="portal-button portal-button--secondary">
-                  <Mail aria-hidden="true" size={15} /> Continue on another device
+              )}
+            </motion.div>
+          )}
+
+          {/* Auto-save indicator when no requisition banner */}
+          {!requisition && currentStep > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex justify-end"
+            >
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <div role="status" aria-live="polite" aria-atomic="true" className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                  {saveStatus === 'saving' && <><Loader2 className="w-3 h-3 animate-spin" /> Saving securely…</>}
+                  {saveStatus === 'saved' && <motion.div className="flex items-center gap-1.5" animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</motion.div>}
+                  {saveStatus === 'idle' && <><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</>}
+                </div>
+                <button type="button" onClick={() => { setResumeLinkEmail(formData.email || ''); setResumeLinkError(''); setResumeLinkStatus('idle'); setResumeLinkOpen(true); }} className="inline-flex items-center gap-1.5 rounded-lg border border-[#A65F2A]/25 bg-[#F8F0E9] px-2.5 py-1.5 text-[10px] font-bold text-[#8A4A22] hover:bg-[#A65F2A]/10">
+                  <Mail aria-hidden="true" className="h-3 w-3" /> Continue on another device
                 </button>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {fixingFromReview && currentStep !== FINAL_REVIEW_STEP && (
@@ -747,9 +813,16 @@ export default function Application() {
             </div>
           )}
 
-          <div className={currentStep > 0 ? 'portal-application__workspace' : 'portal-application__welcome'}>
+          <AccessibilityToolbar targetSelector="#application-step-content" contentKey={`${currentStep}-${activeTask}`} />
+
+          <div className="rounded-2xl border border-slate-200 shadow-xl shadow-slate-900/5 overflow-hidden bg-white">
             {currentStep > 0 && (
-              <aside className="portal-application__rail">
+              <motion.div
+                className="px-4 sm:px-6 pt-5 pb-4 border-b border-slate-200 bg-slate-50/90"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
                 <Stepper
                   currentStep={currentStep}
                   completedSteps={completedSteps}
@@ -758,17 +831,12 @@ export default function Application() {
                   onTaskClick={setActiveTask}
                   reviewHasBlockers={submissionIssues.length > 0}
                 />
-                <p className="portal-application__help">Need a hand?<br /><a href="mailto:employment@geolabs.net">Contact our HR team</a></p>
-              </aside>
+              </motion.div>
             )}
-            <div className="portal-application__panel">
-              {currentStep > 0 && <AccessibilityToolbar targetSelector="#application-step-content" contentKey={`${currentStep}-${activeTask}`} />}
-              <div className="portal-application__form">
+            <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
               <StepShell stepKey={`${currentStep}-${activeTask}`}>
                 {renderStep()}
               </StepShell>
-              </div>
-              {currentStep === 0 && <AccessibilityToolbar targetSelector="#application-step-content" contentKey={`${currentStep}-${activeTask}`} />}
             </div>
           </div>
         </div>
@@ -776,8 +844,8 @@ export default function Application() {
       <AppFooter />
       </div>
       {resumeLinkOpen && (
-        <div className="portal-dialog-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) setResumeLinkOpen(false); }}>
-          <div ref={resumeDialogRef} role="dialog" aria-modal="true" aria-labelledby="continue-link-title" aria-describedby={resumeLinkStatus === 'sent' ? undefined : 'continue-link-description'} className="portal-dialog">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm" onMouseDown={event => { if (event.target === event.currentTarget) setResumeLinkOpen(false); }}>
+          <div ref={resumeDialogRef} role="dialog" aria-modal="true" aria-labelledby="continue-link-title" className="w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#8A4A22]">Save and continue later</p>
@@ -795,11 +863,11 @@ export default function Application() {
               </div>
             ) : (
               <>
-                <p id="continue-link-description" className="mt-3 text-sm leading-relaxed text-slate-600">We’ll securely save your current progress and email a private link that expires in 30 days. Do not forward the email—anyone with the link can access your saved application.</p>
+                <p className="mt-3 text-xs leading-relaxed text-slate-600">We’ll securely save your current progress and email a private link that expires in 30 days. Do not forward the email—anyone with the link can access your saved application.</p>
                 <label htmlFor="continue-email" className="mt-5 block text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700">Email address</label>
-                <input id="continue-email" type="email" value={resumeLinkEmail} onChange={event => setResumeLinkEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" aria-invalid={Boolean(resumeLinkError)} aria-describedby={resumeLinkError ? 'continue-email-error' : undefined} className="portal-field__control mt-2" />
-                {resumeLinkError && <p id="continue-email-error" role="alert" className="mt-2 text-sm font-semibold text-red-700">{resumeLinkError}</p>}
-                <button type="button" onClick={emailContinueLink} disabled={resumeLinkStatus === 'sending'} aria-busy={resumeLinkStatus === 'sending'} className="portal-button portal-button--primary mt-5 w-full">
+                <input id="continue-email" type="email" value={resumeLinkEmail} onChange={event => setResumeLinkEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" className="mt-2 h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-950 focus:border-[#A65F2A] focus:ring-[#A65F2A]/25" />
+                {resumeLinkError && <p role="alert" className="mt-2 text-xs font-semibold text-red-700">{resumeLinkError}</p>}
+                <button type="button" onClick={emailContinueLink} disabled={resumeLinkStatus === 'sending'} className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#A65F2A] px-4 text-sm font-bold text-white shadow-lg shadow-black/10 hover:bg-[#8A4A22] disabled:cursor-wait disabled:opacity-60">
                   {resumeLinkStatus === 'sending' ? <><Loader2 className="h-4 w-4 animate-spin" /> Sending private link…</> : <><Mail className="h-4 w-4" /> Email my link</>}
                 </button>
               </>

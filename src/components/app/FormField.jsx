@@ -17,6 +17,7 @@ export default function FormField({
   const generatedId = useId();
   const id = `field-${generatedId.replace(/:/g, '')}`;
   const hintId = hint ? `${id}-hint` : undefined;
+
   const textareaRef = useRef(null);
   useLayoutEffect(() => {
     const field = textareaRef.current;
@@ -37,25 +38,25 @@ export default function FormField({
     return () => observer.disconnect();
   }, [value, rows, type]);
 
-  const inputClass = 'portal-field__control';
+  const inputClass = "w-full px-4 py-3 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A] transition-all disabled:opacity-50 disabled:cursor-not-allowed";
 
   return (
-    <div className={`portal-field min-w-0 max-w-full ${className}`}>
+    <div className={`min-w-0 max-w-full ${className}`}>
       {label && (
-        <label htmlFor={id} className="portal-field__label">
+        <label htmlFor={id} className="block text-[11px] font-bold text-gray-700 mb-2 uppercase tracking-widest">
           {label}
-          {required && <span className="portal-field__required" aria-hidden="true"> *</span>}
+          {required && <span className="text-[#A65F2A] ml-1">*</span>}
         </label>
       )}
 
       {type === 'select' ? (
         <Select value={value || ''} onValueChange={onChange} disabled={disabled}>
-          <SelectTrigger id={id} aria-label={label} aria-required={required || undefined} aria-describedby={hintId} className="portal-field__control portal-field__select">
+          <SelectTrigger id={id} aria-label={label} aria-required={required || undefined} aria-describedby={hintId} className="h-12 text-sm rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]">
             <SelectValue placeholder={placeholder || 'Select…'} />
           </SelectTrigger>
-          <SelectContent className="portal-select-popup">
+          <SelectContent className="bg-white border-gray-300 text-gray-900">
             {options?.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value} className="portal-select-option">
+              <SelectItem key={opt.value} value={opt.value} className="text-gray-900 hover:bg-gray-100 focus:bg-gray-100">
                 {opt.label}
               </SelectItem>
             ))}
@@ -73,7 +74,7 @@ export default function FormField({
           disabled={disabled}
           required={required}
           aria-describedby={hintId}
-          className={`${inputClass} resize-none`}
+          className={`${inputClass} block min-w-0 max-w-full box-border whitespace-pre-wrap break-words resize-none overflow-y-auto`}
         />
       ) : (
         <input
@@ -90,7 +91,7 @@ export default function FormField({
       )}
 
       {hint && (
-        <p id={hintId} className="portal-field__hint">{hint}</p>
+        <p id={hintId} className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">{hint}</p>
       )}
     </div>
   );

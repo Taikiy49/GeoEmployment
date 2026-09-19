@@ -17,7 +17,6 @@ export default function GroupedApplicationStep({
   const moveBack = () => {
     if (safeActiveTask > 0) {
       onTaskChange(safeActiveTask - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     onBack();
@@ -26,7 +25,6 @@ export default function GroupedApplicationStep({
   const moveNext = () => {
     if (safeActiveTask < tasks.length - 1) {
       onTaskChange(safeActiveTask + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     onNext();
