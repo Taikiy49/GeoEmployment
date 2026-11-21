@@ -14,8 +14,9 @@ if (process.env.SEND_EXAMPLE_APPLICATIONS !== '1') {
   throw new Error('Set SEND_EXAMPLE_APPLICATIONS=1 to send the three labeled test applications.');
 }
 
-const today = new Date().toISOString().slice(0, 10);
-const availableStartDate = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
+const hawaiiDate = date => new Intl.DateTimeFormat('en-CA', { timeZone: 'Pacific/Honolulu', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
+const today = hawaiiDate(new Date());
+const availableStartDate = hawaiiDate(new Date(Date.now() + 14 * 86400000));
 const applicantEmail = process.env.TEST_APPLICANT_EMAIL;
 if (!applicantEmail) {
   throw new Error('Set TEST_APPLICANT_EMAIL to the address that should receive the test confirmation.');

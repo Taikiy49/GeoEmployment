@@ -341,8 +341,9 @@ export async function buildApplicationDocx(application, options = {}) {
       ['Application ID', application.id],
       ['Position Applied For', position],
       ['Submission date and time', safeDate(application.submittedAt)],
-      ['Resume attached', data.resumeFileUrl || application.resumeFileUrl ? 'Yes' : 'No'],
-      ['Resume filename', data.resumeFileName || application.resumeFileUrl],
+      ['Resume attached', (application.resumeAttachment?.content && application.resumeAttachment?.filename)
+        || application.resumeStoredFilename || data.resumeFileUrl || application.resumeFileUrl ? 'Yes' : 'No'],
+      ['Resume filename', application.resumeAttachment?.filename || application.resumeFileName || data.resumeFileName || application.resumeFileUrl],
     ]),
   );
 

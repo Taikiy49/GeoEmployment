@@ -13,6 +13,8 @@ const application = {
   email: 'package-test@example.com',
   submittedAt: '2026-08-10T12:00:00-10:00',
   requisitionTitle: 'Engineering Technician or Trainee (Field)',
+  // Submitted records strip transient resumeFileUrl before generating PDFs.
+  resumeAttachment: { filename: 'Package-Test-Resume.pdf', content: Buffer.from('%PDF-1.4 synthetic resume fixture').toString('base64'), type: 'application/pdf' },
   applicationData: {
     firstName: 'Package', lastName: 'Test', email: 'package-test@example.com',
     applicationDate: '2026-08-10', positionAppliedFor: 'Engineering Technician or Trainee (Field)',
@@ -50,6 +52,8 @@ assert.match(mainText, /certain family court matters will not be considered/i);
 assert.match(mainText, /any specimen obtained by the physician/i);
 assert.match(mainText, /original documents establishing your identity and authorization to work/i);
 assert.match(mainText, /reference 1 of 1/i);
+assert.match(mainText, /resume attached\s+yes/i, 'A submitted résumé attachment must be reflected in the PDF summary.');
+assert.match(mainText, /package-test-resume\.pdf/i);
 assert.match(mainText, /do you know anyone presently working for our company/i);
 assert.ok(mainPageCount < 12, `The continuous layout should use fewer than the former 12 pages (received ${mainPageCount}).`);
 assert.match(mainText, new RegExp(`page ${mainPageCount} of ${mainPageCount}`, 'i'));
@@ -101,6 +105,7 @@ const longDutyBullets = Array.from({ length: 37 }, (_, index) =>
   `Responsibility ${String(index + 1).padStart(2, '0')}: Prepared and verified laboratory samples, documented results, and maintained equipment.`);
 const longApplication = {
   ...application,
+  resumeAttachment: undefined,
   applicationData: {
     ...application.applicationData,
     employment: [{
@@ -113,6 +118,7 @@ const longApplication = {
 };
 const longPdf = await convertDocxToPdf(await buildApplicationDocx(longApplication, { mainApplicationOnly: true }));
 const longText = (await extractPageTexts(longPdf)).join(' ');
+assert.match(longText, /resume attached\s+no/i, 'Applications without a résumé must not claim an attachment.');
 for (const bullet of longDutyBullets) assert.ok(longText.includes(bullet.toLowerCase()), `Lost duties bullet: ${bullet}`);
 assert.match(longText, /completed the documented project assignment/);
 assert.doesNotMatch(longText, /education 2/);
