@@ -38,20 +38,20 @@ export default function FormField({
     return () => observer.disconnect();
   }, [value, rows, type]);
 
-  const inputClass = "w-full px-4 py-3 text-sm rounded-xl border border-slate-300 bg-white text-slate-900 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A] transition-all disabled:opacity-50 disabled:cursor-not-allowed";
+  const inputClass = "w-full min-h-[52px] px-4 py-3 text-base rounded-lg border border-brand-line bg-white text-brand placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-focus focus:border-brand-focus transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
   return (
     <div className={`min-w-0 max-w-full ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-[11px] font-bold text-gray-700 mb-2 uppercase tracking-widest">
+        <label htmlFor={id} className="block text-sm font-semibold text-brand mb-2">
           {label}
-          {required && <span className="text-[#A65F2A] ml-1">*</span>}
+          {required && <span className="text-brand ml-1">*</span>}
         </label>
       )}
 
       {type === 'select' ? (
         <Select value={value || ''} onValueChange={onChange} disabled={disabled}>
-          <SelectTrigger id={id} aria-label={label} aria-required={required || undefined} aria-describedby={hintId} className="h-12 text-sm rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]">
+          <SelectTrigger id={id} aria-label={label} aria-required={required || undefined} aria-describedby={hintId} className="h-[52px] text-base rounded-lg border-brand-line bg-white text-brand focus:ring-2 focus:ring-brand-focus focus:border-brand-focus">
             <SelectValue placeholder={placeholder || 'Select…'} />
           </SelectTrigger>
           <SelectContent className="bg-white border-gray-300 text-gray-900">
@@ -91,7 +91,7 @@ export default function FormField({
       )}
 
       {hint && (
-        <p id={hintId} className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">{hint}</p>
+        <p id={hintId} className="text-xs text-brand-muted mt-2 leading-relaxed">{hint}</p>
       )}
     </div>
   );

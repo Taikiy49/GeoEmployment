@@ -670,10 +670,10 @@ export default function Application() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3, duration: 0.4 }}
-              className="inline-flex items-center gap-2 bg-[#A65F2A]/10 border border-[#A65F2A]/20 rounded-lg px-4 py-1.5 mb-4"
+              className="inline-flex items-center gap-2 bg-brand/10 border border-brand/20 rounded-lg px-4 py-1.5 mb-4"
             >
-              <div className="w-1.5 h-1.5 rounded-full bg-[#A65F2A]" />
-              <span className="text-xs font-bold text-[#8A4A22] tracking-widest uppercase">Application Received</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-brand" />
+              <span className="text-xs font-bold text-brand-hover tracking-widest uppercase">Application Received</span>
             </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 10 }}
@@ -689,7 +689,7 @@ export default function Application() {
               transition={{ delay: 0.4, duration: 0.4 }}
               className="text-sm text-gray-600 leading-relaxed mb-6"
             >
-              Thank you, <strong className="text-gray-900">{formData.firstName}</strong>. Your application for <strong className="text-[#A65F2A]">{requisition?.title || formData.positionAppliedFor || 'this position'}</strong> has been received and our team will review it shortly.
+              Thank you, <strong className="text-gray-900">{formData.firstName}</strong>. Your application for <strong className="text-brand">{requisition?.title || formData.positionAppliedFor || 'this position'}</strong> has been received and our team will review it shortly.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -702,7 +702,7 @@ export default function Application() {
                 {confirmationSent ? 'Confirmation sent to:' : 'Applicant email:'}{' '}
                 <strong className="text-gray-900">{formData.email}</strong>
               </div>
-              <div className="text-xs text-gray-500 mt-1">Application ID: <code className="font-mono text-[#A65F2A] text-[11px]">{submittedId}</code></div>
+              <div className="text-xs text-gray-500 mt-1">Application ID: <code className="font-mono text-brand text-[11px]">{submittedId}</code></div>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -711,7 +711,7 @@ export default function Application() {
             >
               <Link
                 to="/#open-roles"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold bg-[#A65F2A] hover:bg-[#8A4A22] text-white transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-bold bg-brand hover:bg-brand-hover text-white transition-colors"
               >
                 <ExternalLink aria-hidden="true" className="w-4 h-4" /> View All Open Positions
               </Link>
@@ -727,7 +727,7 @@ export default function Application() {
     <div className="min-h-screen bg-slate-50">
       <div ref={applicationSurfaceRef}>
       <Header />
-      <main id="main-content" tabIndex={-1} className="w-full px-4 sm:px-6 lg:px-8 py-6">
+      <main id="main-content" tabIndex={-1} className="brand-container py-8 sm:py-10">
         <div className="max-w-6xl mx-auto space-y-5">
 
           {/* Draft restored banner */}
@@ -769,7 +769,7 @@ export default function Application() {
                     {saveStatus === 'saved' && <motion.div className="flex items-center gap-1.5" animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</motion.div>}
                     {saveStatus === 'idle' && <><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</>}
                   </motion.div>
-                  <button type="button" onClick={() => { setResumeLinkEmail(formData.email || ''); setResumeLinkError(''); setResumeLinkStatus('idle'); setResumeLinkOpen(true); }} className="inline-flex items-center gap-1.5 rounded-lg border border-[#A65F2A]/25 bg-[#F8F0E9] px-2.5 py-1.5 text-[10px] font-bold text-[#8A4A22] hover:bg-[#A65F2A]/10">
+                  <button type="button" onClick={() => { setResumeLinkEmail(formData.email || ''); setResumeLinkError(''); setResumeLinkStatus('idle'); setResumeLinkOpen(true); }} className="inline-flex items-center gap-1.5 rounded-lg border border-brand/25 bg-brand-soft px-2.5 py-1.5 text-[10px] font-bold text-brand-hover hover:bg-brand/10">
                     <Mail aria-hidden="true" className="h-3 w-3" /> Continue on another device
                   </button>
                 </div>
@@ -790,7 +790,7 @@ export default function Application() {
                   {saveStatus === 'saved' && <motion.div className="flex items-center gap-1.5" animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 0.3 }}><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</motion.div>}
                   {saveStatus === 'idle' && <><Cloud className="w-3 h-3 text-green-600" /> {resumeToken ? 'Saved securely' : 'Saved on this device'}</>}
                 </div>
-                <button type="button" onClick={() => { setResumeLinkEmail(formData.email || ''); setResumeLinkError(''); setResumeLinkStatus('idle'); setResumeLinkOpen(true); }} className="inline-flex items-center gap-1.5 rounded-lg border border-[#A65F2A]/25 bg-[#F8F0E9] px-2.5 py-1.5 text-[10px] font-bold text-[#8A4A22] hover:bg-[#A65F2A]/10">
+                <button type="button" onClick={() => { setResumeLinkEmail(formData.email || ''); setResumeLinkError(''); setResumeLinkStatus('idle'); setResumeLinkOpen(true); }} className="inline-flex items-center gap-1.5 rounded-lg border border-brand/25 bg-brand-soft px-2.5 py-1.5 text-[10px] font-bold text-brand-hover hover:bg-brand/10">
                   <Mail aria-hidden="true" className="h-3 w-3" /> Continue on another device
                 </button>
               </div>
@@ -798,7 +798,7 @@ export default function Application() {
           )}
 
           {fixingFromReview && currentStep !== FINAL_REVIEW_STEP && (
-            <div className="flex flex-col gap-2 rounded-lg border border-[#A65F2A]/25 bg-[#F8F0E9] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2 rounded-lg border border-brand/25 bg-brand-soft px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs font-bold text-slate-900">Updating your application</p>
                 <p className="text-[11px] text-slate-600">Your progress is saved. Return to the final review whenever you’re ready.</p>
@@ -806,7 +806,7 @@ export default function Application() {
               <button
                 type="button"
                 onClick={returnToReview}
-                className="flex-shrink-0 rounded-lg bg-[#A65F2A] px-3 py-2 text-xs font-bold text-white hover:bg-[#8A4A22]"
+                className="flex-shrink-0 rounded-lg bg-brand px-3 py-2 text-xs font-bold text-white hover:bg-brand-hover"
               >
                 Return to final review
               </button>
@@ -833,7 +833,7 @@ export default function Application() {
                 />
               </motion.div>
             )}
-            <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <div className="px-5 sm:px-8 lg:px-10 py-8 sm:py-10">
               <StepShell stepKey={`${currentStep}-${activeTask}`}>
                 {renderStep()}
               </StepShell>
@@ -848,7 +848,7 @@ export default function Application() {
           <div ref={resumeDialogRef} role="dialog" aria-modal="true" aria-labelledby="continue-link-title" className="w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#8A4A22]">Save and continue later</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-hover">Save and continue later</p>
                 <h2 id="continue-link-title" className="mt-1 text-xl font-extrabold tracking-tight text-slate-950">Email me a private link</h2>
               </div>
               <button type="button" onClick={() => setResumeLinkOpen(false)} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Close"><X aria-hidden="true" className="h-4 w-4" /></button>
@@ -865,9 +865,9 @@ export default function Application() {
               <>
                 <p className="mt-3 text-xs leading-relaxed text-slate-600">We’ll securely save your current progress and email a private link that expires in 30 days. Do not forward the email—anyone with the link can access your saved application.</p>
                 <label htmlFor="continue-email" className="mt-5 block text-[11px] font-bold uppercase tracking-[0.1em] text-slate-700">Email address</label>
-                <input id="continue-email" type="email" value={resumeLinkEmail} onChange={event => setResumeLinkEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" className="mt-2 h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-950 focus:border-[#A65F2A] focus:ring-[#A65F2A]/25" />
+                <input id="continue-email" type="email" value={resumeLinkEmail} onChange={event => setResumeLinkEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" className="mt-2 h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-950 focus:border-brand focus:ring-brand/25" />
                 {resumeLinkError && <p role="alert" className="mt-2 text-xs font-semibold text-red-700">{resumeLinkError}</p>}
-                <button type="button" onClick={emailContinueLink} disabled={resumeLinkStatus === 'sending'} className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#A65F2A] px-4 text-sm font-bold text-white shadow-lg shadow-black/10 hover:bg-[#8A4A22] disabled:cursor-wait disabled:opacity-60">
+                <button type="button" onClick={emailContinueLink} disabled={resumeLinkStatus === 'sending'} className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-white shadow-lg shadow-black/10 hover:bg-brand-hover disabled:cursor-wait disabled:opacity-60">
                   {resumeLinkStatus === 'sending' ? <><Loader2 className="h-4 w-4 animate-spin" /> Sending private link…</> : <><Mail className="h-4 w-4" /> Email my link</>}
                 </button>
               </>

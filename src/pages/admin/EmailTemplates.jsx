@@ -83,7 +83,7 @@ export default function EmailTemplates() {
   const stageCustomCount = STAGE_KEYS.filter(k => stageTemplateMap[k]).length;
   const customCount = customTemplates.length;
 
-  const inputClass = "w-full px-4 py-2.5 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A] transition-all";
+  const inputClass = "w-full px-4 py-2.5 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand transition-[color,background-color,border-color,box-shadow,transform]";
 
   return (
     <AdminLayout>
@@ -93,7 +93,7 @@ export default function EmailTemplates() {
             <h1 className="text-2xl font-black text-gray-900 tracking-tight">Email Templates</h1>
             <p className="text-sm text-gray-500 mt-0.5">Customize emails candidates receive at each hiring stage</p>
           </div>
-          <Button onClick={() => { setActiveTab('custom'); openForm(); }} className="rounded-xl px-5 h-10 text-sm bg-[#A65F2A] hover:bg-[#8A4A22] text-white font-bold shadow-lg shadow-[#A65F2A]/20">
+          <Button onClick={() => { setActiveTab('custom'); openForm(); }} className="rounded-xl px-5 h-10 text-sm bg-brand hover:bg-brand-hover text-white font-bold shadow-lg shadow-brand/20">
             <Plus className="w-4 h-4 mr-1.5" /> New Template
           </Button>
         </div>
@@ -102,20 +102,20 @@ export default function EmailTemplates() {
         <div className="flex gap-1 bg-white border border-gray-200 p-1 rounded-xl w-fit">
           <button
             onClick={() => setActiveTab('stage')}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'stage' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-[color,background-color,border-color,box-shadow,transform] ${activeTab === 'stage' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
           >
             Stage Emails
-            <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded-full font-bold ${stageCustomCount > 0 ? 'bg-[#A65F2A]/10 text-[#8A4A22]' : 'bg-gray-100 text-gray-400'}`}>
+            <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded-full font-bold ${stageCustomCount > 0 ? 'bg-brand/10 text-brand-hover' : 'bg-gray-100 text-gray-400'}`}>
               {stageCustomCount}/{STAGE_KEYS.length}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('custom')}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'custom' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-[color,background-color,border-color,box-shadow,transform] ${activeTab === 'custom' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
           >
             Custom Templates
             {customCount > 0 && (
-              <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-[#A65F2A]/10 text-[#8A4A22]">{customCount}</span>
+              <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-brand/10 text-brand-hover">{customCount}</span>
             )}
           </button>
         </div>
@@ -136,22 +136,22 @@ export default function EmailTemplates() {
                   <div
                     key={stageKey}
                     onClick={() => openStageTemplate(stageKey)}
-                    className={`group flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
+                    className={`group flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-[color,background-color,border-color,box-shadow,transform] ${
                       tmpl
-                        ? 'bg-white border-gray-200 hover:border-[#A65F2A]/50 hover:shadow-sm'
-                        : 'bg-gray-50 border-dashed border-gray-200 hover:border-[#A65F2A]/40 hover:bg-white'
+                        ? 'bg-white border-gray-200 hover:border-brand/50 hover:shadow-sm'
+                        : 'bg-gray-50 border-dashed border-gray-200 hover:border-brand/40 hover:bg-white'
                     }`}
                   >
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${tmpl ? 'bg-[#A65F2A]/10 border border-[#A65F2A]/20' : 'bg-gray-200'}`}>
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${tmpl ? 'bg-brand/10 border border-brand/20' : 'bg-gray-200'}`}>
                       {tmpl
-                        ? <CheckCircle className="w-4 h-4 text-[#8A4A22]" />
+                        ? <CheckCircle className="w-4 h-4 text-brand-hover" />
                         : <Circle className="w-4 h-4 text-gray-400" />
                       }
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="text-xs font-bold text-gray-900">{STAGE_LABELS[stageKey]}</span>
-                        {tmpl && <span className="text-[10px] font-bold text-[#8A4A22]">Custom</span>}
+                        {tmpl && <span className="text-[10px] font-bold text-brand-hover">Custom</span>}
                       </div>
                       <p className="text-xs text-gray-500 truncate">
                         {tmpl ? tmpl.subject : <span className="italic text-gray-400">Using default template</span>}
@@ -161,12 +161,12 @@ export default function EmailTemplates() {
                       {tmpl && (
                         <button
                           onClick={(e) => handleDelete(tmpl.id, e)}
-                          className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all"
+                          className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-[color,background-color,border-color,box-shadow,transform]"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       )}
-                      <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#8A4A22] transition-colors" />
+                      <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-brand-hover transition-colors" />
                     </div>
                   </div>
                 );
@@ -180,7 +180,7 @@ export default function EmailTemplates() {
           <div className="space-y-3">
             {loading ? (
               <div className="flex items-center justify-center h-32">
-                <div className="w-6 h-6 border-2 border-[#1e2a3a] border-t-[#A65F2A] rounded-full animate-spin" />
+                <div className="w-6 h-6 border-2 border-brand-hover border-t-brand rounded-full animate-spin" />
               </div>
             ) : customTemplates.length === 0 ? (
               <div className="bg-white rounded-2xl border border-dashed border-gray-200 py-16 text-center">
@@ -189,16 +189,16 @@ export default function EmailTemplates() {
                 </div>
                 <p className="text-sm text-gray-500">No custom templates yet.</p>
                 <p className="text-xs text-gray-400 mt-1">Create templates for ad-hoc emails and follow-ups.</p>
-                <Button onClick={() => openForm()} className="mt-5 rounded-xl px-5 h-10 text-sm bg-[#A65F2A] hover:bg-[#8A4A22] text-white font-bold">
+                <Button onClick={() => openForm()} className="mt-5 rounded-xl px-5 h-10 text-sm bg-brand hover:bg-brand-hover text-white font-bold">
                   <Plus className="w-4 h-4 mr-1.5" /> Create Template
                 </Button>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-3">
                 {customTemplates.map(t => (
-                  <div key={t.id} className="group bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-3 hover:border-[#A65F2A]/40 hover:shadow-sm transition-all">
-                    <div className="w-9 h-9 rounded-xl bg-[#A65F2A]/10 border border-[#A65F2A]/20 flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-4 h-4 text-[#8A4A22]" />
+                  <div key={t.id} className="group bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-3 hover:border-brand/40 hover:shadow-sm transition-[color,background-color,border-color,box-shadow,transform]">
+                    <div className="w-9 h-9 rounded-xl bg-brand/10 border border-brand/20 flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-4 h-4 text-brand-hover" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -235,8 +235,8 @@ export default function EmailTemplates() {
                 <h2 className="text-base font-bold text-gray-900">{editingId ? 'Edit Template' : 'New Template'}</h2>
                 {formData.stageKey && (
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <Zap className="w-3 h-3 text-[#8A4A22]" />
-                    <span className="text-xs text-[#8A4A22] font-semibold">Auto-sent on: {STAGE_LABELS[formData.stageKey]}</span>
+                    <Zap className="w-3 h-3 text-brand-hover" />
+                    <span className="text-xs text-brand-hover font-semibold">Auto-sent on: {STAGE_LABELS[formData.stageKey]}</span>
                   </div>
                 )}
               </div>
@@ -286,7 +286,7 @@ export default function EmailTemplates() {
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {['{{firstName}}', '{{lastName}}', '{{position}}', '{{stageLabel}}'].map(v => (
                     <code key={v}
-                      className="text-[11px] bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded text-[#8A4A22] cursor-pointer hover:bg-[#A65F2A]/10 transition-colors"
+                      className="text-[11px] bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded text-brand-hover cursor-pointer hover:bg-brand/10 transition-colors"
                       onClick={() => setFormData(prev => ({ ...prev, body: prev.body + v }))}
                     >
                       {v}
@@ -304,7 +304,7 @@ export default function EmailTemplates() {
               <label className="flex items-center gap-3 cursor-pointer">
                 <div
                   onClick={() => setFormData(prev => ({ ...prev, isActive: !prev.isActive }))}
-                  className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer flex-shrink-0 ${formData.isActive ? 'bg-[#A65F2A]' : 'bg-gray-300'}`}
+                  className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer flex-shrink-0 ${formData.isActive ? 'bg-brand' : 'bg-gray-300'}`}
                 >
                   <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${formData.isActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
                 </div>
@@ -320,7 +320,7 @@ export default function EmailTemplates() {
               )}
               <div className="flex gap-2 ml-auto">
                 <Button onClick={closeForm} variant="outline" className="rounded-xl px-4 h-9 text-sm border-gray-200 bg-white text-gray-600 hover:bg-gray-100">Cancel</Button>
-                <Button onClick={handleSave} disabled={saving} className="rounded-xl px-5 h-9 text-sm bg-[#A65F2A] hover:bg-[#8A4A22] text-white font-bold">
+                <Button onClick={handleSave} disabled={saving} className="rounded-xl px-5 h-9 text-sm bg-brand hover:bg-brand-hover text-white font-bold">
                   {saving && <div className="w-4 h-4 border-2 border-[#0d1117]/30 border-t-[#0d1117] rounded-full animate-spin mr-2" />}
                   Save Template
                 </Button>

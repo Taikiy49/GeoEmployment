@@ -121,12 +121,12 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           className={`
-            border-2 border-dashed rounded-xl p-4 text-center transition-all
+            border-2 border-dashed rounded-xl p-4 text-center transition-[color,background-color,border-color,box-shadow,transform]
             ${dragOver
-              ? 'border-[#A65F2A] bg-[#F8F0E9]'
+              ? 'border-brand bg-brand-soft'
               : file
                 ? 'border-success bg-success-soft'
-                : 'border-[#cbd5e1] bg-[#f8fafc] hover:border-[#A65F2A] hover:bg-[#FBF5F0]'
+                : 'border-[#cbd5e1] bg-[#f8fafc] hover:border-brand hover:bg-[#FBF5F0]'
             }
           `}
         >
@@ -144,10 +144,10 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
           />
           {file || formData.resumeFileUrl ? (
             <div className="flex items-center justify-center gap-3">
-              <FileText className={`w-8 h-8 ${status === 'success' ? 'text-success' : 'text-[#A65F2A]'}`} />
+              <FileText className={`w-8 h-8 ${status === 'success' ? 'text-success' : 'text-brand'}`} />
               <div className="text-left">
-                <p className="text-sm font-medium text-[#0f172a]">{file ? file.name : formData.resumeFileName || 'Resume uploaded'}</p>
-                <p className="text-[10px] text-[#64748b]">
+                <p className="text-sm font-medium text-brand">{file ? file.name : formData.resumeFileName || 'Resume uploaded'}</p>
+                <p className="text-[10px] text-brand-muted">
                   {file
                     ? `${(file.size / 1024).toFixed(1)} KB`
                     : formData.resumeFileSize
@@ -174,18 +174,18 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
                     resumeAttachment: null,
                   }));
                 }}
-                className="ml-2 p-1 rounded-full hover:bg-[#f1f5f9]"
+                className="ml-2 p-1 rounded-full hover:bg-brand-soft"
               >
-                <X className="w-4 h-4 text-[#64748b]" />
+                <X className="w-4 h-4 text-brand-muted" />
               </button>
             </div>
           ) : (
             <>
-              <Upload className="w-10 h-10 text-[#94a3b8] mx-auto mb-3" />
-              <p className="text-sm font-medium text-[#334155]">
+              <Upload className="w-10 h-10 text-brand-muted mx-auto mb-3" />
+              <p className="text-sm font-medium text-brand">
                 Drag & drop your resume here
               </p>
-              <p className="text-xs text-[#64748b] mt-1">
+              <p className="text-xs text-brand-muted mt-1">
                 PDF, DOC, DOCX, TXT · Max 2 MB
               </p>
             </>
@@ -196,7 +196,7 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
         </div>
 
         {status === 'uploading' && (
-          <div className="mt-4 flex items-center justify-center gap-2 text-xs font-medium text-[#8A4A22]">
+          <div className="mt-4 flex items-center justify-center gap-2 text-xs font-medium text-brand-hover">
             <Loader2 className="h-4 w-4 animate-spin" />
             Attaching and saving your resume…
           </div>
@@ -220,10 +220,10 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
         )}
 
         {status === 'success' && (
-          <div className="mt-5 overflow-hidden rounded-xl border border-[#A65F2A]/25 bg-gradient-to-br from-[#fffaf6] to-white">
+          <div className="mt-5 overflow-hidden rounded-xl border border-brand/25 bg-gradient-to-br from-[#fffaf6] to-white">
             <div className="p-4 sm:p-5">
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#A65F2A] text-white shadow-sm">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand text-white shadow-sm">
                   <Sparkles className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -239,7 +239,7 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
                   <button
                     type="button"
                     onClick={analyzeResume}
-                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#8A4A22] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#743d1b] sm:w-auto"
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-hover px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#743d1b] sm:w-auto"
                   >
                     <Sparkles className="h-4 w-4" />
                     Autofill from this resume
@@ -252,7 +252,7 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
               )}
 
               {parseStatus === 'analyzing' && (
-                <div className="mt-4 flex items-center gap-3 rounded-lg border border-[#A65F2A]/20 bg-white p-3 text-xs font-medium text-[#8A4A22]">
+                <div className="mt-4 flex items-center gap-3 rounded-lg border border-brand/20 bg-white p-3 text-xs font-medium text-brand-hover">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Reading your resume and organizing application details…
                 </div>
@@ -273,7 +273,7 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
                     {summarizeResumeData(parsedResume.data).map(item => (
                       <div key={item.label} className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 text-[11px]">
                         <span className="font-medium text-slate-700">{item.label}</span>
-                        <span className="font-bold text-[#8A4A22]">{item.count}</span>
+                        <span className="font-bold text-brand-hover">{item.count}</span>
                       </div>
                     ))}
                   </div>
@@ -289,7 +289,7 @@ export default function ResumeStep({ formData, setFormData, onNext, onBack, resu
                     <button
                       type="button"
                       onClick={applyAutofill}
-                      className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#8A4A22] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#743d1b]"
+                      className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-hover px-4 py-2.5 text-xs font-bold text-white hover:bg-[#743d1b]"
                     >
                       <CheckCircle2 className="h-4 w-4" />
                       Apply resume details

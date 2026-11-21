@@ -45,8 +45,8 @@ export default function JobDetail() {
     }
   };
 
-  if (loading) return <AdminLayout><div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-gray-200 border-t-[#A65F2A] rounded-full animate-spin" /></div></AdminLayout>;
-  if (error && !req) return <AdminLayout><div className="mx-auto mt-20 max-w-md rounded-2xl border border-red-200 bg-white p-6 text-center shadow-sm"><p className="text-sm font-bold text-red-700">{error}</p><button onClick={() => window.location.reload()} className="mt-3 text-xs font-bold text-[#8A4A22]">Try again</button></div></AdminLayout>;
+  if (loading) return <AdminLayout><div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-gray-200 border-t-brand rounded-full animate-spin" /></div></AdminLayout>;
+  if (error && !req) return <AdminLayout><div className="mx-auto mt-20 max-w-md rounded-2xl border border-red-200 bg-white p-6 text-center shadow-sm"><p className="text-sm font-bold text-red-700">{error}</p><button onClick={() => window.location.reload()} className="mt-3 text-xs font-bold text-brand-hover">Try again</button></div></AdminLayout>;
   if (!req) return <AdminLayout><p className="text-center py-16 text-gray-500">Requisition not found.</p></AdminLayout>;
 
   const stageGroups = ['applied', 'under_review', 'phone_screen', 'interview', 'offer', 'hired'].reduce((acc, s) => {
@@ -98,15 +98,15 @@ export default function JobDetail() {
         {/* Pipeline summary */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-bold text-gray-900">Application Pipeline — <span className="text-[#8A4A22]">{apps.length}</span> total</h2>
-            <Link to={`/admin/applications?requisitionId=${id}`} className="text-xs text-[#8A4A22] hover:text-[#A65F2A] flex items-center gap-1 font-medium transition-colors">
+            <h2 className="text-sm font-bold text-gray-900">Application Pipeline — <span className="text-brand-hover">{apps.length}</span> total</h2>
+            <Link to={`/admin/applications?requisitionId=${id}`} className="text-xs text-brand-hover hover:text-brand flex items-center gap-1 font-medium transition-colors">
               <Users className="w-3.5 h-3.5" /> View All
             </Link>
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
             {Object.entries(stageGroups).map(([stage, count]) => (
               <Link key={stage} to={`/admin/applications?requisitionId=${id}&stage=${stage}`} className="text-center p-2 rounded-xl hover:bg-gray-50 transition-colors group">
-                <div className="text-xl font-black text-gray-900 group-hover:text-[#8A4A22] transition-colors">{count}</div>
+                <div className="text-xl font-black text-gray-900 group-hover:text-brand-hover transition-colors">{count}</div>
                 <div className="text-[9px] text-gray-500 mt-0.5 capitalize font-medium">{stage.replace('_', ' ')}</div>
               </Link>
             ))}
@@ -140,7 +140,7 @@ export default function JobDetail() {
                 <ol className="space-y-2">
                   {req.screeningQuestions.map((q, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm">
-                      <span className="text-[10px] font-bold text-[#8A4A22] mt-0.5">{i + 1}.</span>
+                      <span className="text-[10px] font-bold text-brand-hover mt-0.5">{i + 1}.</span>
                       <span className="text-gray-600">{q.question} {q.required && <span className="text-red-500 text-[10px]">*</span>}</span>
                     </li>
                   ))}
@@ -175,7 +175,7 @@ export default function JobDetail() {
                 <div className="space-y-2">
                   {[...req.statusHistory].reverse().slice(0, 5).map((h, i) => (
                     <div key={i} className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#A65F2A] mt-1.5 flex-shrink-0" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-brand mt-1.5 flex-shrink-0" />
                       <div>
                         <div className="text-[11px] font-semibold text-gray-700 capitalize">{h.status.replace('_', ' ')}</div>
                         <div className="text-[10px] text-gray-400">{new Date(h.changedAt).toLocaleDateString()}</div>

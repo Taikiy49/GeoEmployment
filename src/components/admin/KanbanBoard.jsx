@@ -22,7 +22,7 @@ function AppCard({ app, index }) {
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className={`bg-white rounded-lg border border-[#e2e8f0] p-3 shadow-sm select-none transition-shadow ${
+          className={`bg-white rounded-lg border border-brand-line p-3 shadow-sm select-none transition-shadow ${
             snapshot.isDragging ? 'shadow-lg rotate-1 border-bronze/40' : 'hover:shadow-md'
           }`}
         >
@@ -35,7 +35,7 @@ function AppCard({ app, index }) {
               </div>
               <div className="min-w-0">
                 <div className="text-xs font-semibold text-navy truncate">{app.firstName} {app.lastName}</div>
-                <div className="text-[10px] text-[#94a3b8] truncate">{app.email}</div>
+                <div className="text-[10px] text-brand-muted truncate">{app.email}</div>
               </div>
             </div>
             <Link
@@ -47,11 +47,11 @@ function AppCard({ app, index }) {
             </Link>
           </div>
           {(app.requisitionTitle || app.positionAppliedFor) && (
-            <div className="mt-2 text-[10px] text-[#64748b] bg-[#f9fafb] rounded px-2 py-1 truncate">
+            <div className="mt-2 text-[10px] text-brand-muted bg-brand-soft rounded px-2 py-1 truncate">
               {app.requisitionTitle || app.positionAppliedFor}
             </div>
           )}
-          <div className="mt-1.5 text-[10px] text-[#94a3b8]">
+          <div className="mt-1.5 text-[10px] text-brand-muted">
             {app.submittedAt
               ? new Date(app.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
               : new Date(app.created_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -110,8 +110,8 @@ export default function KanbanBoard({ apps, setApps, jobFilter }) {
               {/* Column header */}
               <div className={`flex items-center gap-2 px-3 py-2 rounded-t-lg border-t border-x ${stage.color}`}>
                 <span className={`w-2 h-2 rounded-full ${stage.dot}`} />
-                <span className="text-[11px] font-semibold text-[#334155]">{stage.label}</span>
-                <span className="ml-auto text-[10px] font-bold text-[#64748b] bg-white/70 px-1.5 py-0.5 rounded-full">
+                <span className="text-[11px] font-semibold text-brand">{stage.label}</span>
+                <span className="ml-auto text-[10px] font-bold text-brand-muted bg-white/70 px-1.5 py-0.5 rounded-full">
                   {cards.length}
                 </span>
               </div>
@@ -131,7 +131,7 @@ export default function KanbanBoard({ apps, setApps, jobFilter }) {
                     ))}
                     {provided.placeholder}
                     {cards.length === 0 && !snapshot.isDraggingOver && (
-                      <div className="text-center py-6 text-[10px] text-[#94a3b8] italic">Drop here</div>
+                      <div className="text-center py-6 text-[10px] text-brand-muted italic">Drop here</div>
                     )}
                   </div>
                 )}

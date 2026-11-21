@@ -15,6 +15,7 @@ if (process.env.SEND_EXAMPLE_APPLICATIONS !== '1') {
 }
 
 const today = new Date().toISOString().slice(0, 10);
+const availableStartDate = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
 const applicantEmail = process.env.TEST_APPLICANT_EMAIL;
 if (!applicantEmail) {
   throw new Error('Set TEST_APPLICANT_EMAIL to the address that should receive the test confirmation.');
@@ -67,7 +68,7 @@ const applicants = [
       { name: 'Noah Reyes', company: 'Campus Engineering Club', phone: '(808) 555-1103' },
     ],
     eeoGender: 'Female',
-    eeoRace: 'Asian',
+    eeoRace: 'Asian (not Hispanic or Latino)',
     disabilityStatus: 'I do not wish to answer',
     veteranStatus: 'notProtected',
   },
@@ -190,8 +191,8 @@ const applicants = [
       { name: 'Robert Silva', company: 'North Shore Fleet Service', phone: '(808) 555-3302' },
       { name: 'Kaleo Wong', company: 'Oʻahu Safety Training', phone: '(808) 555-3303' },
     ],
-    eeoGender: 'I do not wish to answer',
-    eeoRace: 'Native Hawaiian or Other Pacific Islander',
+    eeoGender: '',
+    eeoRace: 'Native Hawaiian or Other Pacific Islander (not Hispanic or Latino)',
     disabilityStatus: 'I do not wish to answer',
     veteranStatus: 'protected',
   },
@@ -282,7 +283,7 @@ const buildApplication = async (applicant, index) => {
     positionAppliedFor: applicant.position,
     preferredLocation: applicant.location,
     referredBy: applicant.referredBy,
-    availableStartDate: applicant.availableStartDate,
+    availableStartDate,
     driverLicense: applicant.driverLicense,
     firstName: applicant.firstName,
     middleName: '',
@@ -309,6 +310,8 @@ const buildApplication = async (applicant, index) => {
     references: applicant.references,
     certifyInitials: applicant.firstName.split(' ').at(-1)[0] + applicant.lastName[0],
     medInitials: applicant.firstName.split(' ').at(-1)[0] + applicant.lastName[0],
+    fcrInitials: applicant.firstName.split(' ').at(-1)[0] + applicant.lastName[0],
+    knowEmployee: 'No',
     canPerformDuties: true,
     needsAccommodation: false,
     professionalOrgs: applicant.professionalOrgs,
@@ -320,12 +323,6 @@ const buildApplication = async (applicant, index) => {
     eeoDate: today,
     eeoGender: applicant.eeoGender,
     eeoRace: applicant.eeoRace,
-    disabilityName: fullName,
-    disabilityDate: today,
-    disabilityEmployeeId: '',
-    disabilityStatus: applicant.disabilityStatus,
-    disabilitySignature: fullName,
-    disabilitySignatureDate: today,
     veteranStatus: applicant.veteranStatus,
     vetSignature: fullName,
     vetDate: today,
@@ -355,7 +352,6 @@ const buildApplication = async (applicant, index) => {
     eeoData: {
       gender: applicant.eeoGender,
       race: applicant.eeoRace,
-      disabilityStatus: applicant.disabilityStatus,
       veteranStatus: applicant.veteranStatus,
     },
     stageHistory: [{ stage: 'applied', changedAt: new Date().toISOString(), changedBy: 'applicant', note: 'Fictional production workflow test' }],
@@ -390,6 +386,9 @@ for (const [selectedIndex, applicant] of selectedApplicants.entries()) {
   const result = await response.json().catch(() => ({}));
   if (!response.ok) {
     throw new Error(`${application.firstName} ${application.lastName}: ${result.error || response.status}`);
+  }
+  if (!result.confirmationSent || !result.hrMessageId) {
+    throw new Error(`${application.id}: submission saved, but both email deliveries were not confirmed. Do not blindly retry.`);
   }
   results.push({
     applicant: `${application.firstName} ${application.lastName}`,

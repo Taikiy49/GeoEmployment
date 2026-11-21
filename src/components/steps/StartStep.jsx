@@ -20,7 +20,7 @@ function CollapsibleCard({ title, children }) {
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between gap-4 py-3.5 text-left hover:text-[#8A4A22] transition-colors"
+        className="w-full flex items-center justify-between gap-4 py-3.5 text-left hover:text-brand-hover transition-colors"
       >
         <span className="text-[11px] font-bold text-slate-600 uppercase tracking-[0.12em]">{title}</span>
         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -38,7 +38,7 @@ function JobPanel({ job }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className={`border rounded-xl overflow-hidden transition-all ${open ? 'border-[#A65F2A]/40 shadow-sm' : 'border-gray-200'}`}>
+    <div className={`border rounded-xl overflow-hidden transition-[color,background-color,border-color,box-shadow,transform] ${open ? 'border-brand/40 shadow-sm' : 'border-gray-200'}`}>
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
@@ -58,7 +58,7 @@ function JobPanel({ job }) {
               </span>
             )}
             {job.employmentType && (
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#A65F2A]/10 text-[#8A4A22] border border-[#A65F2A]/20">
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-brand/10 text-brand-hover border border-brand/20">
                 {EMP_LABELS[job.employmentType] || job.employmentType}
               </span>
             )}
@@ -132,7 +132,7 @@ export default function StartStep({ onNext, requisition }) {
   return (
     <div className="max-w-5xl mx-auto py-2 sm:py-4">
       <div className="mb-8 border-b border-slate-200 pb-7">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#A65F2A]">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand">
           {requisition ? 'Employment application' : 'General employment application'}
         </p>
         <h2 className="mt-2 text-2xl sm:text-3xl font-bold tracking-[-0.025em] text-slate-950">
@@ -145,8 +145,8 @@ export default function StartStep({ onNext, requisition }) {
         </p>
         {requisition && (
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-slate-500">
-            {requisition.department && <span className="flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5 text-[#A65F2A]" />{requisition.department}</span>}
-            {requisition.office && <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-[#A65F2A]" />{requisition.office}</span>}
+            {requisition.department && <span className="flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5 text-brand" />{requisition.department}</span>}
+            {requisition.office && <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-brand" />{requisition.office}</span>}
             {requisition.employmentType && <span>{EMP_LABELS[requisition.employmentType] || requisition.employmentType}</span>}
           </div>
         )}
@@ -157,10 +157,10 @@ export default function StartStep({ onNext, requisition }) {
         <div className="space-y-6">
 
           {/* Hero CTA */}
-          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-white to-[#F8F0E9]/70 p-6 sm:p-8 shadow-sm">
-            <div className="absolute -right-16 -top-20 h-52 w-52 rounded-full bg-[#A65F2A]/10 blur-3xl" />
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-white to-brand-soft/70 p-6 sm:p-8 shadow-sm">
+            <div className="absolute -right-16 -top-20 h-52 w-52 rounded-full bg-brand/10 blur-3xl" />
             <div className="relative">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A65F2A]">Why Geolabs, Inc.</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand">Why Geolabs, Inc.</p>
             <h3 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Own a stake in the work you help build.</h3>
             <p className="mt-3 max-w-xl text-sm text-slate-600 leading-relaxed">
               Work alongside experienced engineers and field teams on infrastructure that matters, with the long-term benefits of employee ownership.
@@ -168,7 +168,7 @@ export default function StartStep({ onNext, requisition }) {
             <ul className="mt-5 grid gap-2 sm:grid-cols-2">
               {['Hands-on field and lab experience', 'Opportunities to work with professional engineers', 'Competitive benefits and ESOP participation'].map((item, i) => (
                 <li key={i} className="flex items-start gap-2 text-xs text-slate-700">
-                  <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#A65F2A]" />
+                  <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-brand" />
                   {item}
                 </li>
               ))}
@@ -177,14 +177,14 @@ export default function StartStep({ onNext, requisition }) {
                 {requisition && (
                   <a
                     href="/"
-                    className="inline-flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 bg-white hover:bg-slate-50 text-slate-600 text-sm font-semibold rounded-xl transition-all"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-3 border border-slate-300 bg-white hover:bg-slate-50 text-slate-600 text-sm font-semibold rounded-xl transition-[color,background-color,border-color,box-shadow,transform]"
                   >
                     <ArrowLeft className="w-4 h-4" /> Back to Jobs
                   </a>
                 )}
                 <button
                  onClick={onNext}
-                 className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#A65F2A] hover:bg-[#8A4A22] text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-black/15"
+                 className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-brand hover:bg-brand-hover text-white text-sm font-bold rounded-xl transition-[color,background-color,border-color,box-shadow,transform] shadow-lg shadow-black/15"
                 >
                   {requisition ? 'Begin Application' : 'Begin General Application'}
                   <ArrowRight className="w-4 h-4" />
@@ -221,7 +221,7 @@ export default function StartStep({ onNext, requisition }) {
         <aside className="space-y-5 lg:sticky lg:top-6">
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
             <div className="flex items-center gap-2 text-slate-900">
-              <Clock className="h-4 w-4 text-[#A65F2A]" />
+              <Clock className="h-4 w-4 text-brand" />
               <h3 className="text-sm font-semibold">Before you begin</h3>
             </div>
             <dl className="mt-4 space-y-3 text-xs">
@@ -241,7 +241,7 @@ export default function StartStep({ onNext, requisition }) {
                 '401(k), life insurance and FSA',
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-2 text-xs text-slate-600">
-                  <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#A65F2A]" />
+                  <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-brand" />
                   {item}
                 </li>
               ))}
@@ -250,7 +250,7 @@ export default function StartStep({ onNext, requisition }) {
 
           <div className="rounded-2xl border border-slate-200 bg-white px-5">
             <div className="flex items-center gap-2 pt-4 text-slate-500">
-              <ShieldCheck className="h-4 w-4 text-[#A65F2A]" />
+              <ShieldCheck className="h-4 w-4 text-brand" />
               <span className="text-[10px] font-bold uppercase tracking-[0.14em]">Applicant information</span>
             </div>
             <CollapsibleCard title="Equal employment opportunity">

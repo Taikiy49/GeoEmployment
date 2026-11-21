@@ -119,7 +119,7 @@ export default function ApplicationDetail() {
   const formData = app?.applicationData || {};
 
   if (loading) return <AdminLayout><div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-bronze/30 border-t-bronze rounded-full animate-spin" /></div></AdminLayout>;
-  if (!app) return <AdminLayout><p role="status" className="text-center py-16 text-[#64748b]">{actionError || 'Application not found.'}</p></AdminLayout>;
+  if (!app) return <AdminLayout><p role="status" className="text-center py-16 text-brand-muted">{actionError || 'Application not found.'}</p></AdminLayout>;
 
   return (
     <AdminLayout>
@@ -133,7 +133,7 @@ export default function ApplicationDetail() {
           transition={{ duration: 0.4 }}
           className="flex items-start gap-3"
         >
-          <Link to="/admin/applications" aria-label="Back to applications" className="p-1.5 rounded-lg hover:bg-[#f1f5f9] text-[#64748b] mt-1">
+          <Link to="/admin/applications" aria-label="Back to applications" className="p-1.5 rounded-lg hover:bg-brand-soft text-brand-muted mt-1">
             <ChevronLeft className="w-4 h-4" />
           </Link>
           <div className="flex-1">
@@ -141,7 +141,7 @@ export default function ApplicationDetail() {
               <h1 className="text-xl font-semibold text-navy">{app.firstName} {app.lastName}</h1>
               <StageBadge stage={app.stage} />
             </div>
-            <div className="text-xs text-[#64748b] mt-0.5">
+            <div className="text-xs text-brand-muted mt-0.5">
               {app.email} · Applied {new Date(app.submittedAt || app.created_date).toLocaleDateString()} · {app.requisitionTitle || app.positionAppliedFor || 'Position TBD'}
             </div>
           </div>
@@ -152,9 +152,9 @@ export default function ApplicationDetail() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5"
+          className="bg-white rounded-xl border border-brand-line shadow-sm p-5"
         >
-          <h2 className="text-xs font-semibold text-[#64748b] uppercase tracking-wide mb-3">Move Candidate</h2>
+          <h2 className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-3">Move Candidate</h2>
           <div className="flex flex-wrap gap-1.5">
             {STAGES.map((stage, i) => (
               <motion.button
@@ -170,7 +170,7 @@ export default function ApplicationDetail() {
                     ? 'bg-bronze text-white border-bronze'
                     : ['rejected', 'withdrawn'].includes(stage)
                       ? 'bg-white text-red-500 border-red-200 hover:bg-red-50'
-                      : 'bg-white text-[#334155] border-[#e2e8f0] hover:border-bronze hover:text-bronze'
+                      : 'bg-white text-brand border-brand-line hover:border-bronze hover:text-bronze'
                 }`}
               >
                 {STAGE_LABELS[stage]}
@@ -221,9 +221,9 @@ export default function ApplicationDetail() {
                     {formData.employment.filter(e => e.company).map((e, i) => (
                       <div key={i} className="border-l-2 border-bronze-soft pl-4">
                         <div className="font-medium text-sm text-navy">{e.position}</div>
-                        <div className="text-xs text-[#334155]">{e.company}</div>
-                        <div className="text-[10px] text-[#94a3b8]">{e.dateFrom} – {e.dateTo || 'Present'}</div>
-                        {e.duties && <div className="text-xs text-[#64748b] mt-1">{e.duties}</div>}
+                        <div className="text-xs text-brand">{e.company}</div>
+                        <div className="text-[10px] text-brand-muted">{e.dateFrom} – {e.dateTo || 'Present'}</div>
+                        {e.duties && <div className="text-xs text-brand-muted mt-1">{e.duties}</div>}
                       </div>
                     ))}
                   </div>
@@ -239,8 +239,8 @@ export default function ApplicationDetail() {
                   {(formData.education || []).filter(e => e.institution).map((e, i) => (
                     <div key={i} className="border-l-2 border-bronze-soft pl-4">
                       <div className="font-medium text-sm text-navy">{e.degree} {e.field && `— ${e.field}`}</div>
-                      <div className="text-xs text-[#334155]">{e.institution}</div>
-                      {e.yearCompleted && <div className="text-[10px] text-[#94a3b8]">{e.yearCompleted}</div>}
+                      <div className="text-xs text-brand">{e.institution}</div>
+                      {e.yearCompleted && <div className="text-[10px] text-brand-muted">{e.yearCompleted}</div>}
                     </div>
                   ))}
                 </div>
@@ -270,11 +270,11 @@ export default function ApplicationDetail() {
                   {formData.references.filter(r => r.name).map((r, i) => (
                     <div key={i} className="border-l-2 border-bronze-soft pl-4">
                       <div className="font-medium text-sm text-navy">{r.name}</div>
-                      {(r.company || r.organization) && <div className="text-xs text-[#334155]">{r.company || r.organization}</div>}
+                      {(r.company || r.organization) && <div className="text-xs text-brand">{r.company || r.organization}</div>}
                       <div className="flex flex-wrap gap-3 mt-1">
-                        {r.phone && <span className="text-[10px] text-[#94a3b8]">📞 {r.phone}</span>}
-                        {r.email && <span className="text-[10px] text-[#94a3b8]">✉ {r.email}</span>}
-                        {r.relationship && <span className="text-[10px] text-[#94a3b8]">{r.relationship}</span>}
+                        {r.phone && <span className="text-[10px] text-brand-muted">📞 {r.phone}</span>}
+                        {r.email && <span className="text-[10px] text-brand-muted">✉ {r.email}</span>}
+                        {r.relationship && <span className="text-[10px] text-brand-muted">{r.relationship}</span>}
                       </div>
                     </div>
                   ))}
@@ -306,7 +306,7 @@ export default function ApplicationDetail() {
             </DataSection>
 
             {/* EEO section - access restricted */}
-            <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5">
+            <div className="bg-white rounded-xl border border-brand-line shadow-sm p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-purple-600" />
@@ -328,28 +328,28 @@ export default function ApplicationDetail() {
                   <DataRow label="Veteran Status" value={veteranStatusLabel(app.eeoData?.veteranStatus || formData.veteranStatus)} />
                 </div>
               ) : (
-                <p className="text-xs text-[#94a3b8] italic">EEO and veteran data is access-restricted. Click Reveal to view (HR Admin only).</p>
+                <p className="text-xs text-brand-muted italic">EEO and veteran data is access-restricted. Click Reveal to view (HR Admin only).</p>
               )}
             </div>
 
             {/* Notes */}
-            <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5">
+            <div className="bg-white rounded-xl border border-brand-line shadow-sm p-5">
               <h2 className="text-sm font-semibold text-navy mb-4 flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-bronze" /> Recruiter Notes
               </h2>
               <div className="space-y-3 mb-4">
-                {notes.length === 0 && <p className="text-xs text-[#94a3b8] italic">No notes yet.</p>}
+                {notes.length === 0 && <p className="text-xs text-brand-muted italic">No notes yet.</p>}
                 {[...notes].reverse().map((n, i) => (
                   <div key={i} className="flex gap-3">
                     <div className="w-7 h-7 rounded-full bg-bronze-soft flex items-center justify-center flex-shrink-0">
                       <span className="text-[10px] font-bold text-bronze-dark">{(n.authorName || 'A')[0]}</span>
                     </div>
-                    <div className="flex-1 bg-[#f9fafb] rounded-lg px-3 py-2.5">
+                    <div className="flex-1 bg-brand-soft rounded-lg px-3 py-2.5">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] font-medium text-[#334155]">{n.authorName || n.authorEmail}</span>
-                        <span className="text-[10px] text-[#94a3b8]">{new Date(n.createdAt).toLocaleString()}</span>
+                        <span className="text-[11px] font-medium text-brand">{n.authorName || n.authorEmail}</span>
+                        <span className="text-[10px] text-brand-muted">{new Date(n.createdAt).toLocaleString()}</span>
                       </div>
-                      <p className="text-xs text-[#334155] leading-relaxed">{n.note}</p>
+                      <p className="text-xs text-brand leading-relaxed">{n.note}</p>
                     </div>
                   </div>
                 ))}
@@ -379,7 +379,7 @@ export default function ApplicationDetail() {
           <div className="space-y-4">
             {/* Resume */}
             {app.resumeFileUrl && (
-              <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-4">
+              <div className="bg-white rounded-xl border border-brand-line shadow-sm p-4">
                 <h3 className="text-xs font-semibold text-navy mb-3 flex items-center gap-1.5">
                   <FileText className="w-3.5 h-3.5 text-bronze" /> Resume
                 </h3>
@@ -395,7 +395,7 @@ export default function ApplicationDetail() {
             )}
 
             {(app.documents || []).length > 0 && (
-              <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-4">
+              <div className="bg-white rounded-xl border border-brand-line shadow-sm p-4">
                 <h3 className="text-xs font-semibold text-navy mb-3 flex items-center gap-1.5">
                   <FileText className="w-3.5 h-3.5 text-bronze" /> Application Files
                 </h3>
@@ -417,14 +417,14 @@ export default function ApplicationDetail() {
             )}
 
             {/* Recruiter assignment */}
-            <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-4">
+            <div className="bg-white rounded-xl border border-brand-line shadow-sm p-4">
               <h3 className="text-xs font-semibold text-navy mb-2">Recruiter</h3>
-              <p className="text-xs text-[#64748b]">{app.assignedRecruiterEmail || 'Unassigned'}</p>
+              <p className="text-xs text-brand-muted">{app.assignedRecruiterEmail || 'Unassigned'}</p>
             </div>
 
             {/* Stage history */}
             {(app.stageHistory || []).length > 0 && (
-              <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-4">
+              <div className="bg-white rounded-xl border border-brand-line shadow-sm p-4">
                 <h3 className="text-xs font-semibold text-navy mb-3 flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-bronze" /> Stage History
                 </h3>
@@ -433,8 +433,8 @@ export default function ApplicationDetail() {
                     <div key={i} className="flex items-start gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-bronze mt-1.5 flex-shrink-0" />
                       <div>
-                        <div className="text-[11px] font-medium text-[#334155]">{STAGE_LABELS[h.stage] || h.stage}</div>
-                        <div className="text-[10px] text-[#94a3b8]">{new Date(h.changedAt).toLocaleDateString()} · {h.changedBy}</div>
+                        <div className="text-[11px] font-medium text-brand">{STAGE_LABELS[h.stage] || h.stage}</div>
+                        <div className="text-[10px] text-brand-muted">{new Date(h.changedAt).toLocaleDateString()} · {h.changedBy}</div>
                       </div>
                     </div>
                   ))}
@@ -444,12 +444,12 @@ export default function ApplicationDetail() {
 
             {/* Audit trail */}
             {(app.auditTrail || []).length > 0 && (
-              <div className="bg-[#f9fafb] rounded-xl border border-[#e2e8f0] p-4">
-                <h3 className="text-xs font-semibold text-[#64748b] mb-2">Audit Trail</h3>
+              <div className="bg-brand-soft rounded-xl border border-brand-line p-4">
+                <h3 className="text-xs font-semibold text-brand-muted mb-2">Audit Trail</h3>
                 <div className="space-y-1.5">
                   {[...(app.auditTrail || [])].reverse().slice(0, 8).map((a, i) => (
-                    <div key={i} className="text-[10px] text-[#94a3b8]">
-                      <span className="text-[#64748b]">{a.action}</span> — {a.performedBy} · {new Date(a.performedAt).toLocaleDateString()}
+                    <div key={i} className="text-[10px] text-brand-muted">
+                      <span className="text-brand-muted">{a.action}</span> — {a.performedBy} · {new Date(a.performedAt).toLocaleDateString()}
                     </div>
                   ))}
                 </div>
@@ -469,18 +469,18 @@ export default function ApplicationDetail() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-navy">Move Candidate?</h3>
-                <p className="text-xs text-[#64748b] mt-0.5">This will update their stage and record the change in the audit history.</p>
+                <p className="text-xs text-brand-muted mt-0.5">This will update their stage and record the change in the audit history.</p>
               </div>
             </div>
-            <div className="bg-[#f9fafb] rounded-lg p-3 mb-5 flex items-center gap-3 text-sm">
-              <span className="text-[#64748b] text-xs">{STAGE_LABELS[app.stage]}</span>
-              <span className="text-[#94a3b8]">→</span>
+            <div className="bg-brand-soft rounded-lg p-3 mb-5 flex items-center gap-3 text-sm">
+              <span className="text-brand-muted text-xs">{STAGE_LABELS[app.stage]}</span>
+              <span className="text-brand-muted">→</span>
               <span className="font-semibold text-navy text-xs">{STAGE_LABELS[confirmStage]}</span>
             </div>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setConfirmStage(null)}
-                className="px-4 py-2 rounded-lg text-xs font-medium border border-[#e2e8f0] text-[#334155] hover:bg-[#f9fafb] transition-colors"
+                className="px-4 py-2 rounded-lg text-xs font-medium border border-brand-line text-brand hover:bg-brand-soft transition-colors"
               >
                 Cancel
               </button>
@@ -505,8 +505,8 @@ export default function ApplicationDetail() {
 
 function DataSection({ title, children }) {
   return (
-    <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5">
-      <h2 className="text-sm font-semibold text-navy mb-3 border-b border-[#f1f5f9] pb-2">{title}</h2>
+    <div className="bg-white rounded-xl border border-brand-line shadow-sm p-5">
+      <h2 className="text-sm font-semibold text-navy mb-3 border-b border-brand-soft pb-2">{title}</h2>
       {children}
     </div>
   );
@@ -515,8 +515,8 @@ function DataSection({ title, children }) {
 function DataRow({ label, value, className = '' }) {
   return (
     <div className={className}>
-      <div className="text-[10px] text-[#94a3b8] uppercase tracking-wide">{label}</div>
-      <div className="text-xs text-[#334155] mt-0.5 leading-relaxed">{value || '—'}</div>
+      <div className="text-[10px] text-brand-muted uppercase tracking-wide">{label}</div>
+      <div className="text-xs text-brand mt-0.5 leading-relaxed">{value || '—'}</div>
     </div>
   );
 }

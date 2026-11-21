@@ -57,7 +57,7 @@ export default function JobsList() {
             <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Job Openings</h1>
             <p className="text-sm text-gray-500 mt-0.5">{reqs.length} total · {reqs.filter(r => r.status === 'published').length} published</p>
           </div>
-          <Link to="/admin/jobs/new" className={cn(buttonVariants(), 'rounded-xl px-5 h-10 text-sm bg-[#A65F2A] hover:bg-[#8A4A22] text-white font-bold shadow-lg shadow-[#A65F2A]/20')}>
+          <Link to="/admin/jobs/new" className={cn(buttonVariants(), 'rounded-xl px-5 h-10 text-sm bg-brand hover:bg-brand-hover text-white font-bold shadow-lg shadow-brand/20')}>
             <Plus className="w-4 h-4 mr-1.5" /> New Opening
           </Link>
         </div>
@@ -70,7 +70,7 @@ export default function JobsList() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search by title, department, office..."
-              className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]"
+              className="w-full h-10 pl-10 pr-4 text-sm rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand"
             />
           </div>
           <div className="flex gap-1.5 flex-wrap">
@@ -78,9 +78,9 @@ export default function JobsList() {
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
-                className={`px-3 py-2 rounded-xl text-[11px] font-semibold border transition-all ${
+                className={`px-3 py-2 rounded-xl text-[11px] font-semibold border transition-[color,background-color,border-color,box-shadow,transform] ${
                   statusFilter === s
-                    ? 'bg-[#A65F2A]/10 text-[#8A4A22] border-[#A65F2A]/30'
+                    ? 'bg-brand/10 text-brand-hover border-brand/30'
                     : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-900'
                 }`}
               >
@@ -94,17 +94,17 @@ export default function JobsList() {
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
           {loading ? (
             <div className="flex items-center justify-center h-48">
-              <div className="w-7 h-7 border-2 border-gray-200 border-t-[#A65F2A] rounded-full animate-spin" />
+              <div className="w-7 h-7 border-2 border-gray-200 border-t-brand rounded-full animate-spin" />
             </div>
           ) : error ? (
-            <div className="py-14 text-center"><p className="text-sm font-semibold text-red-700">{error}</p><button onClick={load} className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-[#8A4A22]"><RefreshCw className="h-3.5 w-3.5" />Try again</button></div>
+            <div className="py-14 text-center"><p className="text-sm font-semibold text-red-700">{error}</p><button onClick={load} className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-hover"><RefreshCw className="h-3.5 w-3.5" />Try again</button></div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
                 <Briefcase className="w-7 h-7 text-gray-400" />
               </div>
               <p className="text-sm text-gray-500">No requisitions found.</p>
-              <Link to="/admin/jobs/new" className="mt-3 inline-block text-xs text-[#8A4A22] hover:text-[#A65F2A] font-medium">Create your first requisition →</Link>
+              <Link to="/admin/jobs/new" className="mt-3 inline-block text-xs text-brand-hover hover:text-brand font-medium">Create your first requisition →</Link>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -123,7 +123,7 @@ export default function JobsList() {
                   {filtered.map(req => (
                     <tr key={req.id} className="hover:bg-gray-50 transition-colors group">
                       <td className="px-5 py-4">
-                        <Link to={`/admin/jobs/${req.id}`} className="font-semibold text-gray-900 hover:text-[#8A4A22] transition-colors">
+                        <Link to={`/admin/jobs/${req.id}`} className="font-semibold text-gray-900 hover:text-brand-hover transition-colors">
                           {req.title}
                         </Link>
                         <div className="text-[10px] text-gray-400 mt-0.5">{req.office || '—'}</div>

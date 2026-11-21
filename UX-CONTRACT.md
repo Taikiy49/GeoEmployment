@@ -2,13 +2,13 @@
 
 ## Product context and authority
 
-Applicants browse openings or choose General Application, complete the existing guided application, optionally use résumé autofill, save/recover drafts, review and submit. Authorized HR staff manage applications and receive PDF packages. This is an appearance rollback to `ec5add9`, not a rollback of application data or business features.
+Applicants browse openings or choose General Application, complete the existing guided application, optionally use résumé autofill, save/recover drafts, review and submit. Authorized HR staff manage applications and receive PDF packages. The November 20 brand-alignment pass preserves these workflows and the established application layout.
 
 Authoritative sources: README.md; src/lib/legalTexts.js and applicationValidation.js; server/submission-validation.js, admin-auth.js, application-store.js and draft-store.js; api/generate-application-docx.js and split-compliance-pdfs.js. Existing permission, retention, email, idempotency and legal policies are unchanged.
 
 ## Visual contract
 
-DESIGN.md records the restored appearance. src/index.css and shared Tailwind component classes are canonical. No new portal theme stylesheet or font packages. PDFs remain Arial.
+DESIGN.md records the official GeoWeb identity and product-density adaptations. src/index.css owns the brand palette and self-hosted Montserrat/DM Sans families; Tailwind adapts those tokens for shared components. PDFs remain Arial and are unchanged.
 
 ## Canonical UI Map
 

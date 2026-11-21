@@ -13,12 +13,12 @@ const EMP_LABELS = {
 };
 
 const BENEFITS = [
-  { icon: Heart, title: 'Full Family Medical', desc: 'Medical, dental, drug & vision — Geolabs, Inc. covers family coverage after 12 months.', color: '#ef4444' },
-  { icon: TrendingUp, title: 'ESOP Ownership', desc: 'Be a true owner. Our Employee Stock Ownership Plan gives you a real stake in the company.', color: '#22c55e' },
-  { icon: Clock, title: 'Generous PTO', desc: '14 days your first year, scaling up to 28 days at 20+ years — plus 10 holidays.', color: '#3b82f6' },
-  { icon: Shield, title: '401K + Life Insurance', desc: 'Company-supported retirement savings and group term life insurance for peace of mind.', color: '#8b5cf6' },
-  { icon: Star, title: 'FSA Savings', desc: 'Flexible Spending Account to reduce taxes on healthcare and dependent care expenses.', color: '#A65F2A' },
-  { icon: Award, title: '50+ Years of Excellence', desc: '16 engineering awards and a legacy of innovative, high-quality geotechnical work.', color: '#f97316' },
+  { icon: Heart, title: 'Full Family Medical', desc: 'Medical, dental, drug & vision — Geolabs, Inc. covers family coverage after 12 months.', color: 'rgb(var(--brand-ink))' },
+  { icon: TrendingUp, title: 'ESOP Ownership', desc: 'Be a true owner. Our Employee Stock Ownership Plan gives you a real stake in the company.', color: 'rgb(var(--brand-ink))' },
+  { icon: Clock, title: 'Generous PTO', desc: '14 days your first year, scaling up to 28 days at 20+ years — plus 10 holidays.', color: 'rgb(var(--brand-ink))' },
+  { icon: Shield, title: '401K + Life Insurance', desc: 'Company-supported retirement savings and group term life insurance for peace of mind.', color: 'rgb(var(--brand-ink))' },
+  { icon: Star, title: 'FSA Savings', desc: 'Flexible Spending Account to reduce taxes on healthcare and dependent care expenses.', color: 'rgb(var(--brand-ink))' },
+  { icon: Award, title: '50+ Years of Excellence', desc: '16 engineering awards and a legacy of innovative, high-quality geotechnical work.', color: 'rgb(var(--brand-ink))' },
 ];
 
 const STATS = [
@@ -58,11 +58,11 @@ function StatCard({ value, suffix, label, delay }) {
       viewport={{ once: true }}
       transition={{ delay, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ scale: 1.05, y: -4 }}
-      className="relative bg-gradient-to-br from-[#0d1b2a] to-[#060e1a] border border-[#1e2a3a] hover:border-[#A65F2A]/50 rounded-2xl p-6 text-center overflow-hidden group cursor-default transition-all duration-300"
+      className="relative bg-gradient-to-br from-brand to-brand border border-brand-hover hover:border-brand/50 rounded-2xl p-6 text-center overflow-hidden group cursor-default transition-[color,background-color,border-color,box-shadow,transform] duration-300"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-[#A65F2A]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-br from-brand/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <div className="relative">
-        <div className="text-4xl font-black text-[#A65F2A] mb-1 tabular-nums">
+        <div className="text-4xl font-black text-brand mb-1 tabular-nums">
           {count}{suffix}
         </div>
         <div className="text-xs font-semibold text-gray-400 tracking-wide">{label}</div>
@@ -78,7 +78,7 @@ function Particles() {
       {[...Array(20)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute w-1 h-1 rounded-full bg-[#A65F2A]"
+          className="absolute w-1 h-1 rounded-full bg-brand"
           style={{
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
@@ -172,7 +172,7 @@ export default function JobBoard() {
         <video
           ref={videoRef}
           className="absolute inset-0 h-full w-full object-cover object-center"
-          autoPlay={!reduceMotion}
+          autoPlay={reduceMotion === false}
           onPlay={() => setVideoPaused(false)}
           onPause={() => setVideoPaused(true)}
           muted
@@ -183,29 +183,29 @@ export default function JobBoard() {
         >
           <source src="/geolabs-cover.mp4?v=20260730-2" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#111923]/75 via-[#111923]/40 to-[#111923]/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#111923]/45 via-transparent to-[#111923]/10" />
-        <div className="relative mx-auto w-full max-w-6xl px-6 py-14 sm:py-16">
+        <div className="absolute inset-0 bg-gradient-to-r from-brand/90 via-brand/65 to-brand/35" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand/45 via-transparent to-brand/10" />
+        <div className="relative mx-auto w-full max-w-[var(--page-max)] px-[var(--page-gutter)] py-16 sm:py-24">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55 }}
               className="max-w-3xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]"
           >
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#A65F2A]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#A65F2A]" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-accent">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-accent" />
               Build what matters
             </div>
-            <h1 className="mt-6 text-4xl sm:text-6xl font-extrabold tracking-[-0.045em] leading-[1.05]">
+            <h1 className="mt-6 brand-hero-title">
               Shape Hawaiʻi from
-              <span className="block text-[#A65F2A]">the ground up.</span>
+              <span className="block text-brand-accent">the ground up.</span>
             </h1>
-            <p className="mt-5 max-w-2xl text-base sm:text-lg text-slate-300 leading-relaxed">
+            <p className="mt-5 max-w-2xl text-lg sm:text-xl text-slate-200 leading-relaxed">
               Join an employee-owned geotechnical engineering and drilling team serving Hawaiʻi and California with technical rigor and lasting community impact.
             </p>
             <a
               href="#open-roles"
-              className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#A65F2A] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-[#A65F2A]/15 hover:bg-[#B87333] transition-colors"
+              className="brand-action mt-8 inline-flex items-center gap-3 bg-brand-accent text-brand hover:bg-brand-accent/90 transition-colors"
             >
               Explore open roles <ChevronRight className="w-4 h-4" />
             </a>
@@ -216,7 +216,7 @@ export default function JobBoard() {
               ['50+', 'Years serving Hawaiʻi'],
               ['Equal', 'Opportunity employer'],
             ].map(([value, label]) => (
-              <div key={label} className="bg-[#111923]/55 backdrop-blur-sm px-5 py-4">
+              <div key={label} className="bg-brand/55 backdrop-blur-sm px-5 py-4">
                 <div className="text-lg font-extrabold text-white">{value}</div>
                 <div className="mt-0.5 text-xs text-slate-400">{label}</div>
               </div>
@@ -225,7 +225,7 @@ export default function JobBoard() {
         </div>
         <button
           type="button"
-          className="absolute bottom-3 right-4 rounded-lg border border-white/40 bg-[#111923]/80 px-3 py-2 text-xs font-semibold text-white hover:bg-[#111923]"
+          className="absolute bottom-3 right-4 rounded-lg border border-white/40 bg-brand/80 px-3 py-2 text-xs font-semibold text-white hover:bg-brand"
           onClick={() => {
             if (videoPaused) videoRef.current?.play().catch(() => {});
             else videoRef.current?.pause();
@@ -236,8 +236,8 @@ export default function JobBoard() {
       </section>
 
       {/* ── OPEN ROLES ── */}
-      <section id="open-roles" className="py-14 sm:py-20 bg-white relative scroll-mt-20">
-        <div className="max-w-6xl mx-auto px-6">
+      <section id="open-roles" className="brand-section bg-white relative scroll-mt-20">
+        <div className="brand-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -245,7 +245,7 @@ export default function JobBoard() {
             transition={{ duration: 0.6 }}
             className="mb-8 max-w-2xl"
           >
-            <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#9a7800] mb-2">Current opportunities</p>
+            <h2 className="brand-heading text-brand mb-4">Current opportunities</h2>
             <p className="text-slate-600 text-base">
               {loading ? 'Loading positions…' : `${jobs.length} open position${jobs.length !== 1 ? 's' : ''} across our offices`}
             </p>
@@ -256,10 +256,10 @@ export default function JobBoard() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.05 }}
-            className="mb-6 flex flex-col gap-4 rounded-xl border border-[#A65F2A]/25 bg-[#FBF6F1] p-5 sm:flex-row sm:items-center sm:justify-between"
+            className="mb-6 flex flex-col gap-4 rounded-xl border border-brand/25 bg-brand-soft p-5 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#A65F2A] text-white">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand text-white">
                 <FileText className="h-5 w-5" />
               </div>
               <div>
@@ -271,7 +271,7 @@ export default function JobBoard() {
             </div>
             <Link
               to="/apply"
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#A65F2A] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#8A4A22]"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-hover"
             >
               General Application <ChevronRight className="h-4 w-4" />
             </Link>
@@ -292,7 +292,7 @@ export default function JobBoard() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search positions, departments, locations…"
-                className="w-full h-12 pl-11 pr-4 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/40 focus:border-[#A65F2A] transition-all text-gray-900 placeholder-gray-500"
+                className="w-full h-12 pl-11 pr-4 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-[color,background-color,border-color,box-shadow,transform] text-gray-900 placeholder-gray-500"
               />
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -303,10 +303,10 @@ export default function JobBoard() {
                   aria-pressed={deptFilter === d}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
-                  className={`px-4 py-2.5 rounded-lg text-xs font-bold border transition-all whitespace-nowrap ${
+                  className={`px-4 py-2.5 rounded-lg text-xs font-bold border transition-[color,background-color,border-color,box-shadow,transform] whitespace-nowrap ${
                     deptFilter === d
-                      ? 'bg-[#A65F2A] text-white border-[#A65F2A]'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-[#A65F2A] hover:text-[#A65F2A]'
+                      ? 'bg-brand text-white border-brand'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-brand hover:text-brand'
                   }`}
                 >
                   {d === 'all' ? 'All Departments' : d}
@@ -325,7 +325,7 @@ export default function JobBoard() {
                    initial={{ opacity: 0 }}
                    animate={{ opacity: [0.4, 0.7, 0.4] }}
                    transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
-                   className="bg-[#0d1b2a] rounded-2xl border border-[#1e2a3a] p-6 h-28"
+                   className="bg-brand rounded-2xl border border-brand-hover p-6 h-28"
                  />
                ))}
             </div>
@@ -355,22 +355,22 @@ export default function JobBoard() {
                   >
                     <Link
                       to={`/apply/${job.id}`}
-                      className="group relative flex items-start justify-between gap-5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-[#A65F2A] rounded-lg p-5 transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden block"
+                      className="group relative flex items-start justify-between gap-5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-brand rounded-lg p-5 transition-[color,background-color,border-color,box-shadow,transform] duration-300 shadow-sm hover:shadow-md overflow-hidden block"
                     >
                       <div className="flex items-start gap-4 flex-1 min-w-0">
                         <motion.div
                           animate={hoveredJob === job.id ? { rotate: [0, -5, 5, 0], scale: 1.05 } : {}}
                           transition={{ duration: 0.4 }}
-                          className="w-11 h-11 rounded-lg bg-[#A65F2A]/10 border border-[#A65F2A]/20 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5"
+                          className="w-11 h-11 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center flex-shrink-0 transition-colors mt-0.5"
                         >
-                          <Briefcase className="w-5 h-5 text-[#A65F2A]" />
+                          <Briefcase className="w-5 h-5 text-brand" />
                         </motion.div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                             <h3 className="text-base font-bold text-gray-900 group-hover:text-[#A65F2A] transition-colors">
+                             <h3 className="text-base font-bold text-gray-900 group-hover:text-brand transition-colors">
                               {job.title}
                              </h3>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#A65F2A]/10 text-[#8A4A22] border border-[#A65F2A]/20">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand/10 text-brand-hover border border-brand/20">
                               {EMP_LABELS[job.employmentType] || job.employmentType}
                             </span>
                           </div>
@@ -405,7 +405,7 @@ export default function JobBoard() {
                         <motion.div
                           initial={{ opacity: 0, x: -10 }}
                           animate={hoveredJob === job.id ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
-                          className="flex items-center gap-1 text-[#A65F2A] text-xs font-bold"
+                          className="flex items-center gap-1 text-brand text-xs font-bold"
                         >
                           Apply <ChevronRight className="w-3.5 h-3.5" />
                         </motion.div>
@@ -426,8 +426,8 @@ export default function JobBoard() {
             className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 px-5 py-4 bg-gray-50 border border-gray-200 rounded-lg"
           >
             <div className="flex items-center gap-3 flex-shrink-0">
-              <div className="w-8 h-8 rounded-lg bg-[#A65F2A]/10 border border-[#A65F2A]/20 flex items-center justify-center">
-                <Users className="w-4 h-4 text-[#A65F2A]" />
+              <div className="w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center">
+                <Users className="w-4 h-4 text-brand" />
               </div>
               <span className="text-xs font-bold text-gray-900 uppercase tracking-wider whitespace-nowrap">Equal Opportunity Employer</span>
             </div>

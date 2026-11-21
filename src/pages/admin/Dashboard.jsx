@@ -52,11 +52,11 @@ export default function Dashboard() {
   if (loading) return (
     <AdminLayout>
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#A65F2A] rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-gray-200 border-t-brand rounded-full animate-spin" />
       </div>
     </AdminLayout>
   );
-  if (error) return <AdminLayout><div className="mx-auto mt-20 max-w-md rounded-2xl border border-red-200 bg-white p-6 text-center shadow-sm"><p className="text-sm font-bold text-red-700">{error}</p><button onClick={() => window.location.reload()} className="mt-3 text-xs font-bold text-[#8A4A22]">Try again</button></div></AdminLayout>;
+  if (error) return <AdminLayout><div className="mx-auto mt-20 max-w-md rounded-2xl border border-red-200 bg-white p-6 text-center shadow-sm"><p className="text-sm font-bold text-red-700">{error}</p><button onClick={() => window.location.reload()} className="mt-3 text-xs font-bold text-brand-hover">Try again</button></div></AdminLayout>;
 
   return (
     <AdminLayout>
@@ -65,8 +65,8 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-2 rounded-full bg-[#A65F2A] animate-pulse" />
-              <span className="text-[11px] font-bold text-[#8A4A22] tracking-widest uppercase">HR workspace</span>
+              <div className="w-2 h-2 rounded-full bg-brand animate-pulse" />
+              <span className="text-[11px] font-bold text-brand-hover tracking-widest uppercase">HR workspace</span>
             </div>
             <h1 className="text-2xl font-black text-gray-900 tracking-tight">Hiring Overview</h1>
             <p className="text-sm text-gray-500 mt-0.5">Geolabs, Inc. — Applicant Tracking System</p>
@@ -86,7 +86,7 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08, duration: 0.4 }}
-              className="bg-white rounded-2xl border border-gray-200 p-5 hover:border-gray-300 hover:shadow-sm transition-all group"
+              className="bg-white rounded-2xl border border-gray-200 p-5 hover:border-gray-300 hover:shadow-sm transition-[color,background-color,border-color,box-shadow,transform] group"
             >
               <div className="flex items-start justify-between mb-4">
                 <div
@@ -111,7 +111,7 @@ export default function Dashboard() {
           className="bg-white rounded-2xl border border-gray-200 p-6"
         >
           <div className="flex items-center gap-2 mb-6">
-            <Zap className="w-4 h-4 text-[#A65F2A]" />
+            <Zap className="w-4 h-4 text-brand" />
             <h2 className="text-sm font-bold text-gray-900">Hiring Pipeline</h2>
             <span className="ml-auto text-[11px] text-gray-500">{apps.length} total candidates</span>
           </div>
@@ -154,7 +154,7 @@ export default function Dashboard() {
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-sm font-bold text-gray-900">Recent Applications</h2>
-              <Link to="/admin/applications" className="text-[11px] text-[#8A4A22] hover:text-[#A65F2A] flex items-center gap-0.5 font-medium transition-colors">
+              <Link to="/admin/applications" className="text-[11px] text-brand-hover hover:text-brand flex items-center gap-0.5 font-medium transition-colors">
                 View all <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
@@ -166,8 +166,8 @@ export default function Dashboard() {
                   className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-gray-50 transition-colors group"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-[#A65F2A]/10 border border-[#A65F2A]/20 flex items-center justify-center flex-shrink-0">
-                      <span className="text-[10px] font-bold text-[#8A4A22]">{app.firstName?.[0]?.toUpperCase()}</span>
+                    <div className="w-7 h-7 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center flex-shrink-0">
+                      <span className="text-[10px] font-bold text-brand-hover">{app.firstName?.[0]?.toUpperCase()}</span>
                     </div>
                     <div>
                       <div className="text-xs font-semibold text-gray-900">{app.firstName} {app.lastName}</div>
@@ -176,7 +176,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-center gap-2">
                     <StageBadge stage={app.stage} />
-                    <ChevronRight className="w-3 h-3 text-gray-300 group-hover:text-[#A65F2A] transition-colors" />
+                    <ChevronRight className="w-3 h-3 text-gray-300 group-hover:text-brand transition-colors" />
                   </div>
                 </Link>
               ))}
@@ -193,7 +193,7 @@ export default function Dashboard() {
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-sm font-bold text-gray-900">Job Openings</h2>
-              <Link to="/admin/jobs" className="text-[11px] text-[#8A4A22] hover:text-[#A65F2A] flex items-center gap-0.5 font-medium transition-colors">
+              <Link to="/admin/jobs" className="text-[11px] text-brand-hover hover:text-brand flex items-center gap-0.5 font-medium transition-colors">
                 Manage <ChevronRight className="w-3 h-3" />
               </Link>
             </div>

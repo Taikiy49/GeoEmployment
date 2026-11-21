@@ -41,7 +41,7 @@ export default function AnimatedInput({
         transition={{ duration: 0.2 }}
         className={`
           w-full px-3.5 py-2.5 text-sm rounded-lg border border-gray-300 
-          bg-white focus:outline-none transition-all
+          bg-white focus:outline-none transition-[color,background-color,border-color,box-shadow,transform]
           ${className}
         `}
       />

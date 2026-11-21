@@ -17,7 +17,7 @@ export default function NavigationButtons({
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:text-slate-950 rounded-xl hover:bg-slate-100 transition-all font-semibold border border-slate-300 hover:border-slate-400"
+            className="brand-action flex items-center gap-2 text-sm text-slate-600 hover:text-slate-950 rounded-lg hover:bg-slate-100 transition-colors font-semibold border border-brand-line hover:border-brand"
           >
             <ChevronLeft aria-hidden="true" className="w-4 h-4" />
             Back
@@ -31,10 +31,10 @@ export default function NavigationButtons({
             onClick={onNext}
             disabled={isLoading}
             aria-busy={isLoading || undefined}
-            className={`flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg disabled:opacity-60
+            className={`brand-action flex items-center gap-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-60
               ${isSubmit
-                ? 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/25'
-                : 'bg-[#A65F2A] hover:bg-[#8A4A22] text-white shadow-[#A65F2A]/25'
+                ? 'bg-brand hover:bg-brand-hover text-white'
+                : 'bg-brand hover:bg-brand-hover text-white'
               }`}
           >
             {isLoading

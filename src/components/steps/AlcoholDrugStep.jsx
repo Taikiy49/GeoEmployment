@@ -57,7 +57,7 @@ export default function AlcoholDrugStep({ formData, setFormData, onNext, onBack 
       </label>
 
       {/* Signature block — disabled until agreed */}
-      <div className={`bg-white border rounded-xl p-4 space-y-4 transition-all ${agreed ? 'border-gray-200' : 'border-gray-100 opacity-50 pointer-events-none'}`}>
+      <div className={`bg-white border rounded-xl p-4 space-y-4 transition-[color,background-color,border-color,box-shadow,transform] ${agreed ? 'border-gray-200' : 'border-gray-100 opacity-50 pointer-events-none'}`}>
         <h3 className="text-sm font-semibold text-gray-800">Electronic Signature</h3>
         {!agreed && (
           <p className="text-xs text-gray-400 italic">Please acknowledge the agreement above to enable the signature fields.</p>

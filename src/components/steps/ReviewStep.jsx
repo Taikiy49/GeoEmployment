@@ -58,7 +58,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
                     key={`${action.step}:${action.task}`}
                     type="button"
                     onClick={() => onNavigate(action.step, action.task)}
-                    className="group flex min-w-0 items-center justify-between gap-3 rounded-lg border border-amber-200 bg-white px-3 py-3 text-left transition-colors hover:border-[#A65F2A] hover:bg-[#F8F0E9]"
+                    className="group flex min-w-0 items-center justify-between gap-3 rounded-lg border border-amber-200 bg-white px-3 py-3 text-left transition-colors hover:border-brand hover:bg-brand-soft"
                   >
                     <span className="min-w-0">
                       <span className="block text-xs font-bold text-slate-900">{action.title}</span>
@@ -66,7 +66,7 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
                         {action.items.join(', ')}
                       </span>
                     </span>
-                    <ArrowRight className="h-4 w-4 flex-shrink-0 text-[#A65F2A] transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="h-4 w-4 flex-shrink-0 text-brand transition-transform group-hover:translate-x-0.5" />
                   </button>
                 ))}
               </div>
@@ -100,8 +100,8 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             {formData.employment.map((job, i) => (
               job.company ? (
                 <div key={i} className="mb-2 last:mb-0">
-                  <p className="text-xs font-medium text-[#0f172a]">{job.position || 'Position'} at {job.company}</p>
-                  <p className="text-[10px] text-[#64748b]">{job.dateFrom} — {job.dateTo || 'Present'}</p>
+                  <p className="text-xs font-medium text-brand">{job.position || 'Position'} at {job.company}</p>
+                  <p className="text-[10px] text-brand-muted">{job.dateFrom} — {job.dateTo || 'Present'}</p>
                 </div>
               ) : null
             ))}
@@ -112,8 +112,8 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             {formData.education.map((edu, i) => (
               edu.institution ? (
                 <div key={i} className="mb-2 last:mb-0">
-                  <p className="text-xs font-medium text-[#0f172a]">{edu.degree} — {edu.field}</p>
-                  <p className="text-[10px] text-[#64748b]">{[edu.institution, edu.location, edu.yearCompleted].filter(Boolean).join(', ')}</p>
+                  <p className="text-xs font-medium text-brand">{edu.degree} — {edu.field}</p>
+                  <p className="text-[10px] text-brand-muted">{[edu.institution, edu.location, edu.yearCompleted].filter(Boolean).join(', ')}</p>
                 </div>
               ) : null
             ))}
@@ -165,12 +165,12 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
         </div>
       </FormSection>
 
-      <div className="flex items-center justify-between mt-8 pt-5 border-t border-[#e2e8f0]">
+      <div className="flex items-center justify-between mt-8 pt-5 border-t border-brand-line">
         <Button
           type="button"
           variant="outline"
           onClick={onBack}
-          className="rounded-full px-3 h-9 text-sm border-[#cbd5e1] text-[#334155]"
+          className="rounded-full px-3 h-9 text-sm border-[#cbd5e1] text-brand"
         >
           Back
         </Button>
@@ -200,14 +200,14 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
 
 function ReviewBlock({ title, children, onEdit }) {
   return (
-    <div className="bg-[#f8fafc] rounded-lg border border-[#e2e8f0] p-4">
+    <div className="bg-[#f8fafc] rounded-lg border border-brand-line p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
         <h4 className="text-[11px] font-semibold text-bronze-dark uppercase tracking-wider">{title}</h4>
         {onEdit && (
           <button
             type="button"
             onClick={onEdit}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold text-slate-500 hover:bg-white hover:text-[#8A4A22]"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold text-slate-500 hover:bg-white hover:text-brand-hover"
           >
             <Pencil className="h-3 w-3" /> Edit
           </button>
@@ -221,8 +221,8 @@ function ReviewBlock({ title, children, onEdit }) {
 function ReviewRow({ label, value }) {
   return (
     <div className="flex justify-between items-baseline py-1">
-      <span className="text-[11px] text-[#64748b]">{label}</span>
-      <span className="max-w-[65%] break-words text-right text-xs font-medium text-[#0f172a]">{value || '—'}</span>
+      <span className="text-[11px] text-brand-muted">{label}</span>
+      <span className="max-w-[65%] break-words text-right text-xs font-medium text-brand">{value || '—'}</span>
     </div>
   );
 }

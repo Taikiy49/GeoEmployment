@@ -10,7 +10,7 @@ export default function FloatingButton({
   className = ''
 }) {
   const variants = {
-    primary: 'bg-[#A65F2A] text-white hover:bg-[#8A4A22] shadow-lg hover:shadow-xl',
+    primary: 'bg-brand text-white hover:bg-brand-hover shadow-lg hover:shadow-xl',
     secondary: 'bg-white text-navy border border-gray-200 hover:shadow-lg',
   };
 
@@ -31,7 +31,7 @@ export default function FloatingButton({
       className={`
         fixed ${positionClasses[position]} z-40 rounded-full
         flex items-center gap-2 px-4 py-3 font-medium text-sm
-        transition-all ${variants[variant]} ${className}
+        transition-[color,background-color,border-color,box-shadow,transform] ${variants[variant]} ${className}
       `}
     >
       {Icon && <Icon className="w-5 h-5" />}

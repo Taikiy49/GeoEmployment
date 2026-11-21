@@ -23,10 +23,10 @@ export default function ReferencesStep({ formData, setFormData, onNext, onBack }
       >
         <div className="space-y-5">
           {formData.references.map((ref, i) => (
-            <div key={i} role="group" aria-labelledby={`${id}-reference-${i}`} className="bg-[#f8fafc] rounded-lg border border-[#e2e8f0] p-4 sm:p-4">
+            <div key={i} role="group" aria-labelledby={`${id}-reference-${i}`} className="bg-[#f8fafc] rounded-lg border border-brand-line p-4 sm:p-4">
               <div className="flex items-center gap-2 mb-4">
                 <Users className="w-4 h-4 text-bronze" />
-                <h4 id={`${id}-reference-${i}`} className="text-xs font-semibold text-[#0f172a]">Reference {i + 1} of 3</h4>
+                <h4 id={`${id}-reference-${i}`} className="text-xs font-semibold text-brand">Reference {i + 1} of 3</h4>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <FormField
@@ -58,7 +58,7 @@ export default function ReferencesStep({ formData, setFormData, onNext, onBack }
             </div>
           ))}
         </div>
-        <div className="mt-5 rounded-xl border border-[#A65F2A]/20 bg-[#F8F0E9] p-4">
+        <div className="mt-5 rounded-xl border border-brand/20 bg-brand-soft p-4">
           <p className="text-xs leading-relaxed text-slate-700">
             {REFERENCE_AUTHORIZATION_TEXT}
           </p>

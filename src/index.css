@@ -1,3 +1,12 @@
+@import "@fontsource/montserrat/latin-500.css";
+@import "@fontsource/montserrat/latin-600.css";
+@import "@fontsource/montserrat/latin-700.css";
+@import "@fontsource/montserrat/latin-800.css";
+@import "@fontsource/dm-sans/latin-400.css";
+@import "@fontsource/dm-sans/latin-500.css";
+@import "@fontsource/dm-sans/latin-600.css";
+@import "@fontsource/dm-sans/latin-700.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -19,41 +28,55 @@
 
 @layer base {
   :root {
-    --font-inter: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    /* Official GeoWeb palette. Tailwind adapts these channels; components use roles. */
+    --brand-ink: 45 49 66;
+    --brand-hover: 65 72 92;
+    --brand-yellow: 244 205 0;
+    --brand-soft: 243 244 245;
+    --brand-muted: 96 102 118;
+    --brand-line: 217 220 226;
+    --brand-focus: 128 96 0;
+    --font-body: "DM Sans", sans-serif;
+    --font-display: "Montserrat", sans-serif;
+    --page-max: 1360px;
+    --page-gutter: clamp(24px, 4.5vw, 72px);
+    --section-space: clamp(64px, 7vw, 104px);
+    --scrollbar-thumb: #868b99;
+    --scrollbar-track: #f3f4f5;
 
-    --background: 210 29% 97%;
-    --foreground: 215 35% 15%;
+    --background: 220 9% 96%;
+    --foreground: 229 19% 22%;
     --card: 0 0% 100%;
-    --card-foreground: 220 13% 13%;
+    --card-foreground: 229 19% 22%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 13%;
-    --primary: 215 35% 11%;
+    --popover-foreground: 229 19% 22%;
+    --primary: 229 19% 22%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 25 59% 41%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 220 13% 91%;
-    --muted-foreground: 220 5% 46%;
-    --accent: 25 59% 41%;
-    --accent-foreground: 0 0% 100%;
+    --secondary: 50 100% 48%;
+    --secondary-foreground: 229 19% 22%;
+    --muted: 220 9% 96%;
+    --muted-foreground: 224 10% 42%;
+    --accent: 50 100% 48%;
+    --accent-foreground: 229 19% 22%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 25 59% 41%;
-    --chart-1: 25 59% 41%;
+    --border: 220 13% 87%;
+    --input: 220 13% 87%;
+    --ring: 45 100% 25%;
+    --chart-1: 229 19% 22%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.75rem;
-    --sidebar-background: 215 35% 11%;
+    --radius: 2px;
+    --sidebar-background: 229 19% 22%;
     --sidebar-foreground: 210 20% 92%;
-    --sidebar-primary: 25 59% 41%;
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-primary: 50 100% 48%;
+    --sidebar-primary-foreground: 229 19% 22%;
     --sidebar-accent: 215 29% 18%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 215 24% 24%;
-    --sidebar-ring: 25 59% 51%;
+    --sidebar-ring: 50 100% 48%;
   }
 
   .dark {
@@ -63,19 +86,19 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 15%;
     --popover-foreground: 210 40% 98%;
-    --primary: 27 55% 46%;
+    --primary: 50 100% 48%;
     --primary-foreground: 0 0% 100%;
     --secondary: 222 47% 20%;
     --secondary-foreground: 210 40% 98%;
     --muted: 222 47% 20%;
     --muted-foreground: 215 20% 65%;
-    --accent: 27 55% 46%;
+    --accent: 50 100% 48%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 222 47% 20%;
     --input: 222 47% 20%;
-    --ring: 27 55% 46%;
+    --ring: 50 100% 48%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -97,6 +120,8 @@
     @apply border-border outline-ring/50;
   }
 
+  html { scrollbar-gutter: stable; }
+
   html,
   body,
   #root {
@@ -106,18 +131,32 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-inter);
-    font-size: 100%;
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.7;
+    font-synthesis: none;
     min-width: 320px;
-    background-image:
-      radial-gradient(circle at 10% 0%, rgba(166, 95, 42, 0.08), transparent 28rem),
-      linear-gradient(180deg, #f5f7f9 0%, #ffffff 28rem);
     -webkit-font-smoothing: antialiased;
   }
 
   button, a, input, select, textarea {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A65F2A] focus-visible:ring-offset-2;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-focus focus-visible:ring-offset-2;
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+    letter-spacing: -0.025em;
+  }
+
+  button, a { touch-action: manipulation; }
+  input, textarea, select { caret-color: rgb(var(--brand-focus)); }
+  * { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border: 2px solid var(--scrollbar-track); border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgb(var(--brand-muted)); }
+  ::-webkit-scrollbar-thumb:active { background: rgb(var(--brand-ink)); }
 
   textarea {
     box-sizing: border-box;
@@ -137,7 +176,8 @@
   }
 
   ::selection {
-    background: rgba(166, 95, 42, 0.24);
+    background: rgb(var(--brand-yellow));
+    color: rgb(var(--brand-ink));
   }
 }
 
@@ -149,4 +189,23 @@
   .portal-input {
     @apply rounded-xl border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 transition-colors;
   }
+}
+
+@layer components {
+  .brand-container { width: calc(100% - var(--page-gutter) * 2); max-width: var(--page-max); margin-inline: auto; }
+  .brand-section { padding-block: var(--section-space); }
+  .brand-heading { font-size: clamp(30px, 3.15vw, 46px); line-height: 1.18; font-weight: 600; }
+  .brand-hero-title { font-size: clamp(40px, 4.6vw, 70px); line-height: 1.08; font-weight: 700; letter-spacing: -0.04em; }
+  .brand-action { min-height: 52px; padding: 14px 24px; border-radius: var(--radius); font-weight: 600; font-size: 14px; }
+  .brand-header :focus-visible { --tw-ring-color: rgb(var(--brand-yellow)); }
+  .brand-header .brand-logo:focus-visible { --tw-ring-color: rgb(var(--brand-ink)); }
+  .brand-footer :focus-visible { --tw-ring-color: rgb(var(--brand-yellow)); }
+}
+@media (max-width: 639px) {
+  body { font-size: 16px; }
+  :root { --section-space: 60px; }
+}
+@media (forced-colors: active) {
+  * { scrollbar-color: auto; }
+  :focus-visible { outline: 2px solid Highlight; outline-offset: 3px; }
 }

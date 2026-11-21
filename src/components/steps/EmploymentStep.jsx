@@ -22,10 +22,10 @@ export default function EmploymentStep({ formData, setFormData, onNext, onBack }
       >
         <div className="space-y-6">
           {formData.employment.map((job, i) => (
-            <div key={i} role="group" aria-labelledby={`${id}-employer-${i}`} className="bg-[#f8fafc] rounded-lg border border-[#e2e8f0] p-4 sm:p-4">
+            <div key={i} role="group" aria-labelledby={`${id}-employer-${i}`} className="bg-[#f8fafc] rounded-lg border border-brand-line p-4 sm:p-4">
               <div className="flex items-center gap-2 mb-4">
                 <Briefcase className="w-4 h-4 text-bronze" />
-                <h4 id={`${id}-employer-${i}`} className="text-xs font-semibold text-[#0f172a]">
+                <h4 id={`${id}-employer-${i}`} className="text-xs font-semibold text-brand">
                   Employer {i + 1} of 3
                 </h4>
                 {i === 0 && (

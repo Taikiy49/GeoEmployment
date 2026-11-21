@@ -76,11 +76,11 @@ export default function EducationStep({ formData, setFormData, onNext, onBack })
         </div>
         <div className="space-y-5">
           {education.map((edu, i) => (
-            <div key={i} role="group" aria-labelledby={`${id}-education-${i}`} className="bg-[#f8fafc] rounded-lg border border-[#e2e8f0] p-4 sm:p-4">
+            <div key={i} role="group" aria-labelledby={`${id}-education-${i}`} className="bg-[#f8fafc] rounded-lg border border-brand-line p-4 sm:p-4">
               <div className="flex items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-2">
                   <GraduationCap className="w-4 h-4 text-bronze" />
-                  <h4 id={`${id}-education-${i}`} className="text-xs font-semibold text-[#0f172a]">Education {i + 1}</h4>
+                  <h4 id={`${id}-education-${i}`} className="text-xs font-semibold text-brand">Education {i + 1}</h4>
                 </div>
                 {education.length > 2 && (
                   <button
@@ -132,7 +132,7 @@ export default function EducationStep({ formData, setFormData, onNext, onBack })
         <button
           type="button"
           onClick={addEducation}
-          className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[#A65F2A]/30 bg-[#A65F2A]/5 px-4 py-2.5 text-xs font-bold text-[#8A4A22] transition-colors hover:bg-[#A65F2A]/10"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl border border-brand/30 bg-brand/5 px-4 py-2.5 text-xs font-bold text-brand-hover transition-colors hover:bg-brand/10"
         >
           <Plus className="h-4 w-4" /> Add education
         </button>

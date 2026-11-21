@@ -30,11 +30,11 @@ const EMPTY_FORM = {
 // Keep field components stable so typing does not remount the input and lose focus.
 const Field = ({ label, required = false, children, hint = '' }) => (
   <label className="block">
-    <span className="block text-[11px] font-medium text-[#334155] mb-1.5">
+    <span className="block text-[11px] font-medium text-brand mb-1.5">
       {label}{required && <span className="text-red-500 ml-0.5">*</span>}
     </span>
     {children}
-    {hint && <span className="block text-[10px] text-[#64748b] mt-1">{hint}</span>}
+    {hint && <span className="block text-[10px] text-brand-muted mt-1">{hint}</span>}
   </label>
 );
 
@@ -42,7 +42,7 @@ const Select = ({ value, onChange, options, placeholder = '' }) => (
   <select
     value={value}
     onChange={e => onChange(e.target.value)}
-    className="w-full h-9 px-3 text-sm rounded-lg border border-[#e2e8f0] bg-white focus:outline-none focus:ring-1 focus:ring-bronze focus:border-bronze"
+    className="w-full h-9 px-3 text-sm rounded-lg border border-brand-line bg-white focus:outline-none focus:ring-1 focus:ring-bronze focus:border-bronze"
   >
     {placeholder && <option value="">{placeholder}</option>}
     {options.map(o => <option key={o.value || o} value={o.value || o}>{o.label || o}</option>)}
@@ -137,15 +137,15 @@ export default function JobEditor() {
     <AdminLayout>
       <div className="max-w-3xl mx-auto space-y-5">
         <div className="flex items-center gap-3">
-          <Link to="/admin/jobs" aria-label="Back to job openings" className="p-1.5 rounded-lg hover:bg-[#f1f5f9] text-[#64748b]">
+          <Link to="/admin/jobs" aria-label="Back to job openings" className="p-1.5 rounded-lg hover:bg-brand-soft text-brand-muted">
             <ChevronLeft className="w-4 h-4" />
           </Link>
           <h1 className="text-xl font-bold text-navy">{isNew ? 'New Job Opening' : 'Edit Job Opening'}</h1>
         </div>
 
         {/* Basic Info */}
-        <section className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-navy border-b border-[#f1f5f9] pb-3">Basic Information</h2>
+        <section className="bg-white rounded-xl border border-brand-line shadow-sm p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-navy border-b border-brand-soft pb-3">Basic Information</h2>
           <Field label="Job Title" required>
             <Input value={form.title} onChange={e => update('title', e.target.value)} placeholder="e.g., Environmental Scientist II" className="h-9 text-sm" />
           </Field>
@@ -175,8 +175,8 @@ export default function JobEditor() {
         </section>
 
         {/* Assignments */}
-        <section className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-navy border-b border-[#f1f5f9] pb-3">Team Assignments</h2>
+        <section className="bg-white rounded-xl border border-brand-line shadow-sm p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-navy border-b border-brand-soft pb-3">Team Assignments</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Hiring Manager Email">
               <Input type="email" value={form.hiringManagerEmail} onChange={e => update('hiringManagerEmail', e.target.value)} placeholder="manager@geolabs.net" className="h-9 text-sm" />
@@ -188,8 +188,8 @@ export default function JobEditor() {
         </section>
 
         {/* Description */}
-        <section className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-navy border-b border-[#f1f5f9] pb-3">Job Description</h2>
+        <section className="bg-white rounded-xl border border-brand-line shadow-sm p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-navy border-b border-brand-soft pb-3">Job Description</h2>
           <Field label="Job Description" required>
             <Textarea value={form.description} onChange={e => update('description', e.target.value)} rows={6} placeholder="Describe the role, responsibilities, and team..." className="text-sm resize-none" />
           </Field>
@@ -202,19 +202,19 @@ export default function JobEditor() {
         </section>
 
         {/* Screening Questions */}
-        <section className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#f1f5f9] pb-3">
+        <section className="bg-white rounded-xl border border-brand-line shadow-sm p-5 space-y-4">
+          <div className="flex items-center justify-between border-b border-brand-soft pb-3">
             <h2 className="text-sm font-semibold text-navy">Screening Questions</h2>
             <Button onClick={addQuestion} variant="outline" size="sm" className="h-7 text-xs rounded-full px-3">
               <Plus className="w-3 h-3 mr-1" /> Add Question
             </Button>
           </div>
           {(form.screeningQuestions || []).length === 0 && (
-            <p className="text-xs text-[#94a3b8] text-center py-3">No screening questions. Add questions to pre-qualify applicants.</p>
+            <p className="text-xs text-brand-muted text-center py-3">No screening questions. Add questions to pre-qualify applicants.</p>
           )}
           <div className="space-y-3">
             {(form.screeningQuestions || []).map((q, idx) => (
-              <div key={idx} className="bg-[#f9fafb] rounded-lg border border-[#e2e8f0] p-4 space-y-3">
+              <div key={idx} className="bg-brand-soft rounded-lg border border-brand-line p-4 space-y-3">
                 <div className="flex items-start gap-3">
                   <div className="flex-1 space-y-2">
                     <Input
@@ -229,13 +229,13 @@ export default function JobEditor() {
                         aria-label={`Answer type for question ${idx + 1}`}
                         value={q.type}
                         onChange={e => updateQuestion(idx, 'type', e.target.value)}
-                        className="h-7 px-2 text-xs rounded border border-[#e2e8f0] bg-white"
+                        className="h-7 px-2 text-xs rounded border border-brand-line bg-white"
                       >
                         <option value="text">Text Answer</option>
                         <option value="yes_no">Yes / No</option>
                         <option value="multiple_choice">Multiple Choice</option>
                       </select>
-                      <label className="flex items-center gap-1.5 text-xs text-[#64748b]">
+                      <label className="flex items-center gap-1.5 text-xs text-brand-muted">
                         <input
                           type="checkbox"
                           checked={q.required || false}
@@ -255,7 +255,7 @@ export default function JobEditor() {
                       />
                     )}
                   </div>
-                  <button aria-label={`Remove question ${idx + 1}`} onClick={() => removeQuestion(idx)} className="p-1.5 rounded hover:bg-red-50 text-[#94a3b8] hover:text-red-500 transition-colors">
+                  <button aria-label={`Remove question ${idx + 1}`} onClick={() => removeQuestion(idx)} className="p-1.5 rounded hover:bg-red-50 text-brand-muted hover:text-red-500 transition-colors">
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -265,8 +265,8 @@ export default function JobEditor() {
         </section>
 
         {/* Internal Notes */}
-        <section className="bg-white rounded-xl border border-[#e2e8f0] shadow-sm p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-navy border-b border-[#f1f5f9] pb-3">Internal Notes</h2>
+        <section className="bg-white rounded-xl border border-brand-line shadow-sm p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-navy border-b border-brand-soft pb-3">Internal Notes</h2>
           <Field label="Notes (not visible to applicants)" hint="Budget notes, hiring context, sourcing strategy, etc.">
             <Textarea value={form.internalNotes} onChange={e => update('internalNotes', e.target.value)} rows={3} className="text-sm resize-none" />
           </Field>

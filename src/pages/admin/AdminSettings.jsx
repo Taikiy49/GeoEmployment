@@ -5,7 +5,7 @@ import AdminLayout from '../../components/admin/AdminLayout';
 const Card = ({ icon: Icon, title, description, children }) => (
   <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
     <div className="flex items-start gap-3">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#A65F2A]/10 text-[#8A4A22]">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-hover">
         <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0 flex-1">
@@ -19,7 +19,7 @@ const Card = ({ icon: Icon, title, description, children }) => (
 
 const Account = ({ name, email }) => (
   <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-xs font-bold text-[#8A4A22] shadow-sm">{name[0]}</div>
+    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-xs font-bold text-brand-hover shadow-sm">{name[0]}</div>
     <div className="min-w-0 flex-1">
       <div className="text-xs font-bold text-slate-900">{name}</div>
       <div className="truncate text-[11px] text-slate-500">{email}</div>
@@ -33,7 +33,7 @@ export default function AdminSettings() {
     <AdminLayout>
       <div className="mx-auto max-w-4xl space-y-5">
         <header>
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#8A4A22]">Administration</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-brand-hover">Administration</p>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">Access & Security</h1>
           <p className="mt-1 text-sm text-slate-500">A clear view of who can access applicant records and where submissions are delivered.</p>
         </header>
@@ -60,16 +60,16 @@ export default function AdminSettings() {
           <Card icon={FileText} title="Application documents" description="Each submission is organized for HR review and supervisor forwarding.">
             <ul className="space-y-2 text-xs text-slate-600">
               {['Supervisor-facing employment application', 'EEO self-identification form', 'Veteran self-identification form', 'Alcohol and drug testing agreement', 'Applicant résumé'].map(item => (
-                <li key={item} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#A65F2A]" />{item}</li>
+                <li key={item} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" />{item}</li>
               ))}
             </ul>
           </Card>
 
           <Card icon={LockKeyhole} title="Confidentiality controls" description="Sensitive records are protected throughout the hiring process.">
             <ul className="space-y-2 text-xs leading-relaxed text-slate-600">
-              <li className="flex gap-2"><ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#A65F2A]" />Microsoft authentication is required for every admin page and file.</li>
-              <li className="flex gap-2"><ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#A65F2A]" />EEO and veteran files are labeled restricted.</li>
-              <li className="flex gap-2"><ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#A65F2A]" />Stage changes and recruiter notes are recorded in the audit trail.</li>
+              <li className="flex gap-2"><ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" />Microsoft authentication is required for every admin page and file.</li>
+              <li className="flex gap-2"><ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" />EEO and veteran files are labeled restricted.</li>
+              <li className="flex gap-2"><ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand" />Stage changes and recruiter notes are recorded in the audit trail.</li>
             </ul>
           </Card>
         </div>

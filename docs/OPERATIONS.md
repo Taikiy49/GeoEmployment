@@ -51,7 +51,7 @@ npm run test:accessibility
 
 ## Technology
 
-The public UI is restored to the pre-redesign appearance from commit `ec5add9`: original dark header, video hero, cards, typography and horizontal application stages. The newer application features remain, along with no-flicker task navigation, safer auth handling, accessible file selection and dialog protections. `DESIGN.md` records this approved visual baseline; `UX-CONTRACT.md` records the retained behavior.
+The public UI retains the established video hero, application layout and horizontal stages. The November 20 brand-alignment pass adopts the official website's slate/yellow palette, self-hosted Montserrat/DM Sans fonts and shared spacing. No-flicker task navigation, auth handling, accessible file selection and dialog protections remain. `DESIGN.md` records the visual system; `UX-CONTRACT.md` records retained behavior. Generated PDFs still use Arial.
 
 - React 18 and Vite
 - React Router

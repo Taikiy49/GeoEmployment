@@ -73,7 +73,7 @@ async function verifyLayout(page, title) {
   assert.ok(result.overflow <= 1, `${title}: no horizontal document overflow (${result.overflow}px).`);
   assert.ok(result.headings.length, `${title}: readable headings must render.`);
   for (const heading of result.headings) {
-    assert.match(heading.font, /Inter|system-ui|Segoe UI/i, `${title}: ${heading.text} uses the original normal-width font stack.`);
+    assert.match(heading.font, /Montserrat/i, `${title}: ${heading.text} uses the official website heading family.`);
     assert.doesNotMatch(heading.font, /condensed|narrow|barlow/i, `${title}: no tall condensed heading font.`);
     assert.ok(heading.size >= 16, `${title}: heading retains the original type scale.`);
   }

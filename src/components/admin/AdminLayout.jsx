@@ -34,21 +34,21 @@ export default function AdminLayout({ children }) {
         to={item.to}
         aria-current={active ? 'page' : undefined}
         onClick={() => setMobileOpen(false)}
-        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-[color,background-color,border-color,box-shadow,transform] ${
           active
-            ? 'bg-[#A65F2A] text-white border border-[#C7834F] shadow-lg shadow-black/10'
+            ? 'bg-brand-accent text-brand border border-brand-accent'
             : 'text-slate-300 hover:bg-white/10 hover:text-white border border-transparent'
         }`}
       >
-        <item.icon className={`w-4 h-4 flex-shrink-0 ${active ? 'text-white' : ''}`} />
+        <item.icon className={`w-4 h-4 flex-shrink-0 ${active ? 'text-brand' : ''}`} />
         {item.label}
-        {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white" />}
+        {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-brand" />}
       </Link>
     );
   };
 
   const Sidebar = () => (
-    <div className="flex flex-col h-full bg-[#111923] border-r border-white/10 font-sans">
+    <div className="flex flex-col h-full bg-brand border-r border-white/10 font-sans">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-white/10">
         <div className="flex items-center gap-3">
@@ -69,8 +69,8 @@ export default function AdminLayout({ children }) {
       {currentUser && (
         <div className="px-3 pb-3 border-t border-white/10 pt-3 space-y-1">
           <div className="flex items-center gap-2.5 px-3 py-2 mb-1">
-            <div className="w-7 h-7 rounded-full bg-[#A65F2A]/10 border border-[#A65F2A]/20 flex items-center justify-center">
-              <span className="text-[10px] font-bold text-[#8A4A22]">{(currentUser.full_name || currentUser.email)[0].toUpperCase()}</span>
+            <div className="w-7 h-7 rounded-full bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center">
+              <span className="text-[10px] font-bold text-brand-accent">{(currentUser.full_name || currentUser.email)[0].toUpperCase()}</span>
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[11px] font-semibold text-white truncate">{currentUser.full_name || currentUser.email}</div>
@@ -116,7 +116,7 @@ export default function AdminLayout({ children }) {
           <button
             aria-label="Close navigation"
             onClick={() => setMobileOpen(false)}
-            className="absolute top-4 left-60 z-50 p-2 rounded-lg bg-[#111923] border border-white/10 text-white"
+            className="absolute top-4 left-60 z-50 p-2 rounded-lg bg-brand border border-white/10 text-white"
           >
             <X className="w-4 h-4" />
           </button>
@@ -126,7 +126,7 @@ export default function AdminLayout({ children }) {
       {/* Main content */}
       <div className="min-w-0 flex-1 lg:ml-56 flex flex-col min-h-screen">
         {/* Mobile topbar */}
-        <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-[#111923] border-b border-[#A65F2A]/40">
+        <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-brand border-b border-brand/40">
           <button aria-label="Open navigation" aria-expanded={mobileOpen} onClick={() => setMobileOpen(true)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-200">
             <Menu className="w-5 h-5" />
           </button>

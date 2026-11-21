@@ -30,16 +30,16 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
         <div className="space-y-6">
 
           {/* FCRA Disclosure */}
-          <div className="bg-white border border-[#e2e8f0] rounded-xl p-4 space-y-4">
+          <div className="bg-white border border-brand-line rounded-xl p-4 space-y-4">
             <div>
               <h3 id={`${id}-fcra-title`} className="text-sm font-semibold text-gray-900 mb-0.5">Fair Credit Reporting Act Disclosure</h3>
               <p className="text-xs text-gray-500">Initial below to acknowledge that you have read and understand this disclosure.</p>
             </div>
-            <div role="region" aria-labelledby={`${id}-fcra-title`} tabIndex={0} className="bg-[#f8fafc] border border-[#f1f5f9] rounded-lg p-4 space-y-3 max-h-48 overflow-y-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bronze">
-              <p className="text-xs text-[#334155] leading-relaxed">
+            <div role="region" aria-labelledby={`${id}-fcra-title`} tabIndex={0} className="bg-[#f8fafc] border border-brand-soft rounded-lg p-4 space-y-3 max-h-48 overflow-y-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bronze">
+              <p className="text-xs text-brand leading-relaxed">
                 {FCRA_DISCLOSURE_TEXT}
               </p>
-              <p className="text-xs text-[#334155] leading-relaxed">
+              <p className="text-xs text-brand leading-relaxed">
                 {FCRA_AUTHORIZATION_TEXT}
               </p>
             </div>
@@ -55,7 +55,7 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
                   onChange={e => update('fcrInitials', e.target.value)}
                   placeholder="e.g., TY"
                   maxLength={4}
-                  className="w-24 h-9 px-3 text-sm border border-[#e2e8f0] rounded-lg focus:outline-none focus:ring-2 focus:ring-bronze/30 focus:border-bronze text-center font-semibold tracking-widest"
+                  className="w-24 h-9 px-3 text-sm border border-brand-line rounded-lg focus:outline-none focus:ring-2 focus:ring-bronze/30 focus:border-bronze text-center font-semibold tracking-widest"
                 />
                 <p id={`${id}-initials-hint`} className="text-xs text-gray-400">Enter 2–4 letters to confirm you have read the above disclosure.</p>
               </div>
@@ -63,7 +63,7 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
           </div>
 
           {/* Other Information */}
-          <div className="bg-white border border-[#e2e8f0] rounded-xl p-4 space-y-4">
+          <div className="bg-white border border-brand-line rounded-xl p-4 space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-gray-900 mb-0.5">Other Information</h3>
               <p className="text-xs text-gray-500">Please answer the question below.</p>
@@ -87,24 +87,24 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
           </div>
 
           {/* Work Eligibility */}
-          <div className="bg-[#F8F0E9] border border-[#A65F2A]/20 rounded-xl p-4">
+          <div className="bg-brand-soft border border-brand/20 rounded-xl p-4">
             <h3 className="text-sm font-semibold text-gray-900 mb-2">Work Eligibility</h3>
-            <p className="text-xs text-[#334155] leading-relaxed">
+            <p className="text-xs text-brand leading-relaxed">
               {WORK_ELIGIBILITY_TEXT}
             </p>
           </div>
 
           {/* Certification & At-Will */}
-          <div className="bg-white border border-[#e2e8f0] rounded-xl p-4 space-y-4">
+          <div className="bg-white border border-brand-line rounded-xl p-4 space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-gray-900 mb-0.5">Certification & At-Will Acknowledgment</h3>
               <p className="text-xs text-gray-500">Your signature below confirms each of the statements in this section.</p>
             </div>
-            <div className="bg-[#f8fafc] border border-[#f1f5f9] rounded-lg p-4 space-y-3">
-              <p className="text-xs text-[#334155] leading-relaxed">
+            <div className="bg-[#f8fafc] border border-brand-soft rounded-lg p-4 space-y-3">
+              <p className="text-xs text-brand leading-relaxed">
                 {EMPLOYMENT_CERTIFICATION_TEXT}
               </p>
-              <p className="text-xs text-[#334155] leading-relaxed">
+              <p className="text-xs text-brand leading-relaxed">
                 {AT_WILL_TEXT}
               </p>
             </div>
@@ -116,7 +116,7 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
                 onCheckedChange={v => update('certificationAgreed', v)}
                 className="mt-0.5"
               />
-              <label htmlFor="certificationAgreed" className="text-xs text-[#334155] leading-relaxed cursor-pointer">
+              <label htmlFor="certificationAgreed" className="text-xs text-brand leading-relaxed cursor-pointer">
                 I have read and understand the above statements, and I certify that all information provided in this application is accurate and complete.
               </label>
             </div>
@@ -133,7 +133,7 @@ export default function CertificationStep({ formData, setFormData, onNext, onBac
                   onChange={e => update('certificationSignature', e.target.value)}
                   placeholder="Type your full legal name"
                   autoComplete="name"
-                  className="w-full h-9 px-3 text-sm border border-[#e2e8f0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A65F2A]/30 focus:border-[#A65F2A]"
+                  className="w-full h-9 px-3 text-sm border border-brand-line rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand"
                 />
                 <p id={`${id}-signature-hint`} className="text-[10px] text-gray-400">
                   By typing your name, you acknowledge this as your electronic signature.
