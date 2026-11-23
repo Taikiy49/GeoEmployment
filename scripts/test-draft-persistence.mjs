@@ -69,7 +69,7 @@ try {
   await firstTab.getByRole('button', { name: /optional self-id/i }).click();
   await firstTab.getByText('EEO Voluntary Self-Identification Survey', { exact: true }).waitFor();
   await firstTab.getByRole('navigation', { name: 'Application progress', exact: true }).getByRole('button', { name: /veteran status/i }).click();
-  await firstTab.getByText(/Invitation to Self-Identify as a Protected Veteran/).waitFor();
+  await firstTab.getByRole('heading', { level: 2, name: /Invitation to Self-Identify as a Protected Veteran/ }).waitFor();
   if (await firstTab.getByText('EEO Voluntary Self-Identification Survey', { exact: true }).count()) {
     throw new Error('EEO and veteran tasks rendered on the same screen.');
   }
