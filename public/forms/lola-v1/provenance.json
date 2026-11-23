@@ -1,0 +1,96 @@
+{
+  "version": "lola-v1",
+  "coordinateOrigin": "top-left",
+  "documents": [
+    {
+      "id": "eeo-survey",
+      "sourceFilename": "EEO Voluntary Self-Id.pdf",
+      "sourceSha256": "555aaf7114a9f55933c2bc3d5bb3024b19dbee59944dfda4da312e25db667ad4",
+      "pdf": "eeo-survey.pdf",
+      "pdfSha256": "7e0010974ef05e70c933bb1907dac6433723a0044ab0c731a7db2a89f795b99d",
+      "readableText": "eeo-survey.json",
+      "readableTextSha256": "cccded0f1b487c4508f26958939fae2cf285e588df980adf3620ca780b28128a",
+      "pageCount": 1,
+      "pages": [
+        {
+          "width": 612.0,
+          "height": 792.0
+        }
+      ],
+      "redactedFilesystemPaths": 1
+    },
+    {
+      "id": "veteran-status",
+      "sourceFilename": "ProtectedVeteran Self Id Applicant VEVRAA.pdf",
+      "sourceSha256": "75d0476503d0cf899a7659edc91647095e738e5aa3254ad2506f7c89aa78cfc8",
+      "pdf": "veteran-status.pdf",
+      "pdfSha256": "b2b080475aa59a7423cce21c11d5f732057c5bf6903e074a8551b6ce39326b08",
+      "readableText": "veteran-status.json",
+      "readableTextSha256": "931e9b4d6304330dbb987e366c0c3f7234cfd641392c024556148479c4f7a5ea",
+      "pageCount": 2,
+      "pages": [
+        {
+          "width": 612.0,
+          "height": 792.0
+        },
+        {
+          "width": 612.0,
+          "height": 792.0
+        }
+      ],
+      "redactedFilesystemPaths": 1
+    },
+    {
+      "id": "alcohol-drug-agreement",
+      "sourceFilename": "Agreement of Applicant.pdf",
+      "sourceSha256": "fc8f45b054a0fd59f3c48288e3217a8a999f62eacaceae4a8bc00e6f2d584333",
+      "pdf": "alcohol-drug-agreement.pdf",
+      "pdfSha256": "4c4f0bbe417c948d0dba1855596875b2b1a0e963cf6bf4ff8c6ce88a19ebf4cc",
+      "readableText": "alcohol-drug-agreement.json",
+      "readableTextSha256": "c8ab2a2f6e52a26636a642c86f3485cb1691ecfa0ed2a79147ba16836f9b1775",
+      "pageCount": 1,
+      "pages": [
+        {
+          "width": 612.0,
+          "height": 792.0
+        }
+      ],
+      "redactedFilesystemPaths": 0
+    },
+    {
+      "id": "application-agreements",
+      "sourceFilename": "EmployApplication rev 2025.04.02.pdf",
+      "sourceSha256": "8baedb05e8875ad7e0d8359a220d5ef28f7203658102f4b1d24f9a78e4c6993f",
+      "pdf": "application-agreements.pdf",
+      "pdfSha256": "caa01432517dbffe606644750aed27adf314f5d30d57bb3e18398faeb4fc5042",
+      "readableText": "application-agreements.json",
+      "readableTextSha256": "88f580f9491454ac4ec3621f7fe30e880f6c4566f3eeb494974d8adbf276e8e9",
+      "pageCount": 1,
+      "pages": [
+        {
+          "width": 612.0,
+          "height": 792.0
+        }
+      ],
+      "redactedFilesystemPaths": 1,
+      "excerpt": {
+        "sourcePage": 2,
+        "sourceRectangle": [
+          0.0,
+          248.0,
+          612.0,
+          754.0
+        ],
+        "destinationRectangle": [
+          0.0,
+          36.0,
+          612.0,
+          542.0
+        ],
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": -212
+      }
+    }
+  ]
+}

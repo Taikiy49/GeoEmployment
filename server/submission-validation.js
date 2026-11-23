@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { MAX_RESUME_BYTES, RESUME_SIZE_ERROR } from '../src/lib/resumeLimits.js';
+import { APPLICATION_DOCUMENTS } from '../shared/application-documents.js';
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const requiredFields = [
@@ -13,6 +14,42 @@ const validDate = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.te
   && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
 const canonicalJson = value => JSON.stringify(value, (_key, item) => isObject(item)
   ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b))) : item);
+const SELF_ID_FIELDS = { eeoGender: 'gender', eeoRace: 'race', veteranStatus: 'veteranStatus' };
+const LEGACY_SELF_ID_VALUES = {
+  eeoGender: ['noAnswer', 'I do not wish to disclose.'],
+  eeoRace: ['noAnswer'],
+};
+
+function validateDocumentResponse(field, value) {
+  // Optional self-identification remains optional. No response is not a
+  // negative response, and a client may explicitly clear a previous choice.
+  if (value === undefined || value === null || value === '') return;
+  if (field.type === 'checkbox') {
+    if (typeof value !== 'boolean') throw new Error(`Invalid ${field.label} response.`);
+    return;
+  }
+  if (typeof value !== 'string' || /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/u.test(value)) {
+    throw new Error(`Invalid ${field.label} response.`);
+  }
+  if (!value.trim()) return;
+  if (field.type === 'date' && !validDate(value)) throw new Error(`Enter a valid date for ${field.label}.`);
+  if (field.type === 'radio'
+      && !field.options.some(option => option.value === value)
+      && !(LEGACY_SELF_ID_VALUES[field.key] || []).includes(value)) {
+    throw new Error(`Choose one of the listed options for ${field.label}, or leave it blank.`);
+  }
+}
+
+function validateDocumentResponses(data, eeoData) {
+  if (eeoData != null && !isObject(eeoData)) throw new Error('Invalid self-identification responses.');
+  for (const document of APPLICATION_DOCUMENTS) {
+    for (const field of document.fields) {
+      validateDocumentResponse(field, data[field.key]);
+      const source = SELF_ID_FIELDS[field.key];
+      if (source && eeoData && Object.hasOwn(eeoData, source)) validateDocumentResponse(field, eeoData[source]);
+    }
+  }
+}
 
 export function normalizeSubmission(body) {
   if (!isObject(body) || !isObject(body.applicationData)) {
@@ -25,6 +62,7 @@ export function normalizeSubmission(body) {
       || !data[`${prefix}Signature`].trim() || !validDate(data[`${prefix}Date`])) missing.push(`Sign, date, and accept the ${label}`);
   }
   if (missing.length) throw new Error(`Complete these required items before submitting: ${missing.join('; ')}.`);
+  validateDocumentResponses(data, body.eeoData);
   data.email = data.email.trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) throw new Error('Enter a valid email address.');
   for (const field of ['employment', 'education', 'references']) {

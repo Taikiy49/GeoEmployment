@@ -29,6 +29,7 @@ import EEOStep from '../components/steps/EEOStep';
 import VeteranStep from '../components/steps/VeteranStep';
 import AlcoholDrugStep from '../components/steps/AlcoholDrugStep';
 import ReviewStep from '../components/steps/ReviewStep';
+import { getApplicationDocument } from '../../shared/application-documents.js';
 
 const SAVE_DEBOUNCE_MS = 2500;
 const FLOW_VERSION = 'simple-v3';
@@ -603,7 +604,12 @@ export default function Application() {
     setSubmitted(true);
   };
 
-  const stepProps = { formData, setFormData, onNext: goNext, onBack: goBack };
+  const onDocumentChange = key => {
+    const document = getApplicationDocument(key);
+    setActiveTasks(previous => ({ ...previous, [document.step]: document.task }));
+    setCurrentStep(document.step);
+  };
+  const stepProps = { formData, setFormData, onNext: goNext, onBack: goBack, onDocumentChange };
   const activeTask = activeTasks[currentStep] || 0;
   const submissionIssues = getSubmissionIssues(formData, REQUIRED_FIELDS);
   const setActiveTask = taskIndex => {

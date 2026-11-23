@@ -2,10 +2,11 @@ import React, { useId } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import FormSection from '../app/FormSection';
 import NavigationButtons from '../app/NavigationButtons';
-import { ESSENTIAL_FUNCTIONS_QUESTION, MEDICAL_AUTHORIZATION_TEXT } from '@/lib/legalTexts';
+import DocumentEditor from '../app/DocumentEditor';
 
-export default function MedicalStep({ formData, setFormData, onNext, onBack }) {
-  const update = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
+const MEDICAL_FIELDS = ['medInitials', 'canPerformDuties'];
+
+export default function MedicalStep({ formData, setFormData, onNext, onBack, onDocumentChange }) {
   const id = useId();
 
   return (
@@ -14,89 +15,29 @@ export default function MedicalStep({ formData, setFormData, onNext, onBack }) {
         title="Medical Information & Authorization"
         description="This section outlines Geolabs, Inc.'s pre-employment and ongoing physical examination and testing policy."
       >
-        <div className="space-y-5">
-
-          {/* Pre-Employment Physical Disclosure */}
-          <div className="bg-white border border-brand-line rounded-xl p-4 space-y-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-0.5">Pre-Employment & Employment Physicals</h3>
-                <p className="text-xs text-gray-500">Please read and initial to acknowledge this policy.</p>
-              </div>
-              <div className="flex gap-2 flex-shrink-0">
-                <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-bronze/10 text-bronze">Confidential</span>
-                <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">Hiring Review Only</span>
-              </div>
+        <div className="space-y-6">
+          <DocumentEditor documentKey="application-agreements" fieldKeys={MEDICAL_FIELDS} formData={formData} setFormData={setFormData} onDocumentChange={onDocumentChange} />
+          <div className="space-y-3 rounded-lg border border-brand-line bg-brand-soft p-4">
+            <h3 className="text-sm font-semibold text-gray-900">Accommodation requests</h3>
+            <div className="flex min-h-11 items-start gap-3">
+              <Checkbox
+                id={`${id}-needs-accommodation`}
+                checked={Boolean(formData.needsAccommodation)}
+                onCheckedChange={checked => setFormData(previous => ({ ...previous, needsAccommodation: checked === true }))}
+                aria-describedby={`${id}-accommodation-hint`}
+                className="mt-1"
+              />
+              <label htmlFor={`${id}-needs-accommodation`} className="cursor-pointer text-sm leading-relaxed text-brand">
+                I may require a reasonable accommodation to perform the essential functions of the position for which I am applying.
+                <span className="text-brand-muted"> (If selected, HR may contact you to discuss specific accommodations.)</span>
+              </label>
             </div>
-
-            <div className="bg-[#f8fafc] border border-brand-soft rounded-lg p-4 space-y-3">
-              <p className="text-xs text-brand leading-relaxed">
-                {MEDICAL_AUTHORIZATION_TEXT}
-              </p>
-            </div>
-
-            <div className="space-y-1">
-              <label htmlFor={`${id}-initials`} className="text-xs font-medium text-gray-700">Applicant's Initials <span className="text-red-500">*</span></label>
-              <div className="flex items-center gap-3">
-                <input
-                  id={`${id}-initials`}
-                  required
-                  aria-describedby={`${id}-initials-hint`}
-                  type="text"
-                  placeholder="e.g., TY"
-                  value={formData.medInitials || ''}
-                  onChange={e => update('medInitials', e.target.value)}
-                  maxLength={4}
-                  className="w-24 h-9 px-3 text-sm border border-brand-line rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand text-center font-semibold tracking-widest"
-                />
-                <p id={`${id}-initials-hint`} className="text-xs text-gray-400">Your initials confirm you have read and understood the above policy.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* ADA / Ability to Perform */}
-          <div className="bg-brand-soft border border-brand/20 rounded-xl p-4 space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-0.5">Ability to Perform Essential Job Functions</h3>
-              <p className="text-xs text-gray-500">
-                {ESSENTIAL_FUNCTIONS_QUESTION}
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <Checkbox
-                  id="canPerformDuties"
-                  checked={formData.canPerformDuties}
-                  onCheckedChange={v => update('canPerformDuties', v)}
-                  className="mt-0.5"
-                />
-                <label htmlFor="canPerformDuties" className="text-xs text-brand leading-relaxed cursor-pointer">
-                  I am able to perform the essential functions of the position for which I am applying, with or without reasonable accommodation.
-                </label>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Checkbox
-                  id="needsAccommodation"
-                  checked={formData.needsAccommodation}
-                  onCheckedChange={v => update('needsAccommodation', v)}
-                  className="mt-0.5"
-                />
-                <label htmlFor="needsAccommodation" className="text-xs text-brand leading-relaxed cursor-pointer">
-                  I may require a reasonable accommodation to perform the essential functions of the position for which I am applying. <span className="text-brand-muted">(If selected, HR may contact you to discuss specific accommodations.)</span>
-                </label>
-              </div>
-            </div>
-
-            <p className="text-[10px] text-gray-400">
+            <p id={`${id}-accommodation-hint`} className="text-xs text-brand-muted">
               Do not include medical diagnoses or detailed health history here. Specific accommodation needs may be discussed confidentially with HR after a conditional offer is made.
             </p>
           </div>
-
         </div>
       </FormSection>
-
       <NavigationButtons onBack={onBack} onNext={onNext} />
     </div>
   );

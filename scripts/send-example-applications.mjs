@@ -315,7 +315,7 @@ const buildApplication = async (applicant, index) => {
     knowEmployee: 'No',
     canPerformDuties: true,
     needsAccommodation: false,
-    professionalOrgs: applicant.professionalOrgs,
+    affiliations: applicant.professionalOrgs,
     professionalLicenses: applicant.professionalLicenses,
     certificationAgreed: true,
     certificationSignature: fullName,

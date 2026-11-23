@@ -13,6 +13,9 @@ export default function FormField({
   rows = 3,
   className = '',
   disabled = false,
+  name = undefined,
+  maxLength = undefined,
+  autoComplete = undefined,
 }) {
   const generatedId = useId();
   const id = `field-${generatedId.replace(/:/g, '')}`;
@@ -66,6 +69,9 @@ export default function FormField({
         <textarea
           ref={textareaRef}
           id={id}
+          name={name}
+          maxLength={maxLength}
+          autoComplete={autoComplete}
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
@@ -79,6 +85,9 @@ export default function FormField({
       ) : (
         <input
           id={id}
+          name={name}
+          maxLength={maxLength}
+          autoComplete={autoComplete}
           type={type}
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}

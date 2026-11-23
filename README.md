@@ -46,9 +46,11 @@ This repository powers **careers.geolabs.net**: the Geolabs careers website, gui
 
 ### Organized documents
 
-The employer package contains the main application and résumé, with separate **EEO**, **protected-veteran**, and **alcohol/drug agreement** PDFs. Each standalone form has its own page numbering. Voluntary self-identification records remain separate from the supervisor-facing application.
+Applicants can read the original HR documents, click highlighted fields, and use **Next field** to move through their answers. **Readable view** provides reflowed text and larger controls and is the default on phones. Both views use the same saved draft; signatures and optional responses are never entered automatically.
 
-Generated packets use Arial and compact layouts. Blank extra education records and internal processing tables do not print. Existing saved PDFs are not automatically rewritten when code changes.
+The employer package contains the main application and résumé, plus separate completed **EEO**, **protected-veteran**, **alcohol/drug agreement**, and **application-agreements** PDFs. The last document contains the original medical policy, FCRA disclosure and employment certification. Voluntary self-identification records remain separate from the supervisor-facing application. No disability self-identification form is included.
+
+The main packet uses Arial and a compact layout; the standalone files retain the supplied original artwork with answers filled in Arial. Blank extra education records and internal processing tables do not print. Long answers use a continuation page instead of being cut off. Completed files are static PDF records of typed electronic signatures, not a third-party e-signature certification. Existing saved PDFs are not automatically rewritten when code changes. See the [document editor contract](./docs/document-editor.md).
 
 ### Practical safeguards
 
@@ -67,7 +69,7 @@ Automated accessibility checks support testing; they do not certify compatibilit
 | Server | Node.js 24 |
 | Authentication | Microsoft identity platform |
 | Email | Microsoft Graph and configured Resend support |
-| Documents | DOCX generation, LibreOffice conversion, PDF splitting |
+| Documents | PDF.js document preview, original-template PDF filling, DOCX/LibreOffice main packet |
 | Storage | Server-side JSON records and files in a durable data directory |
 | Production | EC2, Nginx, systemd |
 

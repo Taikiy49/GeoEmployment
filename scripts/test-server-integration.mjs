@@ -26,12 +26,12 @@ let holdDelivery;
 const submit = createSubmissionHandler({
   buildDocx: async () => Buffer.from('test docx'),
   convertPdf: async () => Buffer.from('%PDF-test package'),
-  splitPdfs: async () => ['eeo', 'veteran', 'drug-agreement'].map(key => ({ key, label: key, filename: `${key}.pdf`, content: Buffer.from(`%PDF-${key}`), type: 'application/pdf', restricted: true })),
+  buildForms: async () => ['eeo-survey', 'veteran-status', 'alcohol-drug-agreement', 'application-agreements'].map(key => ({ key, label: key, filename: `${key}.pdf`, content: Buffer.from(`%PDF-${key}`), type: 'application/pdf', restricted: ['eeo-survey', 'veteran-status'].includes(key) })),
   deliver: async payload => {
     const isHr = payload.to.includes('employment@geolabs.net');
     if (isHr) {
       const records = JSON.parse(await readFile(join(directory, 'applications.json'), 'utf8'));
-      assert.equal(records.at(-1).documents.length, 4, 'All PDFs must be persisted before mail delivery begins.');
+      assert.equal(records.at(-1).documents.length, 5, 'All PDFs must be persisted before mail delivery begins.');
       if (holdDelivery) await holdDelivery;
     }
     if ((isHr && failHr) || (!isHr && failConfirmation)) throw new Error('Simulated mail outage');
@@ -90,6 +90,22 @@ try {
   for (const body of [null, [], {}, { ...application('missing-fcra'), applicationData: { ...data, fcrInitials: '' } }, { ...application('bad-agreement'), applicationData: { ...data, drugTestAgreed: 'yes' } }, application('../escape')]) {
     await request('/api/submit-application', { method: 'POST', body, status: 400 });
   }
+  for (const malformed of [
+    { eeoName: { unexpected: 'object' } }, { affiliations: ['not', 'text'] },
+    { knowEmployeeName: 42 }, { canPerformDuties: 'false' },
+    { eeoDate: '2026-02-30' }, { vetDate: 'tomorrow' },
+    { vetSignature: 'Invalid\u0000name' }, { veteranStatus: 'unlisted' },
+  ]) {
+    await request('/api/submit-application', {
+      method: 'POST', body: { ...application('malformed-form-response'), applicationData: { ...data, ...malformed } }, status: 400,
+    });
+  }
+  for (const eeoData of [[], 'not an object', { gender: {} }, { gender: 'unlisted' }, { race: true }, { race: 'unlisted' }, { veteranStatus: 'unlisted' }]) {
+    await request('/api/submit-application', {
+      method: 'POST', body: { ...application('malformed-self-id'), eeoData }, status: 400,
+    });
+  }
+  assert.equal(sent.length, 0, 'Malformed document responses must not send an email.');
   assert.deepEqual(await readdir(directory), [], 'Invalid submissions must not create applicant records.');
   const first = application('http-valid');
   Object.assign(first, { stage: 'hired', documents: [{ key: 'stolen', storedFilename: '../../secret' }], resumeStoredFilename: '../../secret', submittedAt: '1900-01-01' });
@@ -98,7 +114,7 @@ try {
   assert.equal(sent.length, 2);
   assert.deepEqual(sent[0].to, ['employment@geolabs.net', 'tyamashita@geolabs.net']);
   assert.equal(sent[0].reply_to, 'applicant@example.com');
-  assert.equal(sent[0].attachments.length, 6, 'HR receives logo, main PDF, three separate forms, and résumé.');
+  assert.equal(sent[0].attachments.length, 7, 'HR receives logo, main PDF, four separate forms, and résumé.');
   assert.equal(sent[0].attachments.at(-1).type, 'application/pdf');
   assert.deepEqual(sent[1].to, ['applicant@example.com']);
   assert.equal(sent[1].attachments.length, 1, 'Applicant confirmation only contains the inline logo.');
@@ -111,12 +127,18 @@ try {
   const resume = await request(`/api/admin/applications/${first.id}/resume`, { auth: true });
   assert.equal(await resume.text(), '%PDF-test resume');
   assert.equal(resume.headers.get('cache-control'), 'private, no-store');
-  for (const document of record.documents) await request(document.url, { auth: true });
+  for (const document of record.documents) {
+    const downloaded = Buffer.from(await (await request(document.url, { auth: true })).arrayBuffer());
+    const attachment = sent[0].attachments.find(item => item.filename === document.filename);
+    assert.deepEqual(downloaded, Buffer.from(attachment.content, 'base64'), 'HR downloads and email must contain identical completed PDFs.');
+    await request(document.url, { status: 401 });
+  }
+  assert.deepEqual(record.documents.filter(document => document.restricted).map(document => document.key), ['eeo-survey', 'veteran-status']);
   await request(`/api/admin/applications/${first.id}`, { method: 'PATCH', auth: true, body: { stage: 'interview', documents: [{ key: 'stolen', storedFilename: '../../secret' }], resumeStoredFilename: '../../secret' } });
   await request('/api/submit-application', { method: 'POST', body: first });
   assert.equal(sent.length, 2, 'Retry of delivered application must not resend either email.');
   assert.equal((await getApplication(first.id)).stage, 'interview');
-  assert.equal((await getApplication(first.id)).documents.length, 4);
+  assert.equal((await getApplication(first.id)).documents.length, 5);
   const conflict = await request('/api/submit-application', { method: 'POST', body: { ...first, applicationData: { ...data, lastName: 'Overwrite' } }, status: 409 });
   assert.equal((await conflict.json()).code, 'APPLICATION_ID_CONFLICT');
   assert.equal(getResumePath({ resumeStoredFilename: '../../secret' }), null);
@@ -126,7 +148,7 @@ try {
   const failed = application('http-delivery-retry');
   await request('/api/submit-application', { method: 'POST', body: failed, status: 502 });
   assert.equal((await getApplication(failed.id)).deliveryStatus, 'delivery_failed');
-  assert.equal((await getApplication(failed.id)).documents.length, 4);
+  assert.equal((await getApplication(failed.id)).documents.length, 5);
   failHr = false;
   await request('/api/submit-application', { method: 'POST', body: failed });
   failConfirmation = true;

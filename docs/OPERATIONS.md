@@ -160,6 +160,7 @@ In a second terminal:
 ```bash
 npm run test:accessibility
 npm run test:draft
+npm run test:document-editor
 npm run test:continue-link
 npm run test:secure-drafts
 npm run test:resume-autofill
@@ -168,6 +169,8 @@ npm run test:jobs
 npm run test:admin
 npm run test:admin-server
 npm run test:pdf-package
+npm run test:original-forms
+npm run test:original-delivery
 npm run test:compliance-pdfs
 npm run test:server
 npm run test:email-limits
@@ -189,6 +192,10 @@ PDF_FONT_DIR=/usr/local/share/fonts/geolabs-arial REQUIRE_ARIAL_PDF=1 npm run te
 ```
 
 The installer verifies the original Microsoft Core Fonts archive checksum and retains its license and original installer. Fonts stay outside public website assets and Git. `fc-match Arial` must resolve Arial, not a substitute. Set `LIBREOFFICE_BIN` if `soffice` is not on PATH. The layout test checks independent numbering, full policy text, required clauses, omitted blank rows/audit tables, long duties across page breaks, and embedded Arial when explicitly required.
+
+Original-form filling also requires Arial: run `PDF_FONT_DIR=/usr/local/share/fonts/geolabs-arial npm run test:original-forms`. macOS development can use the installed system Arial automatically. Versioned blank originals, readable transcripts and source hashes live in `public/forms/lola-v1`; `shared/application-documents.js` owns field coordinates for both browser and server. Updating a source requires a new reviewed template version and mapping, not an unreviewed overwrite. `scripts/prepare-original-forms.py` is an offline maintainer tool, not a production dependency. Completed PDFs are saved before email delivery and the same bytes are attached; the existing HR routing and applicant confirmation routing remain unchanged.
+
+`npm run test:original-delivery` exercises the actual main-document conversion and all four original-form outputs through the submission handler, with email providers blocked and mocked. It verifies saved/attached byte identity, HR versus applicant recipients, attachment counts and absence of disability output. It requires both LibreOffice and Arial. On macOS, a bundled headless LibreOffice runtime may require a task-local fontconfig file listing `/System/Library/Fonts/Supplemental`; keep fontconfig changes local to the test process.
 
 ## Production deployment
 

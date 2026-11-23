@@ -1,0 +1,32 @@
+{
+  "id": "eeo-survey",
+  "version": "lola-v1",
+  "pages": [
+    {
+      "page": 1,
+      "width": 612.0,
+      "height": 792.0,
+      "text": "EEO VOLUNTARY SELF-IDENTIFICATION SURVEY\n\n(Applicant Data)\n\nName: Date:\n\nThe Equal Employment Opportunity Commission (EEOC) requires all private employers with 100 or more employees as well as federal contractors and first-tier subcontractors with 50 or more employees AND contracts of at least $50,000 complete an EEO-1 report each year. Covered employers must invite employees to self-identify gender and race for this report.\n\nCompletion of this form is voluntary and your choice to complete it will not affect your opportunity for employment, or the terms or conditions of your employment. This form will be used for EEO-1 reporting purposes only and will be kept separate from all other personnel records only accessed by the Human Resources department.\n\nIf you choose not to self-identify at this time, the federal government requires Geolabs, Inc. to determine this information by visual survey and/or other available information.\n\nGENDER: (Check ONE of the options) Male Female\n\nETHNICITY: (Check ONE category only)\n\nHispanic or Latino: A person of Cuban, Mexican, Puerto Rican, South or Central American, of other Spanish culture or origin, regardless of race.\n\nWhite (not Hispanic or Latino): A person having origins in any of the original peoples of Europe, Middle East or North Africa.\n\nBlack or African American (not Hispanic or Latino): A person having origins in any of the black racial groups of Africa.\n\nNative Hawaiian or other Pacific Islander (not Hispanic or Latino): A person having origins in any of the peoples of Hawaii, Guam, Samoa, or other Pacific Islands.\n\nAsian (not Hispanic or Latino): A person having origins in any of the original peoples of the Far East, Southeast Asia, or the Indian Subcontinent, including, for example, Cambodia, China, India, Japan, Korea, Malaysia, Pakistan, the Philippine Islands, Thailand, and Vietnam.\n\nNative American or Alaskan Native (not Hispanic or Latino): A person having origins in any of the original peoples of North and South America (including Central America), and who maintain tribal affiliation or community attachment.\n\nTwo or More Races (not Hispanic or Latino): All persons who identify with more than one of the above five races. (For the purpose of this group, identifying as Hispanic or Latino and only one of the listed five race groups does not qualify)\n\nI do not wish to disclose.\n\nGEOLABS, INC.\n\nRevised 11/5/2025",
+      "paragraphs": [
+        "EEO VOLUNTARY SELF-IDENTIFICATION SURVEY",
+        "(Applicant Data)",
+        "Name: Date:",
+        "The Equal Employment Opportunity Commission (EEOC) requires all private employers with 100 or more employees as well as federal contractors and first-tier subcontractors with 50 or more employees AND contracts of at least $50,000 complete an EEO-1 report each year. Covered employers must invite employees to self-identify gender and race for this report.",
+        "Completion of this form is voluntary and your choice to complete it will not affect your opportunity for employment, or the terms or conditions of your employment. This form will be used for EEO-1 reporting purposes only and will be kept separate from all other personnel records only accessed by the Human Resources department.",
+        "If you choose not to self-identify at this time, the federal government requires Geolabs, Inc. to determine this information by visual survey and/or other available information.",
+        "GENDER: (Check ONE of the options) Male Female",
+        "ETHNICITY: (Check ONE category only)",
+        "Hispanic or Latino: A person of Cuban, Mexican, Puerto Rican, South or Central American, of other Spanish culture or origin, regardless of race.",
+        "White (not Hispanic or Latino): A person having origins in any of the original peoples of Europe, Middle East or North Africa.",
+        "Black or African American (not Hispanic or Latino): A person having origins in any of the black racial groups of Africa.",
+        "Native Hawaiian or other Pacific Islander (not Hispanic or Latino): A person having origins in any of the peoples of Hawaii, Guam, Samoa, or other Pacific Islands.",
+        "Asian (not Hispanic or Latino): A person having origins in any of the original peoples of the Far East, Southeast Asia, or the Indian Subcontinent, including, for example, Cambodia, China, India, Japan, Korea, Malaysia, Pakistan, the Philippine Islands, Thailand, and Vietnam.",
+        "Native American or Alaskan Native (not Hispanic or Latino): A person having origins in any of the original peoples of North and South America (including Central America), and who maintain tribal affiliation or community attachment.",
+        "Two or More Races (not Hispanic or Latino): All persons who identify with more than one of the above five races. (For the purpose of this group, identifying as Hispanic or Latino and only one of the listed five race groups does not qualify)",
+        "I do not wish to disclose.",
+        "GEOLABS, INC.",
+        "Revised 11/5/2025"
+      ]
+    }
+  ]
+}

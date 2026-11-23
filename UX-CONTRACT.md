@@ -8,7 +8,7 @@ Authoritative sources: README.md; src/lib/legalTexts.js and applicationValidatio
 
 ## Visual contract
 
-DESIGN.md records the official GeoWeb identity and product-density adaptations. src/index.css owns the brand palette and self-hosted Montserrat/DM Sans families; Tailwind adapts those tokens for shared components. PDFs remain Arial and are unchanged.
+DESIGN.md records the official GeoWeb identity and product-density adaptations. src/index.css owns the brand palette and self-hosted Montserrat/DM Sans families; Tailwind adapts those tokens for shared components. The main application PDF remains Arial. The original-document editor preserves HR's source form artwork and fills answers in Arial; see docs/document-editor.md for its interaction and output contract.
 
 ## Canonical UI Map
 

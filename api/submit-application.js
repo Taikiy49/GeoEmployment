@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { buildApplicationDocx } from './generate-application-docx.js';
 import { convertDocxToPdf } from './convert-docx-to-pdf.js';
-import { splitCompliancePdfs } from './split-compliance-pdfs.js';
+import { buildApplicationDocumentPdfs } from './fill-application-documents.js';
 
 const HR_RECIPIENTS = (
   process.env.HR_APPLICATION_EMAIL
@@ -336,7 +336,7 @@ export async function sendEmail(payload) {
   return sendResendEmail(payload);
 }
 
-export function createSubmissionHandler({ buildDocx = buildApplicationDocx, convertPdf = convertDocxToPdf, splitPdfs = splitCompliancePdfs, deliver = sendEmail } = {}) {
+export function createSubmissionHandler({ buildDocx = buildApplicationDocx, convertPdf = convertDocxToPdf, buildForms = buildApplicationDocumentPdfs, splitPdfs, deliver = sendEmail } = {}) {
   return async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed.' });
     if (!hasMicrosoftConfig() && !process.env.RESEND_API_KEY) {
@@ -363,9 +363,12 @@ export function createSubmissionHandler({ buildDocx = buildApplicationDocx, conv
         type: 'application/pdf',
         restricted: false,
       };
-      const complianceSourceDocx = await buildDocx(application, { omitFooter: true });
-      const complianceSourcePdf = await convertPdf(complianceSourceDocx);
-      const compliancePdfs = await splitPdfs(complianceSourcePdf, safeApplicantName);
+      // Older isolated integrations may inject a splitter. The production path
+      // fills the same original templates applicants saw, without regenerating
+      // another complete application or identifying sections by heading text.
+      const compliancePdfs = splitPdfs
+        ? await splitPdfs(await convertPdf(await buildDocx(application, { omitFooter: true })), safeApplicantName)
+        : await buildForms(application, safeApplicantName);
       const generatedDocuments = [completeApplication, ...compliancePdfs.map(document => ({
         ...document,
         content: document.content.toString('base64'),
