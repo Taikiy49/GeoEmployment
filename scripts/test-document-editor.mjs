@@ -70,7 +70,15 @@ try {
     await page.route('**/api/submit-application', route => route.abort('blockedbyclient'));
     await startAt(page, 4);
     await paperReady(page);
-    assert.equal(await field(page, 'drugTestSignature').isDisabled(), true);
+    assert.equal(await field(page, 'drugTestSignature').isDisabled(), false);
+    await field(page, 'drugTestSignature').fill('Before acknowledgment TEST');
+    assert.equal(await page.evaluate(async () => {
+      await document.fonts.load('20px "Geolabs Signature"');
+      return document.fonts.check('20px "Geolabs Signature"');
+    }), true, 'The bundled signature font must load in the real browser.');
+    assert.equal(await field(page, 'drugTestAgreed').isChecked(), false, 'Typing a signature must never imply consent.');
+    await editor(page).getByRole('button', { name: 'Review required acknowledgment', exact: true }).click();
+    assert.equal(await field(page, 'drugTestAgreed').evaluate(node => node === document.activeElement), true);
     assert.equal(await field(page, 'drugTestDate').getAttribute('type'), 'date', 'Dates retain their native platform picker.');
     assert.equal(await field(page, 'drugTestDate').isDisabled(), true);
     await field(page, 'drugTestAgreed').check();
@@ -150,6 +158,9 @@ try {
     await field(page, 'fcrInitials').fill('DT');
     await field(page, 'knowEmployee').fill('Yes');
     await field(page, 'knowEmployeeName').fill('Example Employee');
+    assert.equal(await field(page, 'certificationSignature').isDisabled(), false);
+    await field(page, 'certificationSignature').fill('Unsigned draft TEST');
+    assert.equal(await field(page, 'certificationAgreed').isChecked(), false);
     await field(page, 'certificationAgreed').check();
     await field(page, 'certificationSignature').fill('Document TEST');
     await field(page, 'certificationDate').fill('2026-11-22');

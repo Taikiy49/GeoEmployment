@@ -200,7 +200,7 @@ try {
   assert.match(policySpeech, /The Company has a vital interest/, 'Read-aloud must include original PDF policy text, not only the form controls.');
   assert.match(policySpeech, /Designated Employer Representative/);
   const drugSignature = page.locator('[data-document-field="drugTestSignature"] input');
-  assert.equal(await drugSignature.isDisabled(), true);
+  assert.equal(await drugSignature.isDisabled(), false, 'Applicants can type before acknowledging; submission still requires explicit consent.');
   await page.getByRole('checkbox', { name: /^I have read, understand, and agree/ }).check();
   await drugSignature.fill('Accessibility Test');
   await page.clock.setSystemTime(new Date('2026-09-14T08:45:00Z'));

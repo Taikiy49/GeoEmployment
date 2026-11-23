@@ -16,11 +16,13 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 ## Data and output
 
+Signature inputs allow typing before acknowledgment. Typing never checks consent automatically: the existing client/server submission validation and completed-PDF consent gate still require explicit acknowledgment. An adjacent reminder links back to the required checkbox while it is unchecked.
+
 The document editor is controlled by Application's existing formData. It never generates a signature or infers a protected response. Native date inputs retain the existing platform-owned calendar, without duplicate app-owned Today buttons. Shared Button controls own actions; DocumentEditor owns the original-paper overlay variant and explicit consent checkboxes. Paper rendering retains accessible labels and the hidden original-document transcript.
 
 Completed PDFs are static submission snapshots, not cryptographically signed documents. The original templates are retained. Historical submissions are not regenerated. The main application continues to include its existing policy summary and other answers; the separate original application-agreements PDF supplies the paper-format signed copy. Disability is not included.
 
-Arial remains the primary response font. Older server versions of Arial lack some Hawaiian characters, so an affected response field uses bundled, openly licensed Noto Sans rather than changing or omitting the applicant's characters. This also applies to continuation text; original form artwork is never re-typeset. See `server/assets/fonts/README.md` for provenance and license.
+Arial remains the primary response font. Typed signature fields use bundled Allura in the editor and completed original PDFs; the complete font is embedded to preserve contextual script glyphs. Unsupported signature characters use the existing Unicode-safe response font without changing the name. Older server versions of Arial lack some Hawaiian characters, so an affected response field uses bundled, openly licensed Noto Sans rather than changing or omitting the applicant's characters. This also applies to continuation text; original form artwork is never re-typeset. See `server/assets/fonts/README.md` and `public/fonts/README.md` for provenance and licenses.
 
 ## Source attachment verification — November 22, 2026
 

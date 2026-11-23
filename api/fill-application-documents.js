@@ -148,6 +148,7 @@ export async function buildApplicationDocumentPdfs(application, safeApplicantNam
   const values = getApplicationDocumentValues(application);
   const fontBytes = await readFont();
   let fallbackBytes;
+  let signatureBytes;
   const results = [];
   // Sequential processing keeps the small production host's memory bounded.
   for (const definition of definitions) {
@@ -155,6 +156,7 @@ export async function buildApplicationDocumentPdfs(application, safeApplicantNam
     document.registerFontkit(fontkit);
     const font = await document.embedFont(fontBytes, { subset: true });
     const supportedCharacters = new Set(font.getCharacterSet());
+    let signatureFont;
     let fallbackFont;
     let fallbackCharacters;
     const supports = (characters, text) => Array.from(text).every(character => character === '\n' || characters.has(character.codePointAt(0)));
@@ -188,7 +190,14 @@ export async function buildApplicationDocumentPdfs(application, safeApplicantNam
         }
       } else if (field.rect) {
         const text = responseText(value);
-        drawResponse(document, field, text, await responseFont(text, field.label), continuation);
+        let selectedFont = await responseFont(text, field.label);
+        if (field.signature && text.trim()) {
+          signatureBytes ||= await readFile(new URL('../public/fonts/Allura-Regular.ttf', import.meta.url));
+          // Preserve glyph IDs used by the script font's contextual shaping.
+          signatureFont ||= await document.embedFont(signatureBytes, { subset: false });
+          if (supports(new Set(signatureFont.getCharacterSet()), text)) selectedFont = signatureFont;
+        }
+        drawResponse(document, field, text, selectedFont, continuation);
       }
     }
     appendContinuation(document, definition, continuation, font);

@@ -29,3 +29,5 @@
 .document-download:hover { color: rgb(var(--brand-focus)); }
 @media (max-width: 767px) { .document-paper-scroll { padding: 6px; } }
 @media (forced-colors: active) { .document-paper-field input, .document-paper-choice input { border: 1px solid FieldText; background: Field; color: FieldText; } }
+.document-paper-field input.document-signature-input { font-family: 'Geolabs Signature', cursive; font-size: 20px; letter-spacing: normal; text-align: left; }
+@font-face { font-family: 'Geolabs Signature'; src: url('/fonts/Allura-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }

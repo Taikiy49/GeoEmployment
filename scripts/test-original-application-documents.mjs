@@ -18,7 +18,7 @@ const testDefinition = {
   fields: [
     { key: 'name', label: 'Name', type: 'text', rect: rectangle(70) },
     { key: 'date', label: 'Date', type: 'date', rect: rectangle(110) },
-    { key: 'signature', label: 'Signature', type: 'text', requires: 'agreed', rect: rectangle(150) },
+    { key: 'signature', label: 'Signature', type: 'text', signature: true, requires: 'agreed', rect: rectangle(150) },
     { key: 'agreed', label: 'Consent', type: 'checkbox' },
     { key: 'status', label: 'Status', type: 'radio', options: [
       { value: 'yes', label: 'Yes', rect: rectangle(190, 12, 12) },
@@ -37,6 +37,8 @@ assert.equal(filled.restricted, true);
 assert.equal(filled.type, 'application/pdf');
 assert.deepEqual(sourceBytes, Buffer.from(await source.save()), 'Original template bytes must remain unchanged.');
 const filledText = (await extractPageTexts(filled.content)).join(' ');
+const signatureDocument = await PDFDocument.load(filled.content);
+assert.ok(signatureDocument.context.enumerateIndirectObjects().some(([, object]) => object instanceof PDFDict && /Allura/.test(object.get(PDFName.of('BaseFont'))?.toString() || '')), 'Typed signatures must embed the bundled cursive font.');
 for (const value of ['original policy wording remains unchanged', 'leilani kealoha', '2026-11-22', 'signed', 'yes']) assert.ok(filledText.includes(value));
 
 async function pageContentOperators(bytes) {

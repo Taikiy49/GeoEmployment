@@ -109,7 +109,7 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
 
   const renderError = React.useCallback(() => setError('The PDF could not be displayed. Retry, or open the original PDF below. Your answers are kept.'), []);
   const nextField = () => {
-    const eligible = fields.filter(field => !field.requires || formData[field.requires]);
+    const eligible = fields.filter(field => field.signature || !field.requires || formData[field.requires]);
     if (!eligible.length) return;
     const index = eligible.findIndex(field => field.key === lastField.current);
     const field = eligible[(index + 1) % eligible.length];
@@ -122,7 +122,10 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
       setAnnouncement(`${field.label}${field.required ? ', required' : ', optional'}`);
     }
   };
-  const disabled = field => Boolean(field.requires && !formData[field.requires]);
+  // Typing a name is not consent. Keep acknowledgment mandatory at submission,
+  // but do not silently lock the signature input while the applicant reads.
+  const disabled = field => Boolean(!field.signature && field.requires && !formData[field.requires]);
+  const pendingAcknowledgment = fields.find(field => field.signature && field.requires && !formData[field.requires]);
   const signatureHint = 'Typing your name serves as your electronic signature. It is not added automatically.';
   const clearLabel = field => field.key === 'eeoGender' ? 'Clear gender selection' : field.key === 'eeoRace' ? 'Clear race or ethnicity selection' : 'Clear veteran status selection';
 
@@ -150,6 +153,7 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
     return <div key={field.key} style={boxStyle(field.rect)} className={`document-paper-field ${field.type === 'checkbox' ? 'document-paper-boolean' : ''}`} data-document-field={field.key} onFocus={() => { lastField.current = field.key; }}>
       <label className="sr-only" htmlFor={fieldId}>{field.label}</label>
       <input id={fieldId} name={field.key} type={field.type} value={field.type === 'checkbox' ? undefined : formData[field.key] || ''} checked={field.type === 'checkbox' ? Boolean(formData[field.key]) : undefined}
+        className={field.signature ? 'document-signature-input' : undefined}
         onChange={event => update(field.key, field.type === 'checkbox' ? event.target.checked : event.target.value)}
         disabled={disabled(field)} required={field.required} maxLength={field.maxLength} autoComplete="off"
         aria-describedby={field.signature ? `${id}-signature-hint` : undefined} />
@@ -182,6 +186,14 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
       {fields.filter(field => field.type === 'radio').map(field => <Button key={field.key} type="button" variant="outline" aria-label={clearLabel(field)} onClick={() => update(field.key, '')} className="min-h-11">{clearLabel(field)}</Button>)}
     </div>}
     <p id={`${id}-signature-hint`} className="text-sm text-brand-muted">{fields.some(field => field.signature) ? signatureHint : 'Selections are voluntary and can be cleared.'}</p>
+    {pendingAcknowledgment && <div className="text-sm text-brand-muted">
+      <p>You can type your name now. You must also check the acknowledgment before submitting.</p>
+      <Button type="button" variant="link" className="min-h-11" onClick={() => {
+        const checkbox = root.current?.querySelector(`[name="${pendingAcknowledgment.requires}"]`);
+        checkbox?.focus();
+        checkbox?.scrollIntoView({ block: 'center', behavior: 'instant' });
+      }}>Review required acknowledgment</Button>
+    </div>}
     <a href={definition.template} target="_blank" rel="noopener noreferrer" className="document-download"><ArrowDownToLine size={16} aria-hidden="true" />Open blank original PDF <span className="sr-only">(opens in a new tab)</span></a>
     <p role="status" className="sr-only">{announcement}</p>
   </section>;

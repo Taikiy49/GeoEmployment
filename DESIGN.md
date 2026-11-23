@@ -41,7 +41,7 @@ Semantic validation/success/warning colors remain distinct and retain labels/ico
 
 Self-host Montserrat 500–800 for headings and DM Sans 400–700 for reading and controls, matching GeoWeb's font packages. Latin subsets include Hawaiian punctuation and normal English text; system fallbacks remain available. No remote font request.
 
-Body: 17px desktop / 16px mobile, line-height 1.7. Form inputs: 16px, with 14px labels and 12px supporting hints. Form section headings: 20–24px. Marketing headings use GeoWeb's clamp(30px, 3.15vw, 46px) and hero clamp(40px, 4.6vw, 70px). Compact HR metadata retains its existing utility scale. PDF typography stays Arial.
+Body: 17px desktop / 16px mobile, line-height 1.7. Form inputs: 16px, with 14px labels and 12px supporting hints. Form section headings: 20–24px. Marketing headings use GeoWeb's clamp(30px, 3.15vw, 46px) and hero clamp(40px, 4.6vw, 70px). Compact HR metadata retains its existing utility scale. PDF typography stays Arial except typed signatures on original forms, which use bundled Allura to match the document editor. Regular answers and initials retain normal lettering. Signature inputs are left-aligned with normal letter spacing; original field geometry remains unchanged.
 
 ## Layout
 
