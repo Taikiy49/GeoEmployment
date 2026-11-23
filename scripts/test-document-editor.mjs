@@ -85,6 +85,7 @@ try {
     await readable(page);
     assert.equal(await field(page, 'drugTestSignature').inputValue(), 'Document TEST');
     assert.equal(await field(page, 'drugTestDate').inputValue(), '2026-11-22');
+    assert.equal(await editor(page).getByText('Typing your name serves as your electronic signature. It is not added automatically.', { exact: true }).count(), 1, 'Readable view should explain signing once, next to the signature field.');
     await captureEditor(page, `${viewport.width}-drug-readable`);
     await field(page, 'drugTestSignature').fill('');
     await field(page, 'drugTestSignature').pressSequentially('Keyboard TEST');

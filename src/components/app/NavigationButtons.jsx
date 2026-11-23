@@ -9,6 +9,7 @@ export default function NavigationButtons({
   nextLabel = 'Continue',
   isSubmit = false,
   isLoading = false,
+  nextDisabled = false,
 }) {
   return (
     <div className="application-navigation flex items-center justify-between gap-3 mt-8 pt-5 border-t border-slate-200">
@@ -17,7 +18,8 @@ export default function NavigationButtons({
           <button
             type="button"
             onClick={onBack}
-            className="brand-action flex items-center gap-2 text-sm text-slate-600 hover:text-slate-950 rounded-lg hover:bg-slate-100 transition-colors font-semibold border border-brand-line hover:border-brand"
+            disabled={isLoading}
+            className="brand-action flex items-center gap-2 text-sm text-slate-600 hover:text-slate-950 rounded-lg hover:bg-slate-100 transition-colors font-semibold border border-brand-line hover:border-brand disabled:opacity-60"
           >
             <ChevronLeft aria-hidden="true" className="w-4 h-4" />
             Back
@@ -29,7 +31,7 @@ export default function NavigationButtons({
           <button
             type="button"
             onClick={onNext}
-            disabled={isLoading}
+            disabled={isLoading || nextDisabled}
             aria-busy={isLoading || undefined}
             className={`brand-action flex items-center gap-2 rounded-lg text-sm font-bold transition-colors disabled:opacity-60
               ${isSubmit

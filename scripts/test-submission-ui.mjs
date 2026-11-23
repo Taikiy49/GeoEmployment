@@ -37,6 +37,15 @@ try {
   await page.evaluate(data => localStorage.setItem('geolabs_application_general', JSON.stringify(data)), draft);
   await page.reload();
   const submit = page.getByRole('button', { name: 'Submit Application', exact: true });
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const name of ['Back', 'Submit Application']) {
+      const button = page.locator('.application-navigation').getByRole('button', { name, exact: true });
+      assert.ok((await button.boundingBox()).height >= 52, `${name} must use the shared 52px navigation at ${width}px.`);
+    }
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), true);
+    assert.ok((await page.getByRole('button', { name: 'Edit Personal Information', exact: true }).boundingBox()).height >= 44);
+  }
   await submit.click();
   await page.getByText('Test delivery interruption. Your application remains saved.').waitFor();
   assert.equal(requests.length, 1);

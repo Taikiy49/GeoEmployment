@@ -97,7 +97,7 @@ function drawResponse(document, field, value, font, continuation) {
   if (font.widthOfTextAtSize(marker, MIN_TEXT_SIZE) <= width && MIN_TEXT_SIZE * 1.2 <= height) {
     drawLines(page, [marker], font, MIN_TEXT_SIZE, field.rect);
   }
-  continuation.push({ label: field.label, text });
+  continuation.push({ label: field.label, text, font });
 }
 
 function drawCheck(document, rectangle, label) {
@@ -129,9 +129,9 @@ function appendContinuation(document, definition, continuation, font) {
     if (cursor - (labels.length + 2) * 13 < 48) newPage();
     page.drawText(labels.join('\n'), { x: 42, y: cursor, size: 10, font, lineHeight: 13, color: INK });
     cursor -= labels.length * 13 + 5;
-    for (const line of wrapText(entry.text, font, 10, 528)) {
+    for (const line of wrapText(entry.text, entry.font, 10, 528)) {
       if (cursor < 48) newPage();
-      if (line) page.drawText(line, { x: 42, y: cursor, size: 10, font, color: INK });
+      if (line) page.drawText(line, { x: 42, y: cursor, size: 10, font: entry.font, color: INK });
       cursor -= 13;
     }
     cursor -= 16;
@@ -143,9 +143,11 @@ export async function buildApplicationDocumentPdfs(application, safeApplicantNam
   definitions = APPLICATION_DOCUMENTS,
   readTemplate = definition => readFile(new URL(`../public${definition.template}`, import.meta.url)),
   readFont = loadArialBytes,
+  readFallbackFont = () => readFile(new URL('../server/assets/fonts/NotoSans-Regular.ttf', import.meta.url)),
 } = {}) {
   const values = getApplicationDocumentValues(application);
   const fontBytes = await readFont();
+  let fallbackBytes;
   const results = [];
   // Sequential processing keeps the small production host's memory bounded.
   for (const definition of definitions) {
@@ -153,6 +155,25 @@ export async function buildApplicationDocumentPdfs(application, safeApplicantNam
     document.registerFontkit(fontkit);
     const font = await document.embedFont(fontBytes, { subset: true });
     const supportedCharacters = new Set(font.getCharacterSet());
+    let fallbackFont;
+    let fallbackCharacters;
+    const supports = (characters, text) => Array.from(text).every(character => character === '\n' || characters.has(character.codePointAt(0)));
+    const responseFont = async (text, label) => {
+      if (supports(supportedCharacters, text)) return font;
+      // Older server Arial lacks some Hawaiian characters. Use a licensed,
+      // bundled Unicode font only for affected response fields, retaining the
+      // exact input (including combining marks) and a consistent field face.
+      // The original page artwork is never re-typeset or substituted.
+      if (!fallbackFont) {
+        fallbackBytes ||= await readFallbackFont();
+        fallbackFont = await document.embedFont(fallbackBytes, { subset: true });
+        fallbackCharacters = new Set(fallbackFont.getCharacterSet());
+      }
+      if (!supports(fallbackCharacters, text)) {
+        throw new Error(`The configured PDF fonts cannot represent a character in ${label}. No application text was omitted.`);
+      }
+      return fallbackFont;
+    };
     const continuation = [];
     for (const field of definition.fields) {
       if (field.requires && values[field.requires] !== true) continue;
@@ -167,10 +188,7 @@ export async function buildApplicationDocumentPdfs(application, safeApplicantNam
         }
       } else if (field.rect) {
         const text = responseText(value);
-        if (Array.from(text).some(character => character !== '\n' && !supportedCharacters.has(character.codePointAt(0)))) {
-          throw new Error(`The configured PDF font cannot represent a character in ${field.label}. No application text was omitted.`);
-        }
-        drawResponse(document, field, text, font, continuation);
+        drawResponse(document, field, text, await responseFont(text, field.label), continuation);
       }
     }
     appendContinuation(document, definition, continuation, font);

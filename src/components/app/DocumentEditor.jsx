@@ -204,7 +204,7 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
         {fields.filter(field => field.type === 'date').map(field => <Button key={field.key} type="button" variant="outline" disabled={disabled(field)} aria-label={`Set ${field.label} to today`} onClick={() => update(field.key, localDateValue())} className="min-h-11">Today</Button>)}
       </div>
     </> : transcript && <div className="document-readable-fields">{fields.filter(field => field.rect || field.type === 'radio').map(readableField)}</div>}
-    <p id={`${id}-signature-hint`} className="text-sm text-brand-muted">{fields.some(field => field.signature) ? signatureHint : 'Selections are voluntary and can be cleared.'}</p>
+    {mode === 'paper' && <p id={`${id}-signature-hint`} className="text-sm text-brand-muted">{fields.some(field => field.signature) ? signatureHint : 'Selections are voluntary and can be cleared.'}</p>}
     <a href={definition.template} target="_blank" rel="noopener noreferrer" className="document-download"><ArrowDownToLine size={16} aria-hidden="true" />Open blank original PDF <span className="sr-only">(opens in a new tab)</span></a>
     <p role="status" className="sr-only">{announcement}</p>
   </section>;

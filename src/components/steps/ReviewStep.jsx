@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { AlertCircle, ArrowRight, CheckCircle2, Pencil, Send } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { AlertCircle, ArrowRight, CheckCircle2, Pencil } from 'lucide-react';
 import FormSection from '../app/FormSection';
+import NavigationButtons from '../app/NavigationButtons';
 import { getSubmissionIssues } from '@/lib/applicationValidation';
 
 export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, requiredFields = [] }) {
@@ -100,8 +100,8 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             {formData.employment.map((job, i) => (
               job.company ? (
                 <div key={i} className="mb-2 last:mb-0">
-                  <p className="text-xs font-medium text-brand">{job.position || 'Position'} at {job.company}</p>
-                  <p className="text-[10px] text-brand-muted">{job.dateFrom} — {job.dateTo || 'Present'}</p>
+                  <p className="text-sm font-medium text-brand">{job.position || 'Position'} at {job.company}</p>
+                  <p className="text-xs text-brand-muted">{job.dateFrom} — {job.dateTo || 'Present'}</p>
                 </div>
               ) : null
             ))}
@@ -112,8 +112,8 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
             {formData.education.map((edu, i) => (
               edu.institution ? (
                 <div key={i} className="mb-2 last:mb-0">
-                  <p className="text-xs font-medium text-brand">{edu.degree} — {edu.field}</p>
-                  <p className="text-[10px] text-brand-muted">{[edu.institution, edu.location, edu.yearCompleted].filter(Boolean).join(', ')}</p>
+                  <p className="text-sm font-medium text-brand">{edu.degree} — {edu.field}</p>
+                  <p className="text-xs text-brand-muted">{[edu.institution, edu.location, edu.yearCompleted].filter(Boolean).join(', ')}</p>
                 </div>
               ) : null
             ))}
@@ -165,51 +165,29 @@ export default function ReviewStep({ formData, onBack, onSubmit, onNavigate, req
         </div>
       </FormSection>
 
-      <div className="flex items-center justify-between mt-8 pt-5 border-t border-brand-line">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onBack}
-          className="rounded-full px-3 h-9 text-sm border-[#cbd5e1] text-brand"
-        >
-          Back
-        </Button>
-        <div className="flex flex-col items-end gap-1.5">
-          <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting || cannotSubmit}
-            className="rounded-full px-3 h-10 text-sm bg-bronze hover:bg-bronze-dark text-white border border-bronze-dark shadow-sm"
-          >
-            {isSubmitting ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-            ) : (
-              <Send className="w-4 h-4 mr-2" />
-            )}
-            {isSubmitting ? 'Submitting...' : 'Submit Application'}
-          </Button>
-          {cannotSubmit && (
-            <p className="max-w-xs text-right text-[11px] font-medium text-amber-700">
-              Submission is blocked until the {submissionIssues.length} required {submissionIssues.length === 1 ? 'item above is' : 'items above are'} completed.
-            </p>
-          )}
-        </div>
-      </div>
+      <NavigationButtons onBack={onBack} onNext={handleSubmit} isSubmit isLoading={isSubmitting} nextDisabled={cannotSubmit} />
+      {cannotSubmit && (
+        <p className="ml-auto mt-2 max-w-sm text-right text-xs font-medium text-amber-700">
+          Submission is blocked until the {submissionIssues.length} required {submissionIssues.length === 1 ? 'item above is' : 'items above are'} completed.
+        </p>
+      )}
     </div>
   );
 }
 
 function ReviewBlock({ title, children, onEdit }) {
   return (
-    <div className="bg-[#f8fafc] rounded-lg border border-brand-line p-4">
+    <div className="bg-brand-soft rounded-lg border border-brand-line p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h4 className="text-[11px] font-semibold text-bronze-dark uppercase tracking-wider">{title}</h4>
+        <h4 className="text-sm font-semibold text-brand">{title}</h4>
         {onEdit && (
           <button
             type="button"
             onClick={onEdit}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold text-slate-500 hover:bg-white hover:text-brand-hover"
+            aria-label={`Edit ${title}`}
+            className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold text-brand-muted hover:bg-white hover:text-brand-hover"
           >
-            <Pencil className="h-3 w-3" /> Edit
+            <Pencil aria-hidden="true" className="h-3.5 w-3.5" /> Edit
           </button>
         )}
       </div>
@@ -220,9 +198,9 @@ function ReviewBlock({ title, children, onEdit }) {
 
 function ReviewRow({ label, value }) {
   return (
-    <div className="flex justify-between items-baseline py-1">
-      <span className="text-[11px] text-brand-muted">{label}</span>
-      <span className="max-w-[65%] break-words text-right text-xs font-medium text-brand">{value || '—'}</span>
+    <div className="flex flex-col gap-1 py-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+      <span className="text-xs text-brand-muted">{label}</span>
+      <span className="break-words text-sm font-medium text-brand sm:max-w-[65%] sm:text-right">{value || '—'}</span>
     </div>
   );
 }

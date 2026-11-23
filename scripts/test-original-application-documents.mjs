@@ -75,6 +75,23 @@ await pageContentOperators(long.content);
 const unicode = 'Kaʻōnohi Hawaiʻi José Muñoz';
 const [unicodeForm] = await buildApplicationDocumentPdfs({ applicationData: { ...fields, name: unicode } }, 'Unicode', options);
 assert.ok((await extractPageTexts(unicodeForm.content)).join(' ').includes(unicode.toLowerCase()));
+// Force a limited primary character set on every platform. Modern macOS Arial
+// otherwise masks the production Core Fonts Arial coverage gap.
+const limitedOptions = { ...options, readFont: async () => StandardFonts.Helvetica };
+const [fallbackForm] = await buildApplicationDocumentPdfs({ applicationData: { ...fields, name: unicode } }, 'Fallback', limitedOptions);
+assert.ok((await extractPageTexts(fallbackForm.content)).join(' ').includes(unicode.toLowerCase()), 'Fallback must retain the exact Hawaiian and accented characters.');
+const fallbackDocument = await PDFDocument.load(fallbackForm.content);
+const fallbackNames = fallbackDocument.context.enumerateIndirectObjects().map(([, object]) => object instanceof PDFDict ? object.get(PDFName.of('BaseFont'))?.toString() : '').filter(Boolean);
+assert.ok(fallbackNames.some(name => /NotoSans/.test(name)), 'Missing primary glyphs must use the bundled Unicode font.');
+const [asciiForm] = await buildApplicationDocumentPdfs({ applicationData: fields }, 'No-fallback', {
+  ...limitedOptions, readFallbackFont: async () => { throw new Error('ASCII fields must not load the fallback.'); },
+});
+assert.ok((await extractPageTexts(asciiForm.content)).join(' ').includes('leilani kealoha'));
+const unicodeLines = Array.from({ length: 80 }, (_, index) => `Line ${index}: ${unicode}`).join('\n');
+const [unicodeContinuation] = await buildApplicationDocumentPdfs({ applicationData: { ...fields, notes: unicodeLines } }, 'Fallback-continuation', limitedOptions);
+const continuationText = (await extractPageTexts(unicodeContinuation.content)).join(' ');
+for (let index = 0; index < 80; index += 1) assert.ok(continuationText.includes(`line ${index}: ${unicode.toLowerCase()}`), 'Continuation pages must retain fallback glyphs too.');
+await assert.rejects(buildApplicationDocumentPdfs({ applicationData: { name: 'Unsupported 🧪' } }, 'Unsupported-fallback', limitedOptions), /cannot represent a character/);
 await assert.rejects(buildApplicationDocumentPdfs({ applicationData: { name: 'Unsupported 🧪' } }, 'Unsupported', options), /cannot represent a character/, 'Do not generate invisible glyphs or silently erase input.');
 await assert.rejects(buildApplicationDocumentPdfs({ applicationData: fields }, 'Bad-rectangle', {
   ...options, definitions: [{ ...testDefinition, fields: [{ ...testDefinition.fields[0], rect: rectangle(790) }] }],
@@ -121,5 +138,7 @@ if (process.env.PDF_TEST_OUTPUT_DIR) {
   await mkdir(process.env.PDF_TEST_OUTPUT_DIR, { recursive: true });
   for (const form of realForms) await writeFile(join(process.env.PDF_TEST_OUTPUT_DIR, form.filename), form.content);
   await writeFile(join(process.env.PDF_TEST_OUTPUT_DIR, 'TEST-Long-Continuation.pdf'), long.content);
+  await writeFile(join(process.env.PDF_TEST_OUTPUT_DIR, 'TEST-Unicode-Fallback.pdf'), fallbackForm.content);
+  await writeFile(join(process.env.PDF_TEST_OUTPUT_DIR, 'TEST-Unicode-Continuation.pdf'), unicodeContinuation.content);
 }
 console.log('Original PDF forms passed: source fidelity, all four output documents, consent, selection coordinates, optional blanks, legacy mapping, Arial, Hawaiian diacritics, overflow continuation, invalid rectangles, and static output. No emails sent.');

@@ -20,6 +20,8 @@ The document editor is controlled by Application's existing formData. It never g
 
 Completed PDFs are static submission snapshots, not cryptographically signed documents. The original templates are retained. Historical submissions are not regenerated. The main application continues to include its existing policy summary and other answers; the separate original application-agreements PDF supplies the paper-format signed copy. Disability is not included.
 
+Arial remains the primary response font. Older server versions of Arial lack some Hawaiian characters, so an affected response field uses bundled, openly licensed Noto Sans rather than changing or omitting the applicant's characters. This also applies to continuation text; original form artwork is never re-typeset. See `server/assets/fonts/README.md` for provenance and license.
+
 ## Source attachment verification — November 22, 2026
 
 The four Word attachments were downloaded again from Lola's November 20, 2025 **FW: Application Packet** email. All four matched the source documents used for these templates byte for byte. The disability attachment was downloaded for reference only and is not included in the applicant flow or output.
@@ -49,3 +51,7 @@ The documenter check confirmed that `src/index.css`, `tailwind.config.js`, share
 - Original-form mapping, optional blanks, explicit consent, Hawaiian diacritics, static output and long-answer continuation checks passed; completed pages were visually inspected.
 - Main PDF layout passed with actual Arial and bundled LibreOffice. The real main-plus-four-originals pipeline passed with mocked mail, including saved/attached byte identity and a maximum-size résumé below the Graph payload limit.
 - All mail was intercepted; no production deployment or real delivery occurred in this verification. Browser checks do not replace testing on physical assistive devices. Unsupported PDF font glyphs fail explicitly rather than being silently omitted.
+
+### Production-server regression gate
+
+`npm run test:document-server` runs the built document editor against the actual Node server with isolated data and blocked delivery, in addition to the Vite preview tests. It verifies PDF and module-worker MIME types and all desktop/mobile document controls. This prevents the preview server from hiding a production-only document-loading failure. Font tests also force a limited primary font on every platform, so newer desktop Arial cannot conceal older production Arial's Unicode coverage gaps.
