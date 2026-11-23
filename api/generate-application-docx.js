@@ -386,7 +386,8 @@ export async function buildApplicationDocx(application, options = {}) {
         ['Phone', job.phone],
         ['Position / Title', job.position],
         ['Date Employed From', job.dateFrom],
-        ['Date Employed To', job.dateTo],
+        ['Date Employed To', String(job.dateTo ?? '').trim()
+          || (String(job.dateFrom ?? '').trim() ? 'Present' : '')],
         ['Primary Duties / Responsibilities', job.duties],
         ['Reason for Leaving', job.reasonForLeaving],
         ['Supervisor Name / Title', job.supervisor],
@@ -466,7 +467,9 @@ export async function buildApplicationDocx(application, options = {}) {
     sectionHeading('8. Professional Affiliations'),
     responseTable([
       ['Professional Affiliations, Licenses & Memberships', data.affiliations],
-      ['Professional Organizations', data.professionalOrgs],
+      ...(String(data.professionalOrgs ?? '').trim()
+        && String(data.professionalOrgs).trim() !== String(data.affiliations ?? '').trim()
+        ? [['Professional Organizations', data.professionalOrgs]] : []),
       ['Professional Licenses', data.professionalLicenses],
     ]),
   );

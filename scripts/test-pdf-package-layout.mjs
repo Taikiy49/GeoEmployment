@@ -21,6 +21,7 @@ const application = {
     employment: [{ company: 'Example Company', position: 'Technician', dateFrom: '2025-01', duties: 'Tested equipment and documented results.' }],
     education: [{ institution: 'Example University', degree: 'B.S.', field: 'Engineering', yearCompleted: '2025' }],
     references: [{ name: 'Example Reference', title: 'Project Manager', company: 'Example Company', phone: '(808) 555-0100' }],
+    affiliations: 'Synthetic Professional Association', professionalOrgs: '',
     certificationAgreed: true, certificationSignature: 'Package Test', certificationDate: '2026-08-10',
     drugTestAgreed: true, drugTestSignature: 'Package Test', drugTestDate: '2026-08-10',
     vetSignature: 'Package Test', vetDate: '2026-08-10',
@@ -55,10 +56,24 @@ assert.match(mainText, /reference 1 of 1/i);
 assert.match(mainText, /resume attached\s+yes/i, 'A submitted résumé attachment must be reflected in the PDF summary.');
 assert.match(mainText, /package-test-resume\.pdf/i);
 assert.match(mainText, /do you know anyone presently working for our company/i);
+assert.match(mainText, /date employed to\s+present/i, 'A start date with no end date means current employment, just as in the applicant form.');
+assert.match(mainText, /professional affiliations, licenses & memberships\s+synthetic professional association/i);
+assert.doesNotMatch(mainText, /professional organizations/i, 'An empty legacy organization field must not create a misleading Not provided row.');
 assert.ok(mainPageCount < 12, `The continuous layout should use fewer than the former 12 pages (received ${mainPageCount}).`);
 assert.match(mainText, new RegExp(`page ${mainPageCount} of ${mainPageCount}`, 'i'));
 
-const completePdf = await convertDocxToPdf(await buildApplicationDocx(application, { omitFooter: true }));
+const legacyApplication = {
+  ...application,
+  applicationData: {
+    ...application.applicationData,
+    employment: [{ ...application.applicationData.employment[0], dateFrom: '', dateTo: '   ' }],
+    professionalOrgs: 'Legacy Engineering Association',
+  },
+};
+const completePdf = await convertDocxToPdf(await buildApplicationDocx(legacyApplication, { omitFooter: true }));
+const completeText = (await extractPageTexts(completePdf)).join(' ');
+assert.match(completeText, /date employed to\s+not provided/i, 'Do not infer current employment when both dates are missing.');
+assert.match(completeText, /professional organizations\s+legacy engineering association/i, 'Distinct nonempty legacy organizations must remain visible.');
 const forms = await splitCompliancePdfs(completePdf, 'Package-Test');
 assert.equal(forms.length, 3);
 const formPageCounts = {};
@@ -110,15 +125,19 @@ const longApplication = {
     ...application.applicationData,
     employment: [{
       ...application.applicationData.employment[0],
+      dateTo: '2026-10',
       duties: longDutyBullets.join('\n'),
       reasonForLeaving: 'Completed the documented project assignment',
     }],
     education: [...application.applicationData.education, { institution: '', degree: '', field: '', yearCompleted: '' }],
+    professionalOrgs: application.applicationData.affiliations,
   },
 };
 const longPdf = await convertDocxToPdf(await buildApplicationDocx(longApplication, { mainApplicationOnly: true }));
 const longText = (await extractPageTexts(longPdf)).join(' ');
 assert.match(longText, /resume attached\s+no/i, 'Applications without a résumé must not claim an attachment.');
+assert.match(longText, /date employed to\s+2026-10/i, 'An entered end date must be preserved.');
+assert.doesNotMatch(longText, /professional organizations/i, 'Identical affiliation and legacy organization responses should not print twice.');
 for (const bullet of longDutyBullets) assert.ok(longText.includes(bullet.toLowerCase()), `Lost duties bullet: ${bullet}`);
 assert.match(longText, /completed the documented project assignment/);
 assert.doesNotMatch(longText, /education 2/);
