@@ -135,7 +135,7 @@
     font-size: 17px;
     line-height: 1.7;
     font-synthesis: none;
-    min-width: 320px;
+    min-width: min(320px, 100%);
     -webkit-font-smoothing: antialiased;
   }
 
@@ -197,9 +197,33 @@
   .brand-heading { font-size: clamp(30px, 3.15vw, 46px); line-height: 1.18; font-weight: 600; }
   .brand-hero-title { font-size: clamp(40px, 4.6vw, 70px); line-height: 1.08; font-weight: 700; letter-spacing: -0.04em; }
   .brand-action { min-height: 52px; padding: 14px 24px; border-radius: var(--radius); font-weight: 600; font-size: 14px; }
+  /* Match GeoWeb's full-bleed masthead; content containers keep their gutters. */
+  .brand-header { position: sticky; top: 0; z-index: 30; background: rgb(var(--brand-ink)); color: white; }
+  .brand-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 28px; height: 78px; padding-right: var(--page-gutter); }
+  .brand-logo { position: relative; z-index: 2; display: flex; align-items: center; align-self: flex-start; flex-shrink: 0; width: 260px; height: 90px; padding: 10px 18px; background: rgb(var(--brand-yellow)); box-shadow: 0 5px 14px #1d223218; }
+  .brand-logo img { width: 100%; height: auto; }
+  .brand-header-trust { display: flex; }
+  .brand-menu-toggle { display: none; place-items: center; flex-shrink: 0; width: 48px; height: 48px; padding: 0; border: 0; background: transparent; color: white; cursor: pointer; }
+  .brand-menu-toggle svg { width: 28px; height: 28px; }
+  .brand-menu-toggle:is(:hover, :focus-visible, :active) { color: rgb(var(--brand-yellow)); }
+  .brand-mobile-menu { position: absolute; top: 100%; inset-inline: 0; padding: 34px 24px 26px; background: rgb(var(--brand-ink)); box-shadow: 0 16px 28px #1d223230; }
   .brand-header :focus-visible { --tw-ring-color: rgb(var(--brand-yellow)); }
-  .brand-header .brand-logo:focus-visible { --tw-ring-color: rgb(var(--brand-ink)); }
+  .brand-header .brand-logo:focus-visible { outline: 2px solid rgb(var(--brand-ink)); outline-offset: -5px; }
   .brand-footer :focus-visible { --tw-ring-color: rgb(var(--brand-yellow)); }
+}
+@media (max-width: 1150px) {
+  .brand-header-inner { padding-right: 24px; }
+  .brand-logo { width: 235px; }
+  .brand-header-trust { display: none; }
+  .brand-menu-toggle { display: grid; }
+}
+@media (max-width: 640px) {
+  .brand-header-inner { height: 72px; padding-right: 16px; }
+  .brand-logo { width: 216px; height: 82px; padding: 10px 14px; }
+  .brand-mobile-menu { padding: 25px 22px 26px; }
+}
+@media (max-width: 360px) {
+  .brand-logo { width: 198px; }
 }
 @media (max-width: 639px) {
   body { font-size: 16px; }

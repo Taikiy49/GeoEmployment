@@ -47,7 +47,7 @@ Body: 17px desktop / 16px mobile, line-height 1.7. Form inputs: 16px, with 14px 
 
 Keep the established application layout and natural document scrolling. Marketing container: 1360px with clamp(24px, 4.5vw, 72px) gutters; section spacing clamp(64px, 7vw, 104px), 60px on phones. Application keeps its readable 1152px inner maximum, with 32–40px internal panel padding on larger screens and 20px on phones. Do not copy marketing-sized whitespace into every form row.
 
-Header height: 78px. Existing anniversary artwork sits on a yellow brand panel. No sticky form footer, new sidebar, or extra animation sequence.
+Header matches the official GeoWeb masthead: flush-left anniversary artwork, no centered content gutter or bottom border, and a yellow logo panel overhanging the bar. Above 1150px, the bar is 78px and the panel is 260×90px (10px 18px padding); at 641–1150px the panel narrows to 235px. At 640px and below, the bar is 72px and the panel is 216×82px (10px 14px padding); at 360px and below the panel narrows to 198px. Reuse the official 906×300 artwork at public/geolabs-50th-anniversary.png. The 48px unboxed menu button appears at 1150px and below. Only the masthead is full bleed; application/content containers keep their existing gutters. No sticky form footer, new sidebar, or extra animation sequence.
 
 ## Elevation & Depth
 
