@@ -127,7 +127,12 @@ const historyCards = (items, render) => {
     row('Computer skills', paragraph(data.computerSkills)),
     row('Certifications', paragraph(data.certifications)),
     row('Professional licenses', paragraph(data.professionalLicenses)),
-    row('Professional organizations', paragraph(data.professionalOrgs)),
+    // The applicant-facing field is affiliations. Preserve older/autofilled
+    // organization details too, without an empty legacy row hiding the answer.
+    row('Professional affiliations / memberships', paragraph(present(data.affiliations) ? data.affiliations : data.professionalOrgs)),
+    ...(present(data.affiliations) && present(data.professionalOrgs)
+      && String(data.affiliations).trim() !== String(data.professionalOrgs).trim()
+      ? [row('Other professional organizations', paragraph(data.professionalOrgs))] : []),
   ].join('');
 
   const complianceRows = [

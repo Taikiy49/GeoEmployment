@@ -9,7 +9,7 @@ process.env.HR_APPLICATION_EMAIL = 'employment@geolabs.net,tyamashita@geolabs.ne
 const originalFetch = globalThis.fetch;
 globalThis.fetch = async () => { throw new Error('External network access is forbidden in the document delivery test.'); };
 const { normalizeSubmission } = await import('../server/submission-validation.js');
-const { createSubmissionHandler, sendEmail, MAX_GRAPH_MESSAGE_BYTES } = await import('../api/submit-application.js');
+const { buildHrEmail, createSubmissionHandler, sendEmail, MAX_GRAPH_MESSAGE_BYTES } = await import('../api/submit-application.js');
 const { extractPageTexts } = await import('../api/split-compliance-pdfs.js');
 const { MAX_RESUME_BYTES } = await import('../src/lib/resumeLimits.js');
 const data = {
@@ -28,6 +28,16 @@ const application = normalizeSubmission({
   eeoData: { gender: '', race: 'I do not wish to disclose.', veteranStatus: 'noAnswer' },
   resumeAttachment: { filename: 'TEST-Pipeline-Resume.txt', type: 'text/plain', content: Buffer.from('Synthetic test resume.').toString('base64') },
 });
+const affiliationRow = html => html.match(/Professional affiliations \/ memberships<\/td>\s*<td[^>]*>([\s\S]*?)<\/td>/)?.[1];
+assert.equal(affiliationRow(buildHrEmail(application)), data.affiliations, 'HR email must include the field applicants actually fill out.');
+const legacyOrganizations = { ...application, applicationData: { ...data, affiliations: '', professionalOrgs: 'Legacy Engineering Association' } };
+assert.equal(affiliationRow(buildHrEmail(legacyOrganizations)), 'Legacy Engineering Association', 'Older organization responses must remain visible.');
+const bothOrganizations = buildHrEmail({ ...application, applicationData: { ...data, professionalOrgs: 'Another Engineering Association' } });
+assert.equal(affiliationRow(bothOrganizations), data.affiliations);
+assert.match(bothOrganizations, /Other professional organizations<\/td>\s*<td[^>]*>Another Engineering Association<\/td>/, 'Distinct legacy details must not be discarded.');
+const sameOrganizations = buildHrEmail({ ...application, applicationData: { ...data, professionalOrgs: data.affiliations } });
+assert.doesNotMatch(sameOrganizations, /Other professional organizations/, 'Identical current and legacy responses should appear only once.');
+assert.equal(affiliationRow(buildHrEmail({ ...application, applicationData: { ...data, affiliations: 'Science & Engineering <Test>\nMember' } })), 'Science &amp; Engineering &lt;Test&gt;<br>Member', 'Affiliation responses must remain HTML-escaped.');
 let saved;
 let beforeHr = false;
 let receiptSaved = false;
@@ -37,6 +47,7 @@ const handler = createSubmissionHandler({ deliver: async message => {
   assert.equal(beforeHr, true);
   if (messages.length === 0) {
     assert.deepEqual(message.to, ['employment@geolabs.net', 'tyamashita@geolabs.net']);
+    assert.equal(affiliationRow(message.html), data.affiliations, 'The actual HR delivery must include the applicant affiliation response.');
     for (const file of saved) assert.equal(message.attachments.find(item => item.filename === file.filename).content, file.content);
     assert.equal(message.attachments.length, 7, 'HR package includes logo, five PDFs and supplied resume.');
   } else {
@@ -72,6 +83,9 @@ try {
     const text = (await extractPageTexts(bytes)).join(' ');
     assert.match(text, /test pipeline/);
     assert.doesNotMatch(text, /voluntary self-identification of disability/);
+    if (['complete-application', 'application-agreements'].includes(file.key)) {
+      assert.ok(text.includes(data.affiliations.toLowerCase()), `${file.key} must include the same affiliation response as the HR email.`);
+    }
     pages[file.key] = (await PDFDocument.load(bytes)).getPageCount();
     if (process.env.PDF_TEST_OUTPUT_DIR) await writeFile(join(process.env.PDF_TEST_OUTPUT_DIR, file.filename), bytes);
   }
