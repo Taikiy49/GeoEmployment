@@ -140,8 +140,10 @@ try {
     await field(page, 'vetDate').fill('2026-11-22');
     await captureEditor(page, `${viewport.width}-veteran-original`);
     assert.equal(await field(page, 'vetSignature').inputValue(), 'Document TEST');
-    await page.getByRole('button', { name: 'Clear veteran status selection', exact: true }).click();
-    assert.equal(await editor(page).locator('input[type="radio"]:checked').count(), 0);
+    assert.equal(await page.getByRole('button', { name: 'Clear veteran status selection', exact: true }).count(), 0);
+    await page.getByRole('radio', { name: 'I am not a protected veteran', exact: true }).locator('..').click();
+    await veteranDecline.locator('..').click();
+    assert.equal(await veteranDecline.isChecked(), true, 'Applicants can change their answer to decline without a separate clear button.');
 
     await progress(page).getByRole('button', { name: /Requirements/ }).click();
     await progress(page).getByRole('button', { name: /Medical authorization/ }).click();

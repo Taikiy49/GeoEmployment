@@ -50,6 +50,7 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
   const [attempt, setAttempt] = useState(0);
   const pdf = loadedPdf?.template === definition.template && loadedPdf?.attempt === attempt ? loadedPdf.document : null;
   const fields = definition.fields.filter(field => !fieldKeys || fieldKeys.includes(field.key));
+  const clearableFields = fields.filter(field => field.type === 'radio' && !field.options.some(option => option.value === 'noAnswer'));
   const update = (key, value) => setFormData(previous => ({ ...previous, [key]: value }));
 
   useEffect(() => {
@@ -158,8 +159,8 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
         {definition.fields.map(field => paperField(field, index))}
       </PdfPage>) : <div role="status" className="document-loading">{error ? 'Preview unavailable' : 'Loading PDF preview…'}</div>}
     </div>
-    {fields.some(field => field.type === 'radio') && <div className="flex flex-wrap gap-2">
-      {fields.filter(field => field.type === 'radio').map(field => <Button key={field.key} type="button" variant="outline" aria-label={clearLabel(field)} onClick={() => update(field.key, '')} className="min-h-11">{clearLabel(field)}</Button>)}
+    {clearableFields.length > 0 && <div className="flex flex-wrap gap-2">
+      {clearableFields.map(field => <Button key={field.key} type="button" variant="outline" aria-label={clearLabel(field)} onClick={() => update(field.key, '')} className="min-h-11">{clearLabel(field)}</Button>)}
     </div>}
   </section>;
 }
