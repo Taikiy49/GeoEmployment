@@ -3,7 +3,6 @@
 .document-navigation button { padding: .65rem .85rem; min-height: 44px; border: 1px solid rgb(var(--brand-line)); border-radius: 2px; font-size: .875rem; font-weight: 600; cursor: pointer; }
 .document-navigation button:hover { background: rgb(var(--brand-soft)); }
 .document-navigation button[aria-current] { background: rgb(var(--brand-yellow)); border-color: rgb(var(--brand-yellow)); }
-.document-toolbar { display: flex; justify-content: flex-end; }
 .document-editor button { cursor: pointer; }
 .document-editor button:disabled { cursor: not-allowed; }
 .document-editor :focus-visible { outline: 2px solid rgb(var(--brand-focus)); outline-offset: 3px; }

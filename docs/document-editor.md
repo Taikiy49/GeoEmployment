@@ -8,7 +8,7 @@ OWN-WORLD: Inherit DESIGN.md's slate, yellow, Montserrat and DM Sans controls. T
 
 STORY: Choose a document, read it, move between highlighted fields, and explicitly acknowledge or sign. Optional self-identification remains skippable and clearable. Existing draft saves and review links remain the owners of progress.
 
-FIRST VIEWPORT: Compact document navigation above the original paper page; Next field is the primary document action. Desktop and phones use the same PDF editor. Phones pan within the document, and Next field brings the focused input into view. The original text remains available to screen readers and read-aloud without a second visible view.
+FIRST VIEWPORT: Compact document navigation above the original paper page. At the user's request, there is no Next field toolbar or introductory instruction paragraph. Applicants click fields directly or use native Tab navigation. Desktop and phones use the same PDF editor; phones pan within the document. The original text remains available to screen readers and read-aloud without a second visible view.
 
 FORM: Extend the established application surface; no new visual identity or concept seed. PDF coordinates are shared by browser overlays and server output, avoiding two independent mappings.
 

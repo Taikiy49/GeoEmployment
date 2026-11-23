@@ -47,8 +47,8 @@ async function paperReady(page, pages = 1) {
     const canvases = [...document.querySelectorAll('.document-paper-page canvas')];
     return canvases.length === expected && canvases.every(canvas => canvas.dataset.rendered === 'true' && canvas.width > 600 && canvas.height > 700);
   }, pages);
-  await page.getByRole('button', { name: 'Next field', exact: true }).waitFor({ state: 'visible' });
-  await page.waitForFunction(() => [...document.querySelectorAll('button')].some(button => button.textContent.includes('Next field') && !button.disabled));
+  assert.equal(await editor(page).getByRole('button', { name: 'Next field', exact: true }).count(), 0);
+  assert.equal(await editor(page).getByText(/Use the highlighted fields or Next field/).count(), 0);
   assert.equal(await editor(page).getByRole('button', { name: /Readable view|Original document|today/i }).count(), 0, 'The document should not offer duplicate date shortcuts or view switches.');
   const transcript = editor(page).getByRole('region', { name: 'Original document text', exact: true });
   assert.match(await transcript.getAttribute('class'), /sr-only/, 'Original policy text must remain available to assistive tools without a second visible view.');
@@ -82,9 +82,9 @@ try {
     assert.equal(await field(page, 'drugTestDate').isDisabled(), true);
     await field(page, 'drugTestAgreed').check();
     await field(page, 'drugTestSignature').fill('Document TEST');
-    await page.getByRole('button', { name: 'Next field', exact: true }).click();
-    assert.equal(await field(page, 'drugTestDate').evaluate(node => node === document.activeElement), true, 'Next field must focus the next enabled control.');
-    assert.equal(await field(page, 'drugTestDate').inputValue(), '', 'Next field must not sign or enter a date.');
+    await field(page, 'drugTestSignature').press('Tab');
+    assert.equal(await field(page, 'drugTestDate').evaluate(node => node === document.activeElement), true, 'Tab must focus the next enabled control.');
+    assert.equal(await field(page, 'drugTestDate').inputValue(), '', 'Tab must not sign or enter a date.');
     await field(page, 'drugTestDate').fill('2026-11-22');
     await assertNoPageOverflow(page);
     await captureEditor(page, `${viewport.width}-drug-original`);
@@ -134,8 +134,8 @@ try {
     const veteranDecline = page.getByRole('radio', { name: 'I do not wish to self-identify', exact: true });
     await veteranDecline.locator('..').click();
     assert.equal(await veteranDecline.isChecked(), true);
-    await page.getByRole('button', { name: 'Next field', exact: true }).click();
-    assert.equal(await field(page, 'vetSignature').evaluate(node => node === document.activeElement), true, 'Next field must reach the signature on page two.');
+    await veteranDecline.press('Tab');
+    assert.equal(await field(page, 'vetSignature').evaluate(node => node === document.activeElement), true, 'Tab must reach the signature on page two.');
     await field(page, 'vetSignature').fill('Document TEST');
     await field(page, 'vetDate').fill('2026-11-22');
     await captureEditor(page, `${viewport.width}-veteran-original`);
@@ -191,7 +191,7 @@ try {
   await page.route('**/forms/lola-v1/eeo-survey.pdf', route => route.abort('failed'));
   await page.reload();
   await page.getByRole('alert').getByText(/PDF could not be loaded/).waitFor();
-  assert.equal(await page.getByRole('button', { name: 'Next field', exact: true }).isDisabled(), true, 'Field navigation should wait for a usable PDF.');
+  assert.equal(await page.getByRole('button', { name: 'Next field', exact: true }).count(), 0);
   assert.equal(await editor(page).getByRole('link', { name: /Open blank original PDF/ }).count(), 0);
   assert.equal(await editor(page).getByRole('button', { name: /Readable view|Original document|today/i }).count(), 0);
   await page.unroute('**/forms/lola-v1/eeo-survey.pdf');

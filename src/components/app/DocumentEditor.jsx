@@ -1,5 +1,4 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
-import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { APPLICATION_DOCUMENTS, getApplicationDocument } from '../../../shared/application-documents.js';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
@@ -45,13 +44,10 @@ const boxStyle = box => ({ left: `${box.x / 612 * 100}%`, top: `${box.y / 792 * 
 export default function DocumentEditor({ documentKey, formData, setFormData, onDocumentChange = undefined, fieldKeys = undefined }) {
   const definition = getApplicationDocument(documentKey);
   const id = useId().replace(/:/g, '');
-  const root = useRef(null);
-  const lastField = useRef('');
   const [transcript, setTranscript] = useState(null);
   const [loadedPdf, setLoadedPdf] = useState(null);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
-  const [announcement, setAnnouncement] = useState('');
   const pdf = loadedPdf?.template === definition.template && loadedPdf?.attempt === attempt ? loadedPdf.document : null;
   const fields = definition.fields.filter(field => !fieldKeys || fieldKeys.includes(field.key));
   const update = (key, value) => setFormData(previous => ({ ...previous, [key]: value }));
@@ -108,20 +104,6 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
   }, [definition.template, attempt]);
 
   const renderError = React.useCallback(() => setError('The PDF could not be displayed. Please retry. Your answers are kept.'), []);
-  const nextField = () => {
-    const eligible = fields.filter(field => field.signature || !field.requires || formData[field.requires]);
-    if (!eligible.length) return;
-    const index = eligible.findIndex(field => field.key === lastField.current);
-    const field = eligible[(index + 1) % eligible.length];
-    const area = root.current?.querySelector(`[data-document-field="${field.key}"]`);
-    const target = area?.querySelector('input:checked, input:not(:disabled), textarea:not(:disabled), button');
-    if (target) {
-      lastField.current = field.key;
-      target.focus({ preventScroll: true });
-      target.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' });
-      setAnnouncement(`${field.label}${field.required ? ', required' : ', optional'}`);
-    }
-  };
   // Typing a name is not consent. Keep acknowledgment mandatory at submission,
   // but do not silently lock the signature input while the applicant reads.
   const disabled = field => Boolean(!field.signature && field.requires && !formData[field.requires]);
@@ -129,7 +111,7 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
 
   function acknowledgmentField(field) {
     const fieldId = `${id}-${field.key}`;
-    return <div key={field.key} data-document-field={field.key} onFocus={() => { lastField.current = field.key; }}>
+    return <div key={field.key} data-document-field={field.key}>
       <label htmlFor={fieldId} className="document-acknowledgment">
         <input id={fieldId} name={field.key} type="checkbox" checked={Boolean(formData[field.key])} required={field.required} onChange={event => update(field.key, event.target.checked)} />
         <span>{field.label}{field.required && ' (required)'}</span>
@@ -144,11 +126,11 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
       key={option.value} style={boxStyle(option.rect)} className="document-paper-choice" data-document-field={active ? field.key : undefined}
     >
       <span className="sr-only">{field.label}: {option.label}</span>
-      <input type="radio" name={fieldId} value={option.value} checked={formData[field.key] === option.value} disabled={!active} onFocus={() => { lastField.current = field.key; }} onChange={() => update(field.key, option.value)} aria-label={option.label} />
+      <input type="radio" name={fieldId} value={option.value} checked={formData[field.key] === option.value} disabled={!active} onChange={() => update(field.key, option.value)} aria-label={option.label} />
     </label>);
     if (!field.rect || field.rect.page !== pageNumber) return null;
     if (!active) return <span key={field.key} style={boxStyle(field.rect)} className="document-paper-value">{field.type === 'checkbox' ? formData[field.key] ? field.trueText || 'X' : '' : formData[field.key] || ''}</span>;
-    return <div key={field.key} style={boxStyle(field.rect)} className={`document-paper-field ${field.type === 'checkbox' ? 'document-paper-boolean' : ''}`} data-document-field={field.key} onFocus={() => { lastField.current = field.key; }}>
+    return <div key={field.key} style={boxStyle(field.rect)} className={`document-paper-field ${field.type === 'checkbox' ? 'document-paper-boolean' : ''}`} data-document-field={field.key}>
       <label className="sr-only" htmlFor={fieldId}>{field.label}</label>
       <input id={fieldId} name={field.key} type={field.type} value={field.type === 'checkbox' ? undefined : formData[field.key] || ''} checked={field.type === 'checkbox' ? Boolean(formData[field.key]) : undefined}
         className={field.signature ? 'document-signature-input' : undefined}
@@ -158,14 +140,10 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
     </div>;
   }
 
-  return <section ref={root} className="document-editor" aria-label={`${definition.label} document editor`}>
+  return <section className="document-editor" aria-label={`${definition.label} document editor`}>
     {onDocumentChange && <nav aria-label="Application documents" className="document-navigation">
       {APPLICATION_DOCUMENTS.map(item => <button key={item.key} type="button" aria-current={item.key === documentKey ? 'page' : undefined} onClick={() => onDocumentChange(item.key)}>{item.label}</button>)}
     </nav>}
-    <div className="document-toolbar">
-      <Button type="button" variant="outline" onClick={nextField} disabled={!transcript || !pdf} className="min-h-11">Next field <ArrowRight aria-hidden="true" /></Button>
-    </div>
-    <p className="text-sm text-brand-muted">{definition.optional ? 'Optional — you may leave this document unanswered. ' : 'Read the document and complete the required fields. '}Use the highlighted fields or Next field to enter your answers. On a small screen, scroll sideways to see the full page.</p>
     {error && <div role="alert" className="document-load-error"><p>{error}</p><Button type="button" variant="outline" onClick={() => { setError(''); setAttempt(value => value + 1); }} className="min-h-11 mt-2">Retry document</Button></div>}
     {!transcript && !error && <div role="status" className="document-loading">Loading document…</div>}
     {transcript && <div className="sr-only" role="region" aria-label="Original document text">
@@ -183,6 +161,5 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
     {fields.some(field => field.type === 'radio') && <div className="flex flex-wrap gap-2">
       {fields.filter(field => field.type === 'radio').map(field => <Button key={field.key} type="button" variant="outline" aria-label={clearLabel(field)} onClick={() => update(field.key, '')} className="min-h-11">{clearLabel(field)}</Button>)}
     </div>}
-    <p role="status" className="sr-only">{announcement}</p>
   </section>;
 }
