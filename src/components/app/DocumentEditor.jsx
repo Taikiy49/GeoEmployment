@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useRef, useState } from 'react';
-import { ArrowDownToLine, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { APPLICATION_DOCUMENTS, getApplicationDocument } from '../../../shared/application-documents.js';
 import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
@@ -68,7 +68,7 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
       if (!controller.signal.aborted) setTranscript(value);
     }).catch(() => {
       if (!controller.signal.aborted || !controller.signal.reason?.message?.includes('unmounted')) {
-        setError('The document could not be loaded. Retry, or open the original PDF. Your answers have not been lost.');
+        setError('The document could not be loaded. Please retry. Your answers have not been lost.');
       }
     }).finally(() => clearTimeout(timeout));
     return () => { clearTimeout(timeout); controller.abort(new Error('unmounted')); };
@@ -85,7 +85,7 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
       if (!cancelled) {
         cancelled = true;
         controller.abort();
-        setError('The PDF is taking too long to load. Retry, or open the original PDF below. Your answers are kept.');
+        setError('The PDF is taking too long to load. Please retry. Your answers are kept.');
         destroy();
       }
     }, 20000);
@@ -100,14 +100,14 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
       task = module.getDocument({ data, isEvalSupported: false });
       return task.promise;
     }).then(value => { if (!cancelled && value) setLoadedPdf({ template: definition.template, attempt, document: value }); })
-      .catch(() => { if (!cancelled) setError('The PDF could not be loaded. Retry, or open the original PDF below. Your answers are kept.'); })
+      .catch(() => { if (!cancelled) setError('The PDF could not be loaded. Please retry. Your answers are kept.'); })
       .finally(() => clearTimeout(timeout));
     // Release the PDF when the document changes, the editor unmounts, or the
     // applicant explicitly retries. Editing answers does not reload it.
     return () => { cancelled = true; clearTimeout(timeout); controller.abort(); destroy(); };
   }, [definition.template, attempt]);
 
-  const renderError = React.useCallback(() => setError('The PDF could not be displayed. Retry, or open the original PDF below. Your answers are kept.'), []);
+  const renderError = React.useCallback(() => setError('The PDF could not be displayed. Please retry. Your answers are kept.'), []);
   const nextField = () => {
     const eligible = fields.filter(field => field.signature || !field.requires || formData[field.requires]);
     if (!eligible.length) return;
@@ -125,8 +125,6 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
   // Typing a name is not consent. Keep acknowledgment mandatory at submission,
   // but do not silently lock the signature input while the applicant reads.
   const disabled = field => Boolean(!field.signature && field.requires && !formData[field.requires]);
-  const pendingAcknowledgment = fields.find(field => field.signature && field.requires && !formData[field.requires]);
-  const signatureHint = 'Typing your name serves as your electronic signature. It is not added automatically.';
   const clearLabel = field => field.key === 'eeoGender' ? 'Clear gender selection' : field.key === 'eeoRace' ? 'Clear race or ethnicity selection' : 'Clear veteran status selection';
 
   function acknowledgmentField(field) {
@@ -156,7 +154,7 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
         className={field.signature ? 'document-signature-input' : undefined}
         onChange={event => update(field.key, field.type === 'checkbox' ? event.target.checked : event.target.value)}
         disabled={disabled(field)} required={field.required} maxLength={field.maxLength} autoComplete="off"
-        aria-describedby={field.signature ? `${id}-signature-hint` : undefined} />
+        />
     </div>;
   }
 
@@ -185,16 +183,6 @@ export default function DocumentEditor({ documentKey, formData, setFormData, onD
     {fields.some(field => field.type === 'radio') && <div className="flex flex-wrap gap-2">
       {fields.filter(field => field.type === 'radio').map(field => <Button key={field.key} type="button" variant="outline" aria-label={clearLabel(field)} onClick={() => update(field.key, '')} className="min-h-11">{clearLabel(field)}</Button>)}
     </div>}
-    <p id={`${id}-signature-hint`} className="text-sm text-brand-muted">{fields.some(field => field.signature) ? signatureHint : 'Selections are voluntary and can be cleared.'}</p>
-    {pendingAcknowledgment && <div className="text-sm text-brand-muted">
-      <p>You can type your name now. You must also check the acknowledgment before submitting.</p>
-      <Button type="button" variant="link" className="min-h-11" onClick={() => {
-        const checkbox = root.current?.querySelector(`[name="${pendingAcknowledgment.requires}"]`);
-        checkbox?.focus();
-        checkbox?.scrollIntoView({ block: 'center', behavior: 'instant' });
-      }}>Review required acknowledgment</Button>
-    </div>}
-    <a href={definition.template} target="_blank" rel="noopener noreferrer" className="document-download"><ArrowDownToLine size={16} aria-hidden="true" />Open blank original PDF <span className="sr-only">(opens in a new tab)</span></a>
     <p role="status" className="sr-only">{announcement}</p>
   </section>;
 }

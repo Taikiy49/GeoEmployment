@@ -16,7 +16,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 ## Data and output
 
-Signature inputs allow typing before acknowledgment. Typing never checks consent automatically: the existing client/server submission validation and completed-PDF consent gate still require explicit acknowledgment. An adjacent reminder links back to the required checkbox while it is unchecked.
+Signature inputs allow typing before acknowledgment. Typing never checks consent automatically: the existing client/server submission validation and completed-PDF consent gate still require explicit acknowledgment. The user requested no duplicate signature explanation, acknowledgment shortcut, or blank-PDF link beneath the editor; the actual acknowledgment checkbox remains above the document.
 
 The document editor is controlled by Application's existing formData. It never generates a signature or infers a protected response. Native date inputs retain the existing platform-owned calendar, without duplicate app-owned Today buttons. Shared Button controls own actions; DocumentEditor owns the original-paper overlay variant and explicit consent checkboxes. Paper rendering retains accessible labels and the hidden original-document transcript.
 

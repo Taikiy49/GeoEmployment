@@ -25,8 +25,6 @@
 .document-paper-value { font: 12px Arial, sans-serif; overflow: hidden; white-space: nowrap; }
 .document-loading { display: grid; min-height: 20rem; place-items: center; color: rgb(var(--brand-muted)); }
 .document-load-error { padding: 1rem; border: 1px solid currentColor; color: #9f1239; }
-.document-download { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; width: fit-content; text-decoration: underline; text-underline-offset: .2em; }
-.document-download:hover { color: rgb(var(--brand-focus)); }
 @media (max-width: 767px) { .document-paper-scroll { padding: 6px; } }
 @media (forced-colors: active) { .document-paper-field input, .document-paper-choice input { border: 1px solid FieldText; background: Field; color: FieldText; } }
 .document-paper-field input.document-signature-input { font-family: 'Geolabs Signature', cursive; font-size: 20px; letter-spacing: normal; text-align: left; }

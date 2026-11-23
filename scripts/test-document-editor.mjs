@@ -77,8 +77,7 @@ try {
       return document.fonts.check('20px "Geolabs Signature"');
     }), true, 'The bundled signature font must load in the real browser.');
     assert.equal(await field(page, 'drugTestAgreed').isChecked(), false, 'Typing a signature must never imply consent.');
-    await editor(page).getByRole('button', { name: 'Review required acknowledgment', exact: true }).click();
-    assert.equal(await field(page, 'drugTestAgreed').evaluate(node => node === document.activeElement), true);
+    assert.equal(await editor(page).getByRole('button', { name: 'Review required acknowledgment', exact: true }).count(), 0);
     assert.equal(await field(page, 'drugTestDate').getAttribute('type'), 'date', 'Dates retain their native platform picker.');
     assert.equal(await field(page, 'drugTestDate').isDisabled(), true);
     await field(page, 'drugTestAgreed').check();
@@ -91,7 +90,7 @@ try {
     await captureEditor(page, `${viewport.width}-drug-original`);
     assert.equal(await field(page, 'drugTestSignature').inputValue(), 'Document TEST');
     assert.equal(await field(page, 'drugTestDate').inputValue(), '2026-11-22');
-    assert.equal(await editor(page).getByText('Typing your name serves as your electronic signature. It is not added automatically.', { exact: true }).count(), 1, 'The document should explain signing once.');
+    assert.equal(await editor(page).getByText('Typing your name serves as your electronic signature. It is not added automatically.', { exact: true }).count(), 0, 'The redundant document footer should be absent.');
     await field(page, 'drugTestSignature').fill('');
     await field(page, 'drugTestSignature').pressSequentially('Keyboard TEST');
     assert.equal(await field(page, 'drugTestSignature').inputValue(), 'Keyboard TEST', 'Controlled input must retain focus for every character.');
@@ -193,7 +192,7 @@ try {
   await page.reload();
   await page.getByRole('alert').getByText(/PDF could not be loaded/).waitFor();
   assert.equal(await page.getByRole('button', { name: 'Next field', exact: true }).isDisabled(), true, 'Field navigation should wait for a usable PDF.');
-  assert.equal(await editor(page).getByRole('link', { name: /Open blank original PDF/ }).getAttribute('href'), '/forms/lola-v1/eeo-survey.pdf');
+  assert.equal(await editor(page).getByRole('link', { name: /Open blank original PDF/ }).count(), 0);
   assert.equal(await editor(page).getByRole('button', { name: /Readable view|Original document|today/i }).count(), 0);
   await page.unroute('**/forms/lola-v1/eeo-survey.pdf');
   await page.getByRole('button', { name: 'Retry document', exact: true }).click();
