@@ -46,7 +46,7 @@ This repository powers **careers.geolabs.net**: the Geolabs careers website, gui
 
 ### Organized documents
 
-Applicants can read the original HR documents, click highlighted fields, and use **Next field** to move through their answers. **Readable view** provides reflowed text and larger controls and is the default on phones. Both views use the same saved draft; signatures and optional responses are never entered automatically.
+Applicants can read the original HR documents, click highlighted fields, and use **Next field** to move through their answers. Desktop and phones use the same PDF editor, with horizontal scrolling inside the document on smaller screens. Native date pickers, keyboard navigation, screen-reader text and read-aloud support remain available without extra view switches or duplicate Today buttons. Answers use the existing saved draft; signatures and optional responses are never entered automatically.
 
 The employer package contains the main application and résumé, plus separate completed **EEO**, **protected-veteran**, **alcohol/drug agreement**, and **application-agreements** PDFs. The last document contains the original medical policy, FCRA disclosure and employment certification. Voluntary self-identification records remain separate from the supervisor-facing application. No disability self-identification form is included.
 

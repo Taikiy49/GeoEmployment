@@ -8,7 +8,7 @@ OWN-WORLD: Inherit DESIGN.md's slate, yellow, Montserrat and DM Sans controls. T
 
 STORY: Choose a document, read it, move between highlighted fields, and explicitly acknowledge or sign. Optional self-identification remains skippable and clearable. Existing draft saves and review links remain the owners of progress.
 
-FIRST VIEWPORT: Compact document navigation and a view switch above a full-width paper page; Next field is the primary document action. A readable text-and-fields view supplies reflow and large controls on phones and for assistive technology.
+FIRST VIEWPORT: Compact document navigation above the original paper page; Next field is the primary document action. Desktop and phones use the same PDF editor. Phones pan within the document, and Next field brings the focused input into view. The original text remains available to screen readers and read-aloud without a second visible view.
 
 FORM: Extend the established application surface; no new visual identity or concept seed. PDF coordinates are shared by browser overlays and server output, avoiding two independent mappings.
 
@@ -16,7 +16,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 ## Data and output
 
-The document editor is controlled by Application's existing formData. It never generates a signature or infers a protected response. Native date inputs retain the existing platform-owned calendar. Shared Button/FormField primitives own readable controls; DocumentEditor owns the original-paper overlay variant. Paper rendering is an alternate view, not a substitute for accessible text.
+The document editor is controlled by Application's existing formData. It never generates a signature or infers a protected response. Native date inputs retain the existing platform-owned calendar, without duplicate app-owned Today buttons. Shared Button controls own actions; DocumentEditor owns the original-paper overlay variant and explicit consent checkboxes. Paper rendering retains accessible labels and the hidden original-document transcript.
 
 Completed PDFs are static submission snapshots, not cryptographically signed documents. The original templates are retained. Historical submissions are not regenerated. The main application continues to include its existing policy summary and other answers; the separate original application-agreements PDF supplies the paper-format signed copy. Disability is not included.
 
@@ -39,7 +39,7 @@ The requested scope was explicitly confirmed: keep the current work, education a
 
 The scoped original-document editor received an independent Impeccable finish review with disposition `ship` on November 22, 2026. No material visual fixes remained. This verdict covers the supplied editor screenshots and inspected UI implementation; it is not a separate certification of PDF output or real assistive-technology behavior.
 
-The required evidence was `tmp/document-editor-review/1440-drug-original.png`, `1440-drug-readable.png`, `390-drug-readable.png` and `390-drug-original.png`, with the corresponding `-overview.png` captures used to inspect navigation and the document top. These are viewport/state captures, not full-page exports. Future visual review should capture both views at desktop and phone sizes, including field focus and the document navigation.
+The historical evidence was `tmp/document-editor-review/1440-drug-original.png`, `1440-drug-readable.png`, `390-drug-readable.png` and `390-drug-original.png`, with the corresponding `-overview.png` captures used to inspect navigation and the document top. These are viewport/state captures, not full-page exports. On November 23, 2026, the user requested removing the view switch and duplicate Today buttons. Future visual review should capture the single original-document view at desktop and phone sizes, including field focus and document navigation. The earlier readable-view screenshots describe the prior implementation only.
 
 The documenter check confirmed that `src/index.css`, `tailwind.config.js`, shared Button/FormField controls and the document editor stylesheet remain consistent with DESIGN.md and UX-CONTRACT.md. No design-system rewrite or sidecar regeneration was needed. The original PDF artwork remains the visual authority inside the paper surface; no generated raster assets were introduced.
 

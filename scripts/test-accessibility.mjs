@@ -63,6 +63,14 @@ async function auditCurrentSection(page, expectedText) {
   }
 }
 
+async function originalDocumentReady(page) {
+  await page.waitForFunction(() => {
+    const canvases = [...document.querySelectorAll('.document-paper-page canvas')];
+    return canvases.length > 0 && canvases.every(canvas => canvas.dataset.rendered === 'true');
+  });
+  assert.equal(await page.locator('.document-editor').getByRole('button', { name: /Readable view|Original document|today/i }).count(), 0);
+}
+
 try {
   const context = await browser.newContext({ timezoneId: 'Pacific/Honolulu' });
   await context.addInitScript(installSpeechHarness);
@@ -167,18 +175,23 @@ try {
   await auditCurrentSection(page, 'Professional References');
   assert.equal(await page.getByRole('group', { name: 'Reference 3 of 3', exact: true }).getByLabel('Full Name', { exact: true }).count(), 1);
   await page.getByRole('button', { name: /Medical authorization/ }).click();
+  await originalDocumentReady(page);
   await auditCurrentSection(page, 'Medical Information & Authorization');
   await page.getByRole('button', { name: /Affiliations/ }).click();
   await auditCurrentSection(page, 'Professional Affiliations');
   await page.getByRole('button', { name: /Certification/ }).click();
+  await originalDocumentReady(page);
   await auditCurrentSection(page, 'Employment Certification & Disclosures');
   await page.getByRole('button', { name: /Drug policy/ }).click();
+  await originalDocumentReady(page);
   await auditCurrentSection(page, 'Agreement to Comply with Geolabs, Inc. Alcohol & Drug Testing Program');
-  await page.getByRole('button', { name: 'Readable view', exact: true }).click();
   const policy = page.getByRole('region', { name: 'Original document text', exact: true });
   await policy.getByText(/The Company has a vital interest/).waitFor();
-  await policy.focus();
-  assert.equal(await policy.evaluate(node => node === document.activeElement), true, 'Original policy text must be keyboard reachable.');
+  assert.match(await policy.getAttribute('class'), /sr-only/, 'The original policy transcript remains exposed to assistive tools without a second visual mode.');
+  assert.notEqual(await policy.getAttribute('aria-hidden'), 'true');
+  const paper = page.getByRole('region', { name: 'Alcohol & drug agreement original pages', exact: true });
+  await paper.focus();
+  assert.equal(await paper.evaluate(node => node === document.activeElement), true, 'Original PDF pages must be keyboard reachable for scrolling.');
   const policySpeechStart = await spokenCount();
   await read().click();
   await page.evaluate(() => window.__speechHarness.drain());
@@ -191,12 +204,15 @@ try {
   await page.getByRole('checkbox', { name: /^I have read, understand, and agree/ }).check();
   await drugSignature.fill('Accessibility Test');
   await page.clock.setSystemTime(new Date('2026-09-14T08:45:00Z'));
-  await page.getByRole('button', { name: 'Today', exact: true }).click();
-  assert.equal(await page.locator('[data-document-field="drugTestDate"] input').inputValue(), '2026-09-13', 'Today must use the Hawaii calendar date.');
+  const drugDate = page.locator('[data-document-field="drugTestDate"] input');
+  assert.equal(await drugDate.getAttribute('type'), 'date', 'The platform-owned date picker must remain available.');
+  assert.equal(await drugDate.inputValue(), '', 'A signature date must not be added automatically.');
+  await drugDate.fill('2026-09-13');
+  assert.equal(await drugDate.inputValue(), '2026-09-13');
   await page.getByRole('button', { name: /Optional self-ID/ }).click();
+  await originalDocumentReady(page);
   await auditCurrentSection(page, 'EEO Voluntary Self-Identification Survey');
-  await page.getByRole('button', { name: 'Readable view', exact: true }).click();
-  const gender = page.getByRole('group', { name: 'Gender', exact: true });
+  const gender = page.locator('[data-document-field="eeoGender"]');
   await gender.getByRole('radio', { name: 'Male', exact: true }).focus();
   await page.keyboard.press('Space');
   assert.equal(await gender.getByRole('radio', { name: 'Male', exact: true }).isChecked(), true);
@@ -205,19 +221,21 @@ try {
   assert.equal(await gender.getByRole('radio', { name: 'Male', exact: true }).isChecked(), false);
   await page.getByRole('button', { name: 'Clear gender selection', exact: true }).click();
   assert.equal(await gender.locator('input:checked').count(), 0);
-  const race = page.getByRole('group', { name: 'Race / Ethnicity', exact: true });
+  const race = page.locator('[data-document-field="eeoRace"]');
   await race.getByRole('radio', { name: 'I do not wish to disclose.', exact: true }).focus();
   await page.keyboard.press('Space');
   assert.equal(await race.getByRole('radio', { name: 'I do not wish to disclose.', exact: true }).isChecked(), true);
-  await page.getByRole('button', { name: 'Today', exact: true }).click();
-  assert.equal(await page.getByLabel('Date', { exact: true }).inputValue(), '2026-09-13');
+  const eeoDate = page.getByLabel('Date', { exact: true });
+  assert.equal(await eeoDate.getAttribute('type'), 'date');
+  await eeoDate.fill('2026-09-13');
   await page.clock.setSystemTime(new Date('2026-09-14T10:05:00Z'));
-  await page.getByRole('button', { name: 'Today', exact: true }).click();
-  assert.equal(await page.getByLabel('Date', { exact: true }).inputValue(), '2026-09-14', 'Today must update after midnight without reopening the section.');
+  assert.equal(await eeoDate.inputValue(), '2026-09-13', 'Crossing midnight must not change an explicitly selected date.');
+  await eeoDate.fill('2026-09-14');
+  assert.equal(await eeoDate.inputValue(), '2026-09-14');
   await page.getByRole('navigation', { name: 'Application progress' }).getByRole('button', { name: /Veteran status/ }).click();
+  await originalDocumentReady(page);
   await auditCurrentSection(page, 'Affirmative Action: Invitation to Self-Identify as a Protected Veteran (VEVRAA)');
-  await page.getByRole('button', { name: 'Readable view', exact: true }).click();
-  const veteran = page.getByRole('group', { name: 'Veteran Status', exact: true });
+  const veteran = page.locator('[data-document-field="veteranStatus"]');
   await veteran.getByRole('radio', { name: 'I am not a protected veteran', exact: true }).focus();
   await page.keyboard.press('Space');
   await page.keyboard.press('ArrowDown');
@@ -226,7 +244,7 @@ try {
   await definitions.getByText(/Recently separated veteran:/).waitFor();
   await definitions.getByText(/Armed Forces Service Medal Veteran:/).waitFor();
   await page.getByLabel('Print Name / Signature', { exact: true }).fill('Accessibility Test');
-  await page.getByRole('button', { name: 'Today', exact: true }).click();
+  await page.getByLabel('Date', { exact: true }).fill('2026-09-14');
   assert.equal(await page.getByLabel('Date', { exact: true }).inputValue(), '2026-09-14');
   assert.equal(await page.getByRole('button', { name: /Disability Form/i }).count(), 0);
   await page.emulateMedia({ reducedMotion: 'reduce' });
